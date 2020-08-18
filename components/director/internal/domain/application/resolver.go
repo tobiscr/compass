@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/inputvalidation"
@@ -28,6 +29,7 @@ type ApplicationService interface {
 	Get(ctx context.Context, id string) (*model.Application, error)
 	Delete(ctx context.Context, id string) error
 	List(ctx context.Context, filter []*labelfilter.LabelFilter, pageSize int, cursor string) (*model.ApplicationPage, error)
+	ListGlobal(ctx context.Context, filter []*labelfilter.LabelFilter, pageSize int, cursor string) (*model.ApplicationPage, error)
 	ListByRuntimeID(ctx context.Context, runtimeUUID uuid.UUID, pageSize int, cursor string) (*model.ApplicationPage, error)
 	SetLabel(ctx context.Context, label *model.LabelInput) error
 	GetLabel(ctx context.Context, applicationID string, key string) (*model.Label, error)
@@ -165,6 +167,49 @@ func (r *Resolver) Applications(ctx context.Context, filter []*graphql.LabelFilt
 	ctx = persistence.SaveToContext(ctx, tx)
 
 	appPage, err := r.appSvc.List(ctx, labelFilter, *first, cursor)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	gqlApps := r.appConverter.MultipleToGraphQL(appPage.Data)
+
+	return &graphql.ApplicationPage{
+		Data:       gqlApps,
+		TotalCount: appPage.TotalCount,
+		PageInfo: &graphql.PageInfo{
+			StartCursor: graphql.PageCursor(appPage.PageInfo.StartCursor),
+			EndCursor:   graphql.PageCursor(appPage.PageInfo.EndCursor),
+			HasNextPage: appPage.PageInfo.HasNextPage,
+		},
+	}, nil
+}
+
+func (r *Resolver) ApplicationsGlobal(ctx context.Context, filter []*graphql.LabelFilter, first *int, after *graphql.PageCursor) (*graphql.ApplicationPage, error) {
+	labelFilter := labelfilter.MultipleFromGraphQL(filter)
+	fmt.Println(">>>>>>hereeee")
+
+	var cursor string
+	if after != nil {
+		cursor = string(*after)
+	}
+	if first == nil {
+		return nil, apperrors.NewInvalidDataError("missing required parameter 'first'")
+	}
+
+	tx, err := r.transact.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer r.transact.RollbackUnlessCommitted(tx)
+
+	ctx = persistence.SaveToContext(ctx, tx)
+
+	appPage, err := r.appSvc.ListGlobal(ctx, labelFilter, *first, cursor)
 	if err != nil {
 		return nil, err
 	}
