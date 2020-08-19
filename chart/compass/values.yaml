@@ -66,7 +66,7 @@ global:
     timeoutSeconds: 1
     periodSeconds: 2
 
-  agentPreconfiguration: true
+  agentPreconfiguration: false
 
   director:
     port: 3000
@@ -116,6 +116,12 @@ global:
     # If key and certificate are not provided they will be generated
     caKey: ""
     caCertificate: ""
+
+  system_broker:
+    enabled: true
+    secrets:
+      integrationSystemCredentials:
+        name: compass-system-broker-credentials
 
   gateway:
     port: 3000
