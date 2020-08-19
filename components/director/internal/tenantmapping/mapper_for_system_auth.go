@@ -12,6 +12,7 @@ import (
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 	"github.com/kyma-incubator/compass/components/director/internal/oathkeeper"
 
+	"github.com/kyma-incubator/compass/components/director/internal/domain/integrationsystem"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/systemauth"
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 	"github.com/pkg/errors"
@@ -48,6 +49,10 @@ func (m *mapperForSystemAuth) GetObjectContext(ctx context.Context, reqData oath
 	switch refObjType {
 	case model.IntegrationSystemReference:
 		tenantCtx, scopes, err = m.getTenantAndScopesForIntegrationSystem(ctx, reqData)
+		if tenantCtx.TenantID == "" {
+			tenantCtx.TenantID = integrationsystem.GlobalTenant
+			tenantCtx.ExternalTenantID = integrationsystem.GlobalTenant
+		}
 	case model.RuntimeReference, model.ApplicationReference:
 		tenantCtx, scopes, err = m.getTenantAndScopesForApplicationOrRuntime(ctx, sysAuth, refObjType, reqData, authFlow)
 	default:
@@ -82,6 +87,7 @@ func (m *mapperForSystemAuth) getTenantAndScopesForIntegrationSystem(ctx context
 	externalTenantID, err = reqData.GetExternalTenantID()
 	if err != nil {
 		if !apperrors.IsKeyDoesNotExist(err) {
+			fmt.Println(">>>here1")
 			return TenantContext{}, scopes, errors.Wrap(err, "while fetching external tenant")
 		}
 

@@ -68,16 +68,23 @@ func (r *pgRepository) GetByID(ctx context.Context, tenant, id string) (*model.R
 }
 
 func (r *pgRepository) GetByFiltersAndID(ctx context.Context, tenant, id string, filter []*labelfilter.LabelFilter) (*model.Runtime, error) {
-	tenantID, err := uuid.Parse(tenant)
-	if err != nil {
-		return nil, errors.Wrap(err, "while parsing tenant as UUID")
-	}
+	var filterSubquery string
+	var err error
+	var args []interface{}
 
 	additionalConditions := repo.Conditions{repo.NewEqualCondition("id", id)}
 
-	filterSubquery, args, err := label.FilterQuery(model.RuntimeLabelableObject, label.IntersectSet, tenantID, filter)
-	if err != nil {
-		return nil, errors.Wrap(err, "while building filter query")
+	if tenant == repo.GlobalTenant {
+		filterSubquery, args, err = label.FilterQueryGlobal(model.RuntimeLabelableObject, label.IntersectSet, filter)
+	} else {
+		tenantID, err := uuid.Parse(tenant)
+		if err != nil {
+			return nil, errors.Wrap(err, "while parsing tenant as UUID")
+		}
+		filterSubquery, args, err = label.FilterQuery(model.RuntimeLabelableObject, label.IntersectSet, tenantID, filter)
+		if err != nil {
+			return nil, errors.Wrap(err, "while building filter query")
+		}
 	}
 	if filterSubquery != "" {
 		additionalConditions = append(additionalConditions, repo.NewInConditionForSubQuery("id", filterSubquery, args))
@@ -128,13 +135,21 @@ func (r RuntimeCollection) Len() int {
 
 func (r *pgRepository) List(ctx context.Context, tenant string, filter []*labelfilter.LabelFilter, pageSize int, cursor string) (*model.RuntimePage, error) {
 	var runtimesCollection RuntimeCollection
-	tenantID, err := uuid.Parse(tenant)
-	if err != nil {
-		return nil, errors.Wrap(err, "while parsing tenant as UUID")
-	}
-	filterSubquery, args, err := label.FilterQuery(model.RuntimeLabelableObject, label.IntersectSet, tenantID, filter)
-	if err != nil {
-		return nil, errors.Wrap(err, "while building filter query")
+	var filterSubquery string
+	var err error
+	var args []interface{}
+
+	if tenant == repo.GlobalTenant {
+		filterSubquery, args, err = label.FilterQueryGlobal(model.RuntimeLabelableObject, label.IntersectSet, filter)
+	} else {
+		tenantID, err := uuid.Parse(tenant)
+		if err != nil {
+			return nil, errors.Wrap(err, "while parsing tenant as UUID")
+		}
+		filterSubquery, args, err = label.FilterQuery(model.RuntimeLabelableObject, label.IntersectSet, tenantID, filter)
+		if err != nil {
+			return nil, errors.Wrap(err, "while building filter query")
+		}
 	}
 
 	var conditions repo.Conditions
@@ -186,16 +201,24 @@ func (r *pgRepository) Update(ctx context.Context, item *model.Runtime) error {
 }
 
 func (r *pgRepository) GetOldestForFilters(ctx context.Context, tenant string, filter []*labelfilter.LabelFilter) (*model.Runtime, error) {
-	tenantID, err := uuid.Parse(tenant)
-	if err != nil {
-		return nil, errors.Wrap(err, "while parsing tenant as UUID")
+	var filterSubquery string
+	var err error
+	var args []interface{}
+	var additionalConditions repo.Conditions
+
+	if tenant == repo.GlobalTenant {
+		filterSubquery, args, err = label.FilterQueryGlobal(model.RuntimeLabelableObject, label.IntersectSet, filter)
+	} else {
+		tenantID, err := uuid.Parse(tenant)
+		if err != nil {
+			return nil, errors.Wrap(err, "while parsing tenant as UUID")
+		}
+		filterSubquery, args, err = label.FilterQuery(model.RuntimeLabelableObject, label.IntersectSet, tenantID, filter)
+		if err != nil {
+			return nil, errors.Wrap(err, "while building filter query")
+		}
 	}
 
-	var additionalConditions repo.Conditions
-	filterSubquery, args, err := label.FilterQuery(model.RuntimeLabelableObject, label.IntersectSet, tenantID, filter)
-	if err != nil {
-		return nil, errors.Wrap(err, "while building filter query")
-	}
 	if filterSubquery != "" {
 		additionalConditions = append(additionalConditions, repo.NewInConditionForSubQuery("id", filterSubquery, args))
 	}

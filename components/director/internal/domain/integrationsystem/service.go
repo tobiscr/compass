@@ -10,6 +10,10 @@ import (
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 )
 
+const (
+	GlobalTenant string = "compass_global_tenant"
+)
+
 //go:generate mockery -name=IntegrationSystemRepository -output=automock -outpkg=automock -case=underscore
 type IntegrationSystemRepository interface {
 	Create(ctx context.Context, item model.IntegrationSystem) error

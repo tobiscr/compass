@@ -56,7 +56,10 @@ func (g *universalPageableQuerier) List(ctx context.Context, tenant string, page
 		return nil, -1, apperrors.NewTenantRequiredError()
 	}
 
-	additionalConditions = append(Conditions{NewEqualCondition(*g.tenantColumn, tenant)}, additionalConditions...)
+	if tenant != GlobalTenant {
+		additionalConditions = append(Conditions{NewEqualCondition(*g.tenantColumn, tenant)}, additionalConditions...)
+	}
+
 	return g.unsafeList(ctx, pageSize, cursor, orderByColumn, dest, additionalConditions...)
 }
 

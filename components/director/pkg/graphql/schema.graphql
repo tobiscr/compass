@@ -949,7 +949,6 @@ type Query {
 	- [query applications](examples/query-applications/query-applications.graphql)
 	"""
 	applications(filter: [LabelFilter!], first: Int = 100, after: PageCursor): ApplicationPage! @hasScopes(path: "graphql.query.applications")
-	applicationsGlobal(filter: [LabelFilter!], first: Int = 100, after: PageCursor): ApplicationPage! @hasScopes(path: "graphql.query.applicationsGlobal")
 	"""
 	**Examples**
 	- [query application](examples/query-application/query-application.graphql)

@@ -39,7 +39,9 @@ func (g *universalExistQuerier) Exists(ctx context.Context, tenant string, condi
 	if tenant == "" {
 		return false, apperrors.NewTenantRequiredError()
 	}
-	conditions = append(Conditions{NewEqualCondition(*g.tenantColumn, tenant)}, conditions...)
+	if tenant != GlobalTenant {
+		conditions = append(Conditions{NewEqualCondition(*g.tenantColumn, tenant)}, conditions...)
+	}
 	return g.unsafeExists(ctx, conditions)
 }
 

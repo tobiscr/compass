@@ -47,7 +47,10 @@ func (l *universalLister) List(ctx context.Context, tenant string, dest Collecti
 	if tenant == "" {
 		return apperrors.NewTenantRequiredError()
 	}
-	additionalConditions = append(Conditions{NewEqualCondition(*l.tenantColumn, tenant)}, additionalConditions...)
+	if tenant != GlobalTenant {
+		additionalConditions = append(Conditions{NewEqualCondition(*l.tenantColumn, tenant)}, additionalConditions...)
+	}
+
 	return l.unsafeList(ctx, dest, additionalConditions...)
 }
 

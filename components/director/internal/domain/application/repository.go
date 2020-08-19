@@ -71,15 +71,23 @@ func (r *pgRepository) GetByID(ctx context.Context, tenant, id string) (*model.A
 	return appModel, nil
 }
 
+// TODO: Approach 1 It is possible to change the interface to accept repo.Conditions and pass them along instead of just tenant string
 func (r *pgRepository) List(ctx context.Context, tenant string, filter []*labelfilter.LabelFilter, pageSize int, cursor string) (*model.ApplicationPage, error) {
 	var appsCollection EntityCollection
-	tenantID, err := uuid.Parse(tenant)
-	if err != nil {
-		return nil, errors.Wrap(err, "while parsing tenant as UUID")
-	}
-	filterSubquery, args, err := label.FilterQuery(model.ApplicationLabelableObject, label.IntersectSet, tenantID, filter)
-	if err != nil {
-		return nil, errors.Wrap(err, "while building filter query")
+	var filterSubquery string
+	var args []interface{}
+	var err error
+	if tenant == repo.GlobalTenant {
+		filterSubquery, args, err = label.FilterQueryGlobal(model.ApplicationLabelableObject, label.IntersectSet, filter)
+	} else {
+		tenantID, err := uuid.Parse(tenant)
+		if err != nil {
+			return nil, errors.Wrap(err, "while parsing tenant as UUID")
+		}
+		filterSubquery, args, err = label.FilterQuery(model.ApplicationLabelableObject, label.IntersectSet, tenantID, filter)
+		if err != nil {
+			return nil, errors.Wrap(err, "while building filter query")
+		}
 	}
 
 	var conditions repo.Conditions
@@ -88,27 +96,6 @@ func (r *pgRepository) List(ctx context.Context, tenant string, filter []*labelf
 	}
 
 	page, totalCount, err := r.pageableQuerier.List(ctx, tenant, pageSize, cursor, "id", &appsCollection, conditions...)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var items []*model.Application
-
-	for _, appEnt := range appsCollection {
-		m := r.conv.FromEntity(&appEnt)
-		items = append(items, m)
-	}
-	return &model.ApplicationPage{
-		Data:       items,
-		TotalCount: totalCount,
-		PageInfo:   page}, nil
-}
-
-func (r *pgRepository) ListGlobal(ctx context.Context, filter []*labelfilter.LabelFilter, pageSize int, cursor string) (*model.ApplicationPage, error) {
-	var appsCollection EntityCollection
-
-	page, totalCount, err := r.pageableQuerierGlobal.ListGlobal(ctx, pageSize, cursor, "id", &appsCollection)
 
 	if err != nil {
 		return nil, err

@@ -63,11 +63,21 @@ func (r *repository) GetByKey(ctx context.Context, tenant string, objectType mod
 		return nil, errors.Wrap(err, "while fetching DB from context")
 	}
 
+	params := []interface{}{
+		key, objectID, tenant,
+	}
+
 	stmt := fmt.Sprintf(`SELECT %s FROM %s WHERE key = $1 AND %s = $2 AND tenant_id = $3`,
 		strings.Join(tableColumns, ", "), tableName, labelableObjectField(objectType))
 
+	if tenant == repo.GlobalTenant {
+		stmt = fmt.Sprintf(`SELECT %s FROM %s WHERE key = $1 AND %s = $2`,
+			strings.Join(tableColumns, ", "), tableName, labelableObjectField(objectType))
+		params = params[:2]
+	}
+
 	var entity Entity
-	err = persist.Get(&entity, stmt, key, objectID, tenant)
+	err = persist.Get(&entity, stmt, params...)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, apperrors.NewNotFoundError(resource.Label, key)
@@ -83,17 +93,28 @@ func (r *repository) GetByKey(ctx context.Context, tenant string, objectType mod
 	return &labelModel, nil
 }
 
+// TODO: Approach 1 As this does not use repo.Conditions it will require to rework how queries are built and make use of repo.Conditions
 func (r *repository) ListForObject(ctx context.Context, tenant string, objectType model.LabelableObject, objectID string) (map[string]*model.Label, error) {
 	persist, err := persistence.FromCtx(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "while fetching DB from context")
 	}
 
+	params := []interface{}{
+		objectID, tenant,
+	}
+
 	stmt := fmt.Sprintf(`SELECT %s FROM %s WHERE  %s = $1 AND tenant_id = $2`,
 		strings.Join(tableColumns, ", "), tableName, labelableObjectField(objectType))
 
+	if tenant == repo.GlobalTenant {
+		stmt = fmt.Sprintf(`SELECT %s FROM %s WHERE  %s = $1`,
+			strings.Join(tableColumns, ", "), tableName, labelableObjectField(objectType))
+		params = params[:1]
+	}
+
 	var entities []Entity
-	err = persist.Select(&entities, stmt, objectID, tenant)
+	err = persist.Select(&entities, stmt, params...)
 	if err != nil {
 		return nil, errors.Wrap(err, "while fetching Labels from DB")
 	}

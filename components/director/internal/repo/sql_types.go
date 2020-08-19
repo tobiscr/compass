@@ -2,6 +2,8 @@ package repo
 
 import "database/sql"
 
+const GlobalTenant = "compass_global_tenant"
+
 func NewNullableString(text *string) sql.NullString {
 	nullString := sql.NullString{}
 	if text != nil {
