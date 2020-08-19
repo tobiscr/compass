@@ -18,6 +18,8 @@ package main
 
 import (
 	"context"
+	"time"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql/graphqlizer"
 	"github.com/kyma-incubator/compass/components/system-broker/internal/config"
 	"github.com/kyma-incubator/compass/components/system-broker/internal/director"
@@ -35,7 +37,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 	k8scfg "sigs.k8s.io/controller-runtime/pkg/client/config"
-	"time"
 )
 
 func main() {
@@ -89,7 +90,7 @@ func prepareGqlClient(cfg *config.Config, uudSrv http.UUIDService) (*director.Gr
 
 	// prepare secured http client with token provider picked from secret
 	requestProvider := http.NewRequestProvider(uudSrv)
-	oauthTokenProvider := oauth.NewOAuthTokenProviderFromSecret(cfg.OAuthProvider, httpClient, requestProvider, k8sClient)
+	oauthTokenProvider := oauth.NewTokenProviderFromSecret(cfg.OAuthProvider, httpClient, requestProvider, k8sClient)
 	securedClient, err := http.NewSecuredHTTPClient(cfg.HttpClient.Timeout, httpTransport, oauthTokenProvider)
 	if err != nil {
 		return nil, err

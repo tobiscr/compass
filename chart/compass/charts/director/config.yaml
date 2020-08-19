@@ -2,7 +2,6 @@
 graphql:
   query:
     applications: ["application:read"]
-    applicationsGlobal: ["application:read"]
     application: ["application:read"]
     applicationsForRuntime: ["application:read"]
     applicationTemplates: ["application_template:read"]

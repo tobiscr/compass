@@ -19,13 +19,14 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/kyma-incubator/compass/components/system-broker/pkg/log"
 	"net/http"
 	"net/http/pprof"
 	"strconv"
 	"sync/atomic"
 	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/kyma-incubator/compass/components/system-broker/pkg/log"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -56,6 +57,7 @@ func New(c *Config, routesProvider func(router *mux.Router)) (*Server, error) {
 	s.routesProvider(router)
 
 	s.server = &http.Server{
+		// TODO: Perhaps set some address here?
 		Addr:    ":" + strconv.Itoa(c.Port),
 		Handler: router,
 

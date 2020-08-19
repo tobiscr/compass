@@ -33,6 +33,10 @@ global:
     schema_migrator:
       dir:
       version: "PR-1461"
+    # TODO: What should be this value?
+    system_broker:
+      dir:
+      version: "master"
     certs_setup_job:
       containerRegistry:
         path: eu.gcr.io/kyma-project
