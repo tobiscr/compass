@@ -28,22 +28,22 @@ type EntityConverter interface {
 }
 
 type repository struct {
-	creator      repo.Creator
-	singleGetter repo.SingleGetter
-	lister       repo.Lister
-	updater      repo.Updater
-	deleter      repo.Deleter
-	conv         EntityConverter
+	creator            repo.Creator
+	singleGetterGlobal repo.SingleGetterGlobal
+	lister             repo.Lister
+	updater            repo.Updater
+	deleter            repo.Deleter
+	conv               EntityConverter
 }
 
 func NewRepository(conv EntityConverter) *repository {
 	return &repository{
-		creator:      repo.NewCreator(resource.PackageInstanceAuth, tableName, tableColumns),
-		singleGetter: repo.NewSingleGetter(resource.PackageInstanceAuth, tableName, tenantColumn, tableColumns),
-		lister:       repo.NewLister(resource.PackageInstanceAuth, tableName, tenantColumn, tableColumns),
-		deleter:      repo.NewDeleter(resource.PackageInstanceAuth, tableName, tenantColumn),
-		updater:      repo.NewUpdater(resource.PackageInstanceAuth, tableName, updatableColumns, tenantColumn, idColumns),
-		conv:         conv,
+		creator:            repo.NewCreator(resource.PackageInstanceAuth, tableName, tableColumns),
+		singleGetterGlobal: repo.NewSingleGetterGlobal(resource.PackageInstanceAuth, tableName, tableColumns),
+		lister:             repo.NewLister(resource.PackageInstanceAuth, tableName, tenantColumn, tableColumns),
+		deleter:            repo.NewDeleter(resource.PackageInstanceAuth, tableName, tenantColumn),
+		updater:            repo.NewUpdater(resource.PackageInstanceAuth, tableName, updatableColumns, tenantColumn, idColumns),
+		conv:               conv,
 	}
 }
 
@@ -67,7 +67,7 @@ func (r *repository) Create(ctx context.Context, item *model.PackageInstanceAuth
 
 func (r *repository) GetByID(ctx context.Context, tenantID string, id string) (*model.PackageInstanceAuth, error) {
 	var entity Entity
-	if err := r.singleGetter.Get(ctx, tenantID, repo.Conditions{repo.NewEqualCondition("id", id)}, repo.NoOrderBy, &entity); err != nil {
+	if err := r.singleGetterGlobal.GetGlobal(ctx, repo.Conditions{repo.NewEqualCondition("id", id)}, repo.NoOrderBy, &entity); err != nil {
 		return nil, err
 	}
 
@@ -86,7 +86,7 @@ func (r *repository) GetForPackage(ctx context.Context, tenant string, id string
 		repo.NewEqualCondition("id", id),
 		repo.NewEqualCondition("package_id", packageID),
 	}
-	if err := r.singleGetter.Get(ctx, tenant, conditions, repo.NoOrderBy, &ent); err != nil {
+	if err := r.singleGetterGlobal.GetGlobal(ctx, conditions, repo.NoOrderBy, &ent); err != nil {
 		return nil, err
 	}
 

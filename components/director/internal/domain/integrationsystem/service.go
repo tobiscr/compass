@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	GlobalTenant string = "compass_global_tenant"
+	GlobalTenant string = "b2864e28-e321-11ea-87d0-0242ac130003"
 )
 
 //go:generate mockery -name=IntegrationSystemRepository -output=automock -outpkg=automock -case=underscore
