@@ -7,6 +7,7 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal/repo"
 	"github.com/kyma-incubator/compass/components/director/internal/timestamp"
 	"github.com/kyma-incubator/compass/components/director/pkg/jsonschema"
 	"github.com/pkg/errors"
@@ -41,21 +42,24 @@ func NewService(repo Repository, uidService UIDService) *service {
 	}
 }
 
-func (s *service) Create(ctx context.Context, packageID string, in model.PackageInstanceAuthRequestInput, defaultAuth *model.Auth, requestInputSchema *string) (string, error) {
+func (s *service) Create(ctx context.Context, pkg *model.Package, in model.PackageInstanceAuthRequestInput) (string, error) {
 	tnt, err := tenant.LoadFromContext(ctx)
 	if err != nil {
 		return "", err
 	}
 
-	err = s.validateInputParamsAgainstSchema(in.InputParams, requestInputSchema)
+	err = s.validateInputParamsAgainstSchema(in.InputParams, pkg.InstanceAuthRequestInputSchema)
 	if err != nil {
 		return "", err
 	}
 
+	if tnt == repo.GlobalTenant {
+		tnt = pkg.TenantID
+	}
 	id := s.uidService.Generate()
-	pkgInstAuth := in.ToPackageInstanceAuth(id, packageID, tnt, defaultAuth, nil)
+	pkgInstAuth := in.ToPackageInstanceAuth(id, pkg.ID, tnt, pkg.DefaultInstanceAuth, nil)
 
-	err = s.setCreationStatusFromAuth(&pkgInstAuth, defaultAuth)
+	err = s.setCreationStatusFromAuth(&pkgInstAuth, pkg.DefaultInstanceAuth)
 	if err != nil {
 		return "", err
 	}

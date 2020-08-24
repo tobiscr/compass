@@ -2,7 +2,6 @@ package packageinstanceauth
 
 import (
 	"context"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
@@ -13,7 +12,7 @@ import (
 //go:generate mockery -name=Service -output=automock -outpkg=automock -case=underscore
 type Service interface {
 	RequestDeletion(ctx context.Context, instanceAuth *model.PackageInstanceAuth, defaultPackageInstanceAuth *model.Auth) (bool, error)
-	Create(ctx context.Context, packageID string, in model.PackageInstanceAuthRequestInput, defaultAuth *model.Auth, requestInputSchema *string) (string, error)
+	Create(ctx context.Context, pkg *model.Package, in model.PackageInstanceAuthRequestInput) (string, error)
 	Get(ctx context.Context, id string) (*model.PackageInstanceAuth, error)
 	SetAuth(ctx context.Context, id string, in model.PackageInstanceAuthSetInput) error
 	Delete(ctx context.Context, id string) error
@@ -65,7 +64,7 @@ func (r *Resolver) DeletePackageInstanceAuth(ctx context.Context, authID string)
 		return nil, err
 	}
 
-	ctx = tenant.SaveToContext(ctx, instanceAuth.Tenant, "")
+	// ctx = tenant.SaveToContext(ctx, instanceAuth.Tenant, "")
 
 	err = r.svc.Delete(ctx, authID)
 	if err != nil {
@@ -128,8 +127,8 @@ func (r *Resolver) RequestPackageInstanceAuthCreation(ctx context.Context, packa
 
 	convertedIn := r.conv.RequestInputFromGraphQL(in)
 
-	ctx = tenant.SaveToContext(ctx, pkg.TenantID, "")
-	instanceAuthID, err := r.svc.Create(ctx, packageID, convertedIn, pkg.DefaultInstanceAuth, pkg.InstanceAuthRequestInputSchema)
+	// ctx = tenant.SaveToContext(ctx, pkg.TenantID, "")
+	instanceAuthID, err := r.svc.Create(ctx, pkg, convertedIn)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +160,7 @@ func (r *Resolver) RequestPackageInstanceAuthDeletion(ctx context.Context, authI
 		return nil, err
 	}
 
-	ctx = tenant.SaveToContext(ctx, instanceAuth.Tenant, "")
+	// ctx = tenant.SaveToContext(ctx, instanceAuth.Tenant, "")
 	pkg, err := r.pkgSvc.GetByInstanceAuthID(ctx, authID)
 	if err != nil {
 		return nil, err

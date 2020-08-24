@@ -2,7 +2,7 @@ package repo
 
 import "database/sql"
 
-const GlobalTenant = "b2864e28-e321-11ea-87d0-0242ac130003"
+const GlobalTenant = "compass_global_tenant"
 
 func NewNullableString(text *string) sql.NullString {
 	nullString := sql.NullString{}

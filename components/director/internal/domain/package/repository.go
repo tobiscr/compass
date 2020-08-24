@@ -138,13 +138,20 @@ func (r *pgRepository) GetByInstanceAuthID(ctx context.Context, tenant string, i
 	}
 
 	prefixedFieldNames := str.PrefixStrings(packageColumns, "p.")
-	stmt := fmt.Sprintf(`SELECT %s FROM %s AS p JOIN %s AS a on a.%s=p.id where a.tenant_id=$1 AND a.id=$2`,
+	stmt := fmt.Sprintf(`SELECT %s FROM %s AS p JOIN %s AS a on a.%s=p.id where a.id=$1`,
 		strings.Join(prefixedFieldNames, ", "),
 		packageTable,
 		packageInstanceAuthTable,
 		packageInstanceAuthPackageRefField)
+	params := []interface{}{
+		instanceAuthID,
+	}
+	if tenant != repo.GlobalTenant {
+		stmt += " AND a.tenant_id=$2"
+		params = append(params, tenant)
+	}
 
-	err = persist.Get(&pkgEnt, stmt, tenant, instanceAuthID)
+	err = persist.Get(&pkgEnt, stmt, params...)
 	switch {
 	case err != nil:
 		return nil, errors.Wrap(err, "while getting Package by Instance Auth ID")
