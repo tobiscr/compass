@@ -20,13 +20,22 @@ spec:
         app: {{ .Chart.Name }}
         release: {{ .Release.Name }}
     spec:
-    # Note: This is read by application code
-    #   serviceAccountName: {{ template "fullname" . }}
+      {{ if .Values.global.isLocalEnv }}
+      # HostAliases are used by Pod to resolve kyma.local domain
+      hostAliases:
+        - ip: {{ .Values.global.minikubeIP }}
+          hostnames:
+            # Used for calls to Director
+            - "{{ .Values.global.gateway.tls.secure.oauth.host }}.{{ .Values.global.ingress.domainName }}"
+            # Used for calls for oauth token
+            - "{{ .Values.global.oauth2.host }}.{{ .Values.global.ingress.domainName }}"
+      {{ end }}
+      serviceAccountName: {{ template "fullname" . }}
       nodeSelector:
         {{- toYaml .Values.deployment.nodeSelector | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
-          image: {{ .Values.global.images.containerRegistry.path }}/{{ .Values.global.images.system_broker.dir }}compass-system-broker:{{ .Values.global.images.system_broker.version }}
+          image: {{ .Values.global.images.containerRegistry.path }}/{{ .Values.global.images.system_broker.dir }}system-broker:{{ .Values.global.images.system_broker.version }}
           imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
           ports:
             - name: http
@@ -48,8 +57,10 @@ spec:
             #   value: "0.0.0.0:{{ .Values.deployment.args.containerPort }}"
             # - name: SERVER_SHUTDOWN_TIMEOUT
             #   value: "0.0.0.0:{{ .Values.deployment.args.containerPort }}"
+            - name: SERVER_SELF_URL
+              value: "https://{{ .Values.global.system_broker.tls.host }}.{{ .Values.global.ingress.domainName }}/broker"
             - name: GRAPHQL_CLIENT_GRAPHQL_ENDPOINT
-              value: "https://{{ .Values.global.gateway.tls.secure.oauth.host }}.{{ .Values.global.ingress.domainName }}/connector/graphql"
+              value: "https://{{ .Values.global.gateway.tls.secure.oauth.host }}.{{ .Values.global.ingress.domainName }}/director/graphql"
 
             # - name: GRAPHQL_CLIENT_ENABLE_LOGGING
             #   value: "0.0.0.0:{{ .Values.deployment.args.containerPort }}"
@@ -81,18 +92,17 @@ spec:
             #   value: "0.0.0.0:{{ .Values.deployment.args.containerPort }}"
             # - name: OAUTH_PROVIDER_SECRET_NAMESPACE
             #   value: "0.0.0.0:{{ .Values.deployment.args.containerPort }}"
-
-        #   livenessProbe:
-        #     httpGet:
-        #       port: {{.Values.deployment.args.containerPort }}
-        #       path: "/healthz"
-        #     initialDelaySeconds: {{ .Values.global.livenessProbe.initialDelaySeconds }}
-        #     timeoutSeconds: {{ .Values.global.livenessProbe.timeoutSeconds }}
-        #     periodSeconds: {{.Values.global.livenessProbe.periodSeconds }}
-        #   readinessProbe:
-        #     httpGet:
-        #       port: {{.Values.deployment.args.containerPort }}
-        #       path: "/readyz"
-        #     initialDelaySeconds: {{ .Values.global.readinessProbe.initialDelaySeconds }}
-        #     timeoutSeconds: {{ .Values.global.readinessProbe.timeoutSeconds }}
-        #     periodSeconds: {{.Values.global.readinessProbe.periodSeconds }}
+#          livenessProbe:
+#            httpGet:
+#              path: /healthz
+#              port: {{ .Values.deployment.args.containerPort }}
+#            periodSeconds: 10
+#            timeoutSeconds: 3
+#            initialDelaySeconds: 30
+#          readinessProbe:
+#            httpGet:
+#              path: /healthz
+#              port: {{ .Values.deployment.args.containerPort }}
+#            periodSeconds: 5
+#            timeoutSeconds: 2
+#            initialDelaySeconds: 10

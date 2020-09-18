@@ -19,6 +19,9 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/gorilla/mux"
+	"github.com/kyma-incubator/compass/components/system-broker/pkg/log"
+	"github.com/kyma-incubator/compass/components/system-broker/pkg/panic_recovery"
 	"net/http"
 	"net/http/pprof"
 	"strconv"
@@ -34,27 +37,32 @@ import (
 type Server struct {
 	server          *http.Server
 	healthy         int32
-	routesProvider  func(router *mux.Router)
+	routesProvider  []func(router *mux.Router)
 	shutdownTimeout time.Duration
 }
 
-func New(c *Config, routesProvider func(router *mux.Router)) (*Server, error) {
+func New(c *Config, service log.UUIDService, routesProvider ...func(router *mux.Router)) (*Server, error) {
 	s := &Server{
 		shutdownTimeout: c.ShutdownTimeout,
 		routesProvider:  routesProvider,
 	}
 
 	router := mux.NewRouter()
-	router.Handle("/metrics", promhttp.Handler())
-	router.Handle("/healthz", s.healthHandler())
+	router.Handle(c.RootAPI+"/metrics", promhttp.Handler())
+	router.Handle(c.RootAPI+"/healthz", s.healthHandler())
 
-	router.HandleFunc("/debug/pprof/", pprof.Index)
-	router.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
-	router.HandleFunc("/debug/pprof/profile", pprof.Profile)
-	router.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
-	router.HandleFunc("/debug/pprof/trace", pprof.Trace)
+	router.HandleFunc(c.RootAPI+"/debug/pprof/", pprof.Index)
+	router.HandleFunc(c.RootAPI+"/debug/pprof/cmdline", pprof.Cmdline)
+	router.HandleFunc(c.RootAPI+"/debug/pprof/profile", pprof.Profile)
+	router.HandleFunc(c.RootAPI+"/debug/pprof/symbol", pprof.Symbol)
+	router.HandleFunc(c.RootAPI+"/debug/pprof/trace", pprof.Trace)
 
-	s.routesProvider(router)
+	router.Use(log.RequestLogger(service))
+	router.Use(panic_recovery.NewRecoveryMiddleware())
+
+	for _, applyRoutes := range routesProvider {
+		applyRoutes(router)
+	}
 
 	s.server = &http.Server{
 		// TODO: Perhaps set some address here?

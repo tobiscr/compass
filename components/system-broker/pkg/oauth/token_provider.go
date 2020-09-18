@@ -19,7 +19,6 @@ package oauth
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	httputils "github.com/kyma-incubator/compass/components/system-broker/pkg/http"
 	"github.com/kyma-incubator/compass/components/system-broker/pkg/log"
 	"io/ioutil"
@@ -42,7 +41,7 @@ const (
 	credentialsGrantType = "client_credentials"
 
 	scopeFieldName = "scope"
-	scopes         = "runtime:read runtime:write"
+	scopes         = "application:read application:write runtime:read runtime:write"
 
 	clientIDKey       = "client_id"
 	clientSecretKey   = "client_secret"
@@ -128,22 +127,27 @@ func (c *OAuthTokenProvider) getAuthorizationToken(ctx context.Context, credenti
 	form.Add(grantTypeFieldName, credentialsGrantType)
 	form.Add(scopeFieldName, scopes)
 	body := strings.NewReader(form.Encode())
-
-	headers := map[string]string{
-		contentTypeHeader: contentTypeApplicationURLEncoded,
-	}
-
-	request, err := c.requestProvider.Provide(ctx, httputils.RequestInput{
-		Method:  http.MethodPost,
-		URL:     credentials.tokensEndpoint,
-		Body:    body,
-		Headers: headers,
-	})
+	request, err := http.NewRequest(http.MethodPost, credentials.tokensEndpoint, body)
 	if err != nil {
-		return httputils.Token{}, errors.Wrap(err, "while creating authorisation token request")
+		return httputils.Token{}, errors.Wrap(err, "Failed to create authorisation token request")
 	}
+
+	//we can use a request provider or maybe its an overkill (reason for making it was correlation ids but then i moved them to a transport)
+	//input := httputils.RequestInput{
+	//	Method:  http.MethodPost,
+	//	URL:     credentials.tokensEndpoint,
+	//	Body:    body,
+	//	Headers: headers,
+	//}
+	//
+	//log.C(ctx).Errorf("%+v", input)
+	//request, err := c.requestProvider.Provide(ctx, input)
+	//if err != nil {
+	//	return httputils.Token{}, errors.Wrap(err, "while creating authorisation token request")
+	//}
 
 	request.SetBasicAuth(credentials.clientID, credentials.clientSecret)
+	request.Header.Set(contentTypeHeader, contentTypeApplicationURLEncoded)
 
 	response, err := c.httpClient.Do(request)
 	if err != nil {
@@ -154,10 +158,6 @@ func (c *OAuthTokenProvider) getAuthorizationToken(ctx context.Context, credenti
 			log.C(ctx).Warn("Cannot close connection body inside oauth client")
 		}
 	}()
-
-	if response.StatusCode != http.StatusOK {
-		return httputils.Token{}, fmt.Errorf("while calling to token endpoint: unexpected status code, %d, %s", response.StatusCode, response.Status)
-	}
 
 	respBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {

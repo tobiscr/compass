@@ -26,6 +26,8 @@ type Config struct {
 	Port            int           `mapstructure:"port" description:"port of the server"`
 	RequestTimeout  time.Duration `mapstructure:"request_timeout" description:"read and write timeout duration for requests"`
 	ShutdownTimeout time.Duration `mapstructure:"shutdown_timeout" description:"time to wait for the server to shutdown"`
+	RootAPI         string        `mapstructure:"root_api" description:"the root api used for all other subroutes"`
+	SelfURL         string        `mapstructure:"self_url" description:"an externally accessible url pointing to this server's fully qualified root address'"`
 }
 
 // DefaultSettings returns the default values for configuring the Service Manager
@@ -34,6 +36,8 @@ func DefaultConfig() *Config {
 		Port:            8080,
 		RequestTimeout:  time.Second * 50000,
 		ShutdownTimeout: time.Second * 50000,
+		RootAPI:         "/broker",
+		SelfURL:         fmt.Sprintf("http://localhost:8080/broker"),
 	}
 }
 
@@ -47,6 +51,9 @@ func (s *Config) Validate() error {
 	}
 	if s.ShutdownTimeout == 0 {
 		return fmt.Errorf("validate Settings: ShutdownTimeout missing")
+	}
+	if len(s.SelfURL) == 0 {
+		return fmt.Errorf("validate Settings: SelfURL missing")
 	}
 
 	return nil

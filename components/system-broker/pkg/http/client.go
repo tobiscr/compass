@@ -18,7 +18,6 @@ package http
 
 import (
 	"crypto/tls"
-	"net"
 	"net/http"
 	"sync"
 	"time"
@@ -26,9 +25,6 @@ import (
 
 func NewHTTPTransport(config *Config) *http.Transport {
 	return &http.Transport{
-		Proxy:          nil,
-		DialContext:    (&net.Dialer{Timeout: config.DialTimeout}).DialContext,
-		DialTLSContext: (&net.Dialer{Timeout: config.DialTimeout}).DialContext,
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: config.SkipSSLValidation,
 		},

@@ -94,7 +94,7 @@ format:: imports fmt
 release: resolve dep-status verify build-image push-image
 
 .PHONY: build-image push-image
-build-image: pull-licenses
+build-image: # pull-licenses
 	docker build -t $(IMG_NAME) .
 push-image:
 	docker tag $(IMG_NAME) $(IMG_NAME):$(TAG)
@@ -107,8 +107,12 @@ MOUNT_TARGETS = build resolve ensure dep-status check-imports imports check-fmt 
 $(foreach t,$(MOUNT_TARGETS),$(eval $(call buildpack-mount,$(t))))
 
 # Builds new Docker image into Minikube's Docker Registry
-build-to-minikube: pull-licenses
+build-to-minikube: #pull-licenses
 	@eval $$(minikube docker-env) && docker build -t $(IMG_NAME) .
+
+build-to-gcp:
+	@docker build -t $(IMG_NAME) .
+	@docker push $(IMG_NAME)
 
 build-local:
 	env CGO_ENABLED=0 go build -o $(APP_NAME) ./$(ENTRYPOINT)
@@ -190,4 +194,8 @@ exec:
 # Sets locally built image for a given component in Minikube cluster 
 deploy-on-minikube: build-to-minikube
 	kubectl set image -n $(NAMESPACE) deployment/$(DEPLOYMENT_NAME) $(COMPONENT_NAME)=$(DEPLOYMENT_NAME):latest
+	kubectl rollout restart -n $(NAMESPACE) deployment/$(DEPLOYMENT_NAME)
+
+deploy-on-gcp: build-to-gcp
+	kubectl set image -n $(NAMESPACE) deployment/$(DEPLOYMENT_NAME) $(COMPONENT_NAME)=$(IMG_NAME):latest
 	kubectl rollout restart -n $(NAMESPACE) deployment/$(DEPLOYMENT_NAME)

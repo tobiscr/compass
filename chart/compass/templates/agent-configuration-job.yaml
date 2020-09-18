@@ -171,6 +171,16 @@ spec:
                 set +o pipefail
                 echo "Compass agent configuration - in progress."
 
+                runtimes=$(curl -k -H "Content-Type: application/json" -H "Authorization: Bearer ${INTERNAL_TOKEN_TENANT}" -d '{ "query":"query {runtimes {data{id name}}}"}' "${DIRECTOR_URL}")
+                len=$(echo $runtimes | jq '.data.runtimes.data[] | select(.name=="kymaruntime") | length')
+                #check for emptyness because jq will give empty string if there is no such element in the array instead of empty array
+                if [ ! -z "$len" ]; then
+                  echo "There is existing runtime with name: kymaruntime"
+                  id=$(echo $runtimes | jq '.data.runtimes.data[] | select(.name=="kymaruntime")' -r | jq '.id' -r)
+                  echo "Deleting existing runtime with id: $id"
+                  resp=$(curl -k -H "Content-Type: application/json" -H "Authorization: Bearer ${INTERNAL_TOKEN_TENANT}" -d '{ "query":"mutation { unregisterRuntime(id:'\\\""${id}"\\\"') {id} }"}' "${DIRECTOR_URL}")
+                fi
+
                 RESPONSE_BODY=$(curl -k "${DIRECTOR_URL}" \
                     -H 'Content-Type: application/json' \
                     -H "Authorization: Bearer ${INTERNAL_TOKEN_TENANT}" \
@@ -202,6 +212,10 @@ spec:
                 echo "Compass agent configuration - finished."
                 set -o pipefail
               }
+
+              echo "Sleeping for 2minutes"
+              sleep 2m
+              echo "Ready to go"
 
               echo "Waiting for access to API Server..."
               wait_for_access_to_api_server
