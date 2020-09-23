@@ -1,6 +1,15 @@
-ALTER TYPE webhook_type ADD VALUE 'OPEN_DISCOVERY';
-
 BEGIN;
+
+ALTER TABLE webhooks ALTER COLUMN type TYPE VARCHAR(255);
+
+DROP TYPE webhook_type;
+
+CREATE TYPE webhook_type AS ENUM (
+    'CONFIGURATION_CHANGED',
+    'OPEN_DISCOVERY'
+);
+
+ALTER TABLE webhooks ALTER COLUMN type TYPE webhook_type USING (type::webhook_type);
 
 ALTER TABLE packages
   RENAME TO bundles;
