@@ -218,6 +218,14 @@ global:
               give_up_after: 3s
               max_delay: 2000ms
 
+  openDiscoveryPuller:
+    enabled: true
+    providerName: "compass"
+    schedule: "*/5 * * * *"
+    dbPool:
+      maxOpenConnections: 1
+      maxIdleConnections: 1
+
   tenantFetchers:
     job1:
       enabled: false

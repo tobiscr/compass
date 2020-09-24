@@ -15,10 +15,13 @@ COPY . .
 
 RUN go build -v -o director ./cmd/director/main.go \
   && go build -v -o tenantfetcher ./cmd/tenantfetcher/main.go \
-  && go build -v -o tenantloader ./cmd/tenantloader/main.go
+  && go build -v -o tenantloader ./cmd/tenantloader/main.go \
+  && go build -v -o odpuller ./cmd/od_puller/main.go
+
 RUN mkdir /app && mv ./director /app/director \
   && mv ./tenantfetcher /app/tenantfetcher \
   && mv ./tenantloader /app/tenantloader \
+  && mv ./odpuller /app/odpuller \
   && mv ./licenses /app/licenses
 
 FROM alpine:edge
