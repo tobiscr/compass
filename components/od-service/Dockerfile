@@ -39,4 +39,4 @@ RUN apt-get install -y curl ca-certificates
 # Run app
 #
 
-ENTRYPOINT ["java", "-jar", "od-service.jar"]
+CMD ["java", "-jar", "od-service.jar"]
