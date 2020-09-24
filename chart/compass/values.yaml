@@ -76,7 +76,7 @@ global:
 
   open_discovery_service:
     enabled: true
-    host: compass-od-service.compass-system.svc.cluster.local
+    host: compass-open-discovery-service.compass-system.svc.cluster.local
     port: 4000
 
   auditlog:

@@ -54,6 +54,8 @@ spec:
                     secretKeyRef:
                       name: compass-postgresql
                       key: postgresql-sslMode
+                - name: APP_CONFIGURATION_FILE
+                  value: /config/config.yaml
                 - name: APP_DB_MAX_OPEN_CONNECTIONS
                   value: "{{ .Values.global.openDiscoveryPuller.dbPool.maxOpenConnections }}"
                 - name: APP_DB_MAX_IDLE_CONNECTIONS
@@ -62,6 +64,9 @@ spec:
                 - name: APP_METRICS_PUSH_ENDPOINT
                   value: {{ $.Values.global.metrics.pushEndpoint}}
               {{ end }}
+              volumeMounts:
+                - mountPath: /config
+                  name: director-config
               command:
                 - "/bin/sh"
               args:
@@ -82,8 +87,11 @@ spec:
           {{end}}
           restartPolicy: Never
           shareProcessNamespace: true
-          {{if eq $.Values.global.database.embedded.enabled false}}
           volumes:
+            - name: director-config
+              configMap:
+                name: compass-director-config
+          {{if eq $.Values.global.database.embedded.enabled false}}
             - name: cloudsql-instance-credentials
               secret:
                 secretName: cloudsql-instance-credentials
