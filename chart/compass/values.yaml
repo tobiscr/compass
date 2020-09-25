@@ -163,7 +163,7 @@ global:
   database:
     manageSecrets: true
     embedded:
-      enabled: true
+      enabled: false
       director:
         name: "postgres"
       directorDBName: "postgres"
