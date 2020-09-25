@@ -16,10 +16,12 @@ spec:
   http:
   - match:
     - uri:
-        exact: /director
+        exact: /od-director
+    rewrite:
+      uri: /director
     route:
       - destination:
-          host: {{ .Values.global.director.host }}
+          host: "{{ .Values.global.gateway.tls.host }}.compass-system-skalata.svc.cluster.local"
           port:
             number: {{ .Values.global.director.port }}
     headers:
