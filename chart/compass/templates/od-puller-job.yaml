@@ -4,6 +4,7 @@ apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: "compass-open-discovery-puller"
+  namespace: {{ .Release.Namespace }}
 spec:
   schedule: "{{ .Values.global.openDiscoveryPuller.schedule }}"
   failedJobsHistoryLimit: 5

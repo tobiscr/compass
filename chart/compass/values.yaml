@@ -69,6 +69,7 @@ global:
   agentPreconfiguration: false
 
   director:
+    host: compass-director.compass-system-skalata.svc.cluster.local
     port: 3000
 
     tests:
@@ -76,7 +77,7 @@ global:
 
   open_discovery_service:
     enabled: true
-    host: compass-open-discovery-service.compass-system.svc.cluster.local
+    host: compass-open-discovery-service.compass-system-skalata.svc.cluster.local
     port: 4000
 
   auditlog:

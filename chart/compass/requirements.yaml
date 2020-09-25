@@ -1,11 +1,5 @@
 dependencies:
 - name: postgresql
   condition: global.database.embedded.enabled
-- name: pairing-adapter
-  condition: pairing-adapter.enabled
-- name: external-services-mock
-  condition: global.externalServicesMock.enabled
-- name: prometheus-postgres-exporter
-  condition: global.metrics.enabled
 - name: open-discovery-service
   condition: global.open_discovery_service.enabled

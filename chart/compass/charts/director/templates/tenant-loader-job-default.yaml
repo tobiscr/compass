@@ -3,6 +3,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
     name: {{ template "fullname" . }}-tenant-loader-default
+    namespace: {{ .Release.Namespace }}
     labels:
         app: {{ .Chart.Name }}
         release: {{ .Release.Name }}

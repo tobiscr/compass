@@ -2,6 +2,7 @@ apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
     name: {{ template "fullname" . }}-tenant-loader-external
+    namespace: {{ .Release.Namespace }}
 spec:
     suspend: true # This CronJob serves as a template for manually creating on-demand jobs
     schedule: "0 0 1 1 *"

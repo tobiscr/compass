@@ -15,20 +15,6 @@ spec:
     - {{ .Values.global.istio.gateway.namespace }}/{{ .Values.global.istio.gateway.name }}
   http:
     - match:
-      - uri:
-          prefix: /connector
-      route:
-      - destination:
-          host: {{ .Values.global.oathkeeper.host }}
-          port:
-            number: {{ .Values.global.oathkeeper.port }}
-      headers:
-        request:
-          remove:
-            {{- range .Values.global.gateway.headers.request.remove }}
-            - {{ . }}
-            {{- end }}
-    - match:
         - uri:
             prefix: /open-discovery
       route:
@@ -53,8 +39,11 @@ spec:
     - match:
       - uri:
           exact: /director
-      redirect:
-        uri: /director/
+      route:
+      - destination:
+          host: {{ .Values.global.director.host }}
+          port:
+            number: {{ .Values.global.director.port }}
       headers:
         request:
           remove:

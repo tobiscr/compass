@@ -17,8 +17,11 @@ spec:
     - match:
       - uri:
           exact: /director
-      redirect:
-        uri: /director/
+      route:
+        - destination:
+            host: {{ .Values.global.director.host }}
+            port:
+              number: {{ .Values.global.director.port }}
       headers:
         request:
           remove:
