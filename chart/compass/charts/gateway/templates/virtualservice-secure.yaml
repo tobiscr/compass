@@ -10,9 +10,9 @@ metadata:
     release: {{ .Release.Name }}
 spec:
   hosts:
-  - '{{ .Values.global.gateway.tls.secure.oauth.host }}.{{ .Values.global.ingress.domainName }}'
+  - '{{ .Values.global.gateway.tls.secure.oauth.host }}.cmp-test.dev.kyma.cloud.sap'
   gateways:
-  - {{ .Values.global.istio.gateway.namespace }}/{{ .Values.global.istio.gateway.name }}
+  - 'kyma-system/kyma-gateway'
   http:
   - match:
     - uri:

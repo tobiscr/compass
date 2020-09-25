@@ -1,5 +1,3 @@
 dependencies:
-- name: postgresql
-  condition: global.database.embedded.enabled
 - name: open-discovery-service
   condition: global.open_discovery_service.enabled
