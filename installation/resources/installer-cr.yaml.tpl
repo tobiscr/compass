@@ -13,4 +13,4 @@ spec:
   url: "__URL__"
   components:
     - name: "compass"
-      namespace: "compass-system-skalata"
+      namespace: "compass-system-od"

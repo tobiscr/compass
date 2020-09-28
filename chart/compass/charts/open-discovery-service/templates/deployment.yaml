@@ -80,7 +80,7 @@ spec:
         - name: cloudsql-proxy
           image: gcr.io/cloudsql-docker/gce-proxy:1.16
           command: ["/cloud_sql_proxy",
-                    "-instances={{ .Values.global.database.managedGCP.instanceConnectionName }}=tcp:5432",
+                    "-instances=sap-cp-cmp-dev:europe-west1:cmp-dev-testing-56b5=tcp:5432",
                     "-credential_file=/secrets/cloudsql-instance-viewer-credentials/credentials.json"]
           volumeMounts:
             - name: cloudsql-instance-viewer-credentials

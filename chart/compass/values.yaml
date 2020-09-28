@@ -69,7 +69,7 @@ global:
   agentPreconfiguration: false
 
   director:
-    host: compass-director.compass-system-skalata.svc.cluster.local
+    host: compass-od-director.compass-system-od.svc.cluster.local
     port: 3000
 
     tests:
@@ -77,7 +77,7 @@ global:
 
   open_discovery_service:
     enabled: true
-    host: compass-open-discovery-service.compass-system-skalata.svc.cluster.local
+    host: compass-od-open-discovery-service.compass-system-od.svc.cluster.local
     port: 4000
 
   auditlog:
@@ -126,12 +126,12 @@ global:
   gateway:
     port: 3000
     tls:
-      host: compass-gateway
+      host: compass-od-gateway
       secure:
         oauth:
-          host: compass-gateway-auth-oauth
+          host: compass-od-gateway-auth-oauth
     mtls:
-      host: compass-gateway-mtls
+      host: compass-od-gateway-mtls
     headers:
       request:
         remove:
@@ -193,28 +193,28 @@ global:
       runtimeMappingService:
         config:
           api:
-            url: http://compass-director.compass-system-skalata.svc.cluster.local:3000/runtime-mapping
+            url: http://compass-od-director.compass-system-od.svc.cluster.local:3000/runtime-mapping
             retry:
               give_up_after: 3s
               max_delay: 2000ms
       tenantMappingService:
         config:
           api:
-            url: http://compass-director.compass-system-skalata.svc.cluster.local:3000/tenant-mapping
+            url: http://compass-od-director.compass-system-od.svc.cluster.local:3000/tenant-mapping
             retry:
               give_up_after: 3s
               max_delay: 2000ms
       certificateResolverService:
         config:
           api:
-            url: http://compass-connector.compass-system-skalata.svc.cluster.local:8080/v1/certificate/data/resolve
+            url: http://compass-od-connector.compass-system-od.svc.cluster.local:8080/v1/certificate/data/resolve
             retry:
               give_up_after: 3s
               max_delay: 2000ms
       tokenResolverService:
         config:
           api:
-            url: http://compass-connector.compass-system-skalata.svc.cluster.local:8080/v1/tokens/resolve
+            url: http://compass-od-connector.compass-system-od.svc.cluster.local:8080/v1/tokens/resolve
             retry:
               give_up_after: 3s
               max_delay: 2000ms
