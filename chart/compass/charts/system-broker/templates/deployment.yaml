@@ -35,7 +35,7 @@ spec:
         {{- toYaml .Values.deployment.nodeSelector | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
-          image: {{ .Values.global.images.containerRegistry.path }}/{{ .Values.global.images.system_broker.dir }}system-broker:{{ .Values.global.images.system_broker.version }}
+          image: {{ .Values.global.images.containerRegistry.path }}/{{ .Values.global.images.system_broker.dir }}compass-system-broker:{{ .Values.global.images.system_broker.version }}
           imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
           ports:
             - name: http
@@ -60,7 +60,8 @@ spec:
             - name: SERVER_SELF_URL
               value: "https://{{ .Values.global.system_broker.tls.host }}.{{ .Values.global.ingress.domainName }}/broker"
             - name: GRAPHQL_CLIENT_GRAPHQL_ENDPOINT
-              value: "https://{{ .Values.global.gateway.tls.secure.oauth.host }}.{{ .Values.global.ingress.domainName }}/director/graphql"
+#              value: "https://{{ .Values.global.gateway.tls.secure.oauth.host }}.{{ .Values.global.ingress.domainName }}/director/graphql"
+              value: "http://{{ .Values.global.gateway.tls.host }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.global.gateway.port }}/director/graphql"
 
             # - name: GRAPHQL_CLIENT_ENABLE_LOGGING
             #   value: "0.0.0.0:{{ .Values.deployment.args.containerPort }}"

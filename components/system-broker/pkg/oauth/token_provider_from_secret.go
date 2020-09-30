@@ -52,7 +52,7 @@ type RequestProvider interface {
 	Provide(ctx context.Context, input httputils.RequestInput) (*http.Request, error)
 }
 
-type OAuthTokenProvider struct {
+type TokenProviderFromSecret struct {
 	httpClient      *http.Client
 	requestProvider RequestProvider
 	k8sClient       client.Client
@@ -66,17 +66,19 @@ type credentials struct {
 	tokensEndpoint string
 }
 
-func NewTokenProviderFromSecret(config *Config, httpClient *http.Client, requestProvider RequestProvider, k8sClient client.Client) *OAuthTokenProvider {
-	return &OAuthTokenProvider{
+func NewTokenProviderFromSecret(config *Config, httpClient *http.Client, requestProvider RequestProvider, k8sClient client.Client) (*TokenProviderFromSecret, error) {
+	tokenProvider := &TokenProviderFromSecret{
 		httpClient:      httpClient,
 		requestProvider: requestProvider,
 		k8sClient:       k8sClient,
 		secretName:      config.SecretName,
 		secretNamespace: config.SecretNamespace,
 	}
+
+	return tokenProvider, nil
 }
 
-func (c *OAuthTokenProvider) GetAuthorizationToken(ctx context.Context) (httputils.Token, error) {
+func (c *TokenProviderFromSecret) GetAuthorizationToken(ctx context.Context) (httputils.Token, error) {
 	credentials, err := c.extractOAuthClientFromSecret(ctx)
 	if err != nil {
 		return httputils.Token{}, errors.Wrap(err, "while get credentials from secret")
@@ -85,14 +87,24 @@ func (c *OAuthTokenProvider) GetAuthorizationToken(ctx context.Context) (httputi
 	return c.getAuthorizationToken(ctx, credentials)
 }
 
-func (c *OAuthTokenProvider) WaitForCredentials(ctx context.Context) error {
-	err := wait.Poll(time.Second, time.Minute*3, func() (bool, error) {
-		secret := &v1.Secret{}
+func (c *TokenProviderFromSecret) Matches(request *http.Request) bool {
+	ctx := request.Context()
+	if _, err := getBearerToken(ctx); err != nil {
+		log.C(ctx).WithError(err).Errorf("while obtaining bearer token")
+		return true
+	}
+
+	return false
+}
+
+func (c *TokenProviderFromSecret) extractOAuthClientFromSecret(ctx context.Context) (credentials, error) {
+	secret := &v1.Secret{}
+
+	err := wait.Poll(time.Second*2, time.Minute, func() (bool, error) {
 		err := c.k8sClient.Get(ctx, client.ObjectKey{
 			Namespace: c.secretNamespace,
 			Name:      c.secretName,
 		}, secret)
-		// it fails on connection-refused error on first call and it restarts our application.
 		if err != nil {
 			log.C(ctx).Warnf("secret %s not found", c.secretName)
 			return false, nil
@@ -100,15 +112,6 @@ func (c *OAuthTokenProvider) WaitForCredentials(ctx context.Context) error {
 		return true, nil
 	})
 
-	return errors.Wrapf(err, "while waiting for secret %s", c.secretName)
-}
-
-func (c *OAuthTokenProvider) extractOAuthClientFromSecret(ctx context.Context) (credentials, error) {
-	secret := &v1.Secret{}
-	err := c.k8sClient.Get(ctx, client.ObjectKey{
-		Namespace: c.secretNamespace,
-		Name:      c.secretName,
-	}, secret)
 	if err != nil {
 		return credentials{}, err
 	}
@@ -120,7 +123,7 @@ func (c *OAuthTokenProvider) extractOAuthClientFromSecret(ctx context.Context) (
 	}, nil
 }
 
-func (c *OAuthTokenProvider) getAuthorizationToken(ctx context.Context, credentials credentials) (httputils.Token, error) {
+func (c *TokenProviderFromSecret) getAuthorizationToken(ctx context.Context, credentials credentials) (httputils.Token, error) {
 	log.C(ctx).Infof("Getting authorization token from endpoint: %s", credentials.tokensEndpoint)
 
 	form := url.Values{}
@@ -129,22 +132,8 @@ func (c *OAuthTokenProvider) getAuthorizationToken(ctx context.Context, credenti
 	body := strings.NewReader(form.Encode())
 	request, err := http.NewRequest(http.MethodPost, credentials.tokensEndpoint, body)
 	if err != nil {
-		return httputils.Token{}, errors.Wrap(err, "Failed to create authorisation token request")
+		return httputils.Token{}, errors.Wrap(err, "while creating authorization token request")
 	}
-
-	//we can use a request provider or maybe its an overkill (reason for making it was correlation ids but then i moved them to a transport)
-	//input := httputils.RequestInput{
-	//	Method:  http.MethodPost,
-	//	URL:     credentials.tokensEndpoint,
-	//	Body:    body,
-	//	Headers: headers,
-	//}
-	//
-	//log.C(ctx).Errorf("%+v", input)
-	//request, err := c.requestProvider.Provide(ctx, input)
-	//if err != nil {
-	//	return httputils.Token{}, errors.Wrap(err, "while creating authorisation token request")
-	//}
 
 	request.SetBasicAuth(credentials.clientID, credentials.clientSecret)
 	request.Header.Set(contentTypeHeader, contentTypeApplicationURLEncoded)

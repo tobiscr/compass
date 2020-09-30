@@ -18,6 +18,7 @@ package env
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"github.com/kyma-incubator/compass/components/system-broker/pkg/log"
 	"os"
@@ -53,7 +54,7 @@ func CreatePFlagsForConfigFile(set *pflag.FlagSet) {
 	CreatePFlags(set, struct{ File File }{File: DefaultConfigFile()})
 }
 
-// Environment represents an abstraction over the env from which Service Manager configuration will be loaded
+// Environment represents an abstraction over the env from which application configuration will be loaded
 //go:generate counterfeiter . Environment
 type Environment interface {
 	Get(key string) interface{}
@@ -72,6 +73,7 @@ type ViperEnv struct {
 func EmptyFlagSet() *pflag.FlagSet {
 	set := pflag.NewFlagSet("Configuration Flags", pflag.ExitOnError)
 	set.AddFlagSet(pflag.CommandLine)
+	set.AddGoFlagSet(flag.CommandLine)
 	return set
 }
 
@@ -85,7 +87,7 @@ func CreatePFlags(set *pflag.FlagSet, value interface{}) {
 			case []string:
 				set.StringSlice(parameter.Name, val, descriptions[i])
 			default:
-				set.Var(&flag{value: val}, parameter.Name, descriptions[i])
+				set.Var(&envFlag{value: val}, parameter.Name, descriptions[i])
 			}
 		}
 	}
@@ -190,7 +192,7 @@ func (v *ViperEnv) setupConfigFile(ctx context.Context, onConfigChangeHandlers .
 	return nil
 }
 
-// Default creates a default environment that can be used to boot up a Service Manager
+// Default creates a default environment that can be used to boot up a application
 func Default(ctx context.Context, additionalPFlags ...func(set *pflag.FlagSet)) (Environment, error) {
 	set := EmptyFlagSet()
 
@@ -206,19 +208,19 @@ func Default(ctx context.Context, additionalPFlags ...func(set *pflag.FlagSet)) 
 	return environment, nil
 }
 
-type flag struct {
+type envFlag struct {
 	value interface{}
 }
 
-func (f *flag) String() string {
+func (f *envFlag) String() string {
 	return cast.ToString(f.value)
 }
 
-func (f *flag) Set(s string) error {
+func (f *envFlag) Set(s string) error {
 	f.value = s
 	return nil
 }
 
-func (f *flag) Type() string {
+func (f *envFlag) Type() string {
 	return reflect.TypeOf(f.value).Name()
 }

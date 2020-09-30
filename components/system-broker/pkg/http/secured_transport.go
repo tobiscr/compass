@@ -25,18 +25,19 @@ import (
 
 type TokenProvider interface {
 	GetAuthorizationToken(ctx context.Context) (Token, error)
+	Matches(request *http.Request) bool
 }
 
 type SecuredTransport struct {
-	roundTripper  HTTPRoundTripper
-	tokenProvider TokenProvider
-	lock          sync.Mutex
+	roundTripper   HTTPRoundTripper
+	tokenProviders []TokenProvider
+	lock           sync.Mutex
 
 	token Token
 }
 
 func (c *SecuredTransport) RoundTrip(request *http.Request) (*http.Response, error) {
-	if err := c.refreshToken(request.Context()); err != nil {
+	if err := c.refreshToken(request); err != nil {
 		return nil, err
 	}
 
@@ -45,7 +46,7 @@ func (c *SecuredTransport) RoundTrip(request *http.Request) (*http.Response, err
 	return c.roundTripper.RoundTrip(request)
 }
 
-func (c *SecuredTransport) refreshToken(ctx context.Context) error {
+func (c *SecuredTransport) refreshToken(request *http.Request) error {
 	if !c.token.EmptyOrExpired() {
 		return nil
 	}
@@ -53,11 +54,17 @@ func (c *SecuredTransport) refreshToken(ctx context.Context) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	token, err := c.tokenProvider.GetAuthorizationToken(ctx)
-	if err != nil {
-		return errors.Wrap(err, "error while obtaining token")
+	for _, tokenProvider := range c.tokenProviders {
+		if !tokenProvider.Matches(request) {
+			continue
+		}
+
+		token, err := tokenProvider.GetAuthorizationToken(request.Context())
+		if err != nil {
+			return errors.Wrap(err, "error while obtaining token")
+		}
+		c.token = token
 	}
-	c.token = token
 
 	return nil
 }

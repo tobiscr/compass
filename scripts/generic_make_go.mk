@@ -107,7 +107,7 @@ MOUNT_TARGETS = build resolve ensure dep-status check-imports imports check-fmt 
 $(foreach t,$(MOUNT_TARGETS),$(eval $(call buildpack-mount,$(t))))
 
 # Builds new Docker image into Minikube's Docker Registry
-build-to-minikube: pull-licenses
+build-to-minikube:
 	@eval $$(minikube docker-env) && docker build -t $(IMG_NAME) .
 
 build-local:

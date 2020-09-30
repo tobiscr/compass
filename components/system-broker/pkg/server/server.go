@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gorilla/mux"
+	httputil "github.com/kyma-incubator/compass/components/system-broker/pkg/http"
 	"github.com/kyma-incubator/compass/components/system-broker/pkg/log"
 	"github.com/kyma-incubator/compass/components/system-broker/pkg/panic_recovery"
 	"net/http"
@@ -56,6 +57,7 @@ func New(c *Config, service log.UUIDService, routesProvider ...func(router *mux.
 
 	router.Use(log.RequestLogger(service))
 	router.Use(panic_recovery.NewRecoveryMiddleware())
+	router.Use(httputil.HeaderForwarder())
 
 	for _, applyRoutes := range routesProvider {
 		applyRoutes(router)

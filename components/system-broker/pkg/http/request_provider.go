@@ -76,17 +76,7 @@ func (rp *RequestProvider) Provide(ctx context.Context, input RequestInput) (*ht
 		request.URL.RawQuery = q.Encode()
 	}
 
-	//TODO probably not necessary as we have custom http client with transport that takes care of this in a central place
-	//request = request.WithContext(ctx)
-	logger := log.C(ctx)
-	//correlationID, exists := logger.Data[log.FieldCorrelationID].(string)
-	//if exists && correlationID != log.BootstrapCorrelationID {
-	//	request.Header.Set(log.CorrelationIDHeaders[0], correlationID)
-	//} else {
-	//	request.Header.Set(log.CorrelationIDHeaders[0], rp.uuidService.Generate())
-	//}
-
-	logger.Debugf("Provided request %s %s", request.Method, request.URL)
+	log.C(ctx).Infof("Sending request %s %s", request.Method, request.URL)
 
 	return request, nil
 }

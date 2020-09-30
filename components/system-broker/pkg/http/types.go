@@ -36,6 +36,10 @@ func (token Token) EmptyOrExpired() bool {
 		return true
 	}
 
+	if token.Expiration == 0 {
+		return false
+	}
+
 	expiration := time.Unix(token.Expiration, 0)
 	return time.Now().After(expiration)
 }

@@ -59,7 +59,7 @@ func main() {
 
 	uuidSrv := uid.NewService()
 
-	directorGraphQLClient, err := prepareGqlClient(cfg, uuidSrv)
+	directorGraphQLClient, err := prepareGqlClient(ctx, cfg, uuidSrv)
 	fatalOnError(err)
 
 	systemBroker := osb.NewSystemBroker(directorGraphQLClient, cfg.Server.SelfURL)
@@ -77,24 +77,26 @@ func fatalOnError(err error) {
 	}
 }
 
-func prepareGqlClient(cfg *config.Config, uudSrv httputil.UUIDService) (*director.GraphQLClient, error) {
+func prepareGqlClient(ctx context.Context, cfg *config.Config, uudSrv httputil.UUIDService) (*director.GraphQLClient, error) {
 	// prepare raw http transport and http client based on cfg
 	httpTransport := httputil.NewCorrelationIDTransport(httputil.NewErrorHandlerTransport(httputil.NewHTTPTransport(cfg.HttpClient)), uudSrv)
 	httpClient := httputil.NewClient(cfg.HttpClient.Timeout, httpTransport)
 
-	//prepare k8s client
-	k8sClient, err := prepareK8sClient()
+	// prepare k8s client
+	k8sClient, err := newK8sClient()
 	if err != nil {
 		return nil, err
 	}
 
-	//prepare secured http client with token provider picked from secret
+	// prepare token providers
 	requestProvider := httputil.NewRequestProvider(uudSrv)
-
-	//TODO uncomment this to run locally - replace oauthTokenProvider
-	//oauthTokenProvider := oauth.NewTokenProviderFromValue("eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzY29wZXMiOiJhcHBsaWNhdGlvbjpyZWFkIGF1dG9tYXRpY19zY2VuYXJpb19hc3NpZ25tZW50OndyaXRlIGF1dG9tYXRpY19zY2VuYXJpb19hc3NpZ25tZW50OnJlYWQgaGVhbHRoX2NoZWNrczpyZWFkIGFwcGxpY2F0aW9uOndyaXRlIHJ1bnRpbWU6d3JpdGUgbGFiZWxfZGVmaW5pdGlvbjp3cml0ZSBsYWJlbF9kZWZpbml0aW9uOnJlYWQgcnVudGltZTpyZWFkIHRlbmFudDpyZWFkIiwidGVuYW50IjoiM2U2NGViYWUtMzhiNS00NmEwLWIxZWQtOWNjZWUxNTNhMGFlIn0.")
-	oauthTokenProvider := oauth.NewTokenProviderFromSecret(cfg.OAuthProvider, httpClient, requestProvider, k8sClient)
-	securedClient, err := httputil.NewSecuredHTTPClient(cfg.HttpClient.Timeout, httpTransport, oauthTokenProvider)
+	oauthTokenProviderFromSecret, err := oauth.NewTokenProviderFromSecret(cfg.OAuthProvider, httpClient, requestProvider, k8sClient)
+	if err != nil {
+		return nil, err
+	}
+	oauthTokenProviderFromHeader := oauth.NewTokenProviderFromHeader(oauth.AuthzHeader)
+	// prepare secured http client with token providers
+	securedClient, err := httputil.NewSecuredHTTPClient(cfg.HttpClient.Timeout, httpTransport, oauthTokenProviderFromHeader, oauthTokenProviderFromSecret)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +114,7 @@ func prepareGqlClient(cfg *config.Config, uudSrv httputil.UUIDService) (*directo
 	return director.NewGraphQLClient(gqlClient, inputGraphqlizer, outputGraphqlizer), nil
 }
 
-func prepareK8sClient() (client.Client, error) {
+func newK8sClient() (client.Client, error) {
 	k8sCfg, err := k8scfg.GetConfig()
 	if err != nil {
 		return nil, err

@@ -4,19 +4,18 @@ The System Broker exposes OSB API as well as an endpoint for fetching specificat
 
 ## Development
 
-In order to run System Broker locally without minikube replace the `oauthTokenProvider` in `main.go` with the following:
-
-```golang
-oauthTokenProvider := oauth.NewTokenProviderFromValue("eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzY29wZXMiOiJhcHBsaWNhdGlvbjpyZWFkIGF1dG9tYXRpY19zY2VuYXJpb19hc3NpZ25tZW50OndyaXRlIGF1dG9tYXRpY19zY2VuYXJpb19hc3NpZ25tZW50OnJlYWQgaGVhbHRoX2NoZWNrczpyZWFkIGFwcGxpY2F0aW9uOndyaXRlIHJ1bnRpbWU6d3JpdGUgbGFiZWxfZGVmaW5pdGlvbjp3cml0ZSBsYWJlbF9kZWZpbml0aW9uOnJlYWQgcnVudGltZTpyZWFkIHRlbmFudDpyZWFkIiwidGVuYW50IjoiM2U2NGViYWUtMzhiNS00NmEwLWIxZWQtOWNjZWUxNTNhMGFlIn0.")
-``` 
-
 Now run the system broker:
 
 ```bash
-./run.sh
+/run.sh
 ```
 
-By default, the system broker API is accessible at `locahost:8080/broker`.
+By default, the system broker API is accessible at `locahost:8080/broker` and requires an ID token. The following header can be used for dev purposes
+
+```json
+{
+  "Authorization": "Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzY29wZXMiOiJhcHBsaWNhdGlvbjpyZWFkIGF1dG9tYXRpY19zY2VuYXJpb19hc3NpZ25tZW50OndyaXRlIGF1dG9tYXRpY19zY2VuYXJpb19hc3NpZ25tZW50OnJlYWQgaGVhbHRoX2NoZWNrczpyZWFkIGFwcGxpY2F0aW9uOndyaXRlIHJ1bnRpbWU6d3JpdGUgbGFiZWxfZGVmaW5pdGlvbjp3cml0ZSBsYWJlbF9kZWZpbml0aW9uOnJlYWQgcnVudGltZTpyZWFkIHRlbmFudDpyZWFkIGFwcGxpY2F0aW9uX3RlbXBsYXRlOndyaXRlIGFwcGxpY2F0aW9uX3RlbXBsYXRlOnJlYWQiLCJ0ZW5hbnQiOiIzZTY0ZWJhZS0zOGI1LTQ2YTAtYjFlZC05Y2NlZTE1M2EwYWU."
+}
 
 In order to run full Kyma on minikube and Compass with system broker:
 
@@ -24,7 +23,7 @@ In order to run full Kyma on minikube and Compass with system broker:
 2. When the installer prints out `Status: InProgress, description: install component compass` navigate to the `system-broker` directory and execute `make deploy-on-minikube`
 3. Checkout `global_applications` branch, navigate to the `director` directory and execute `make deploy-on-minikube` 
 
-By default, the system broker API is accessible at `https://compass-gateway.kyma.local/broker`.
+By default, the system broker API is accessible at `https://compass-gateway-mtls.kyma.local/broker`. Currently runtime certificates are accepted. Alternatively, if calling the broker API directly, a Dex token is required.
 
 ## Configuration
 

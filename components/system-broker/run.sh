@@ -2,4 +2,6 @@
 
 # This script is responsible for running System Broker.
 
-go run cmd/main.go
+MINIKUBE_IP=$(minikube ip)
+KUBECONFIG=$HOME/.kube/config
+go run cmd/main.go --kubeconfig $KUBECONFIG --master $MINIKUBE_IP

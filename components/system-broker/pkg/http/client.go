@@ -43,11 +43,11 @@ func NewClient(timeout time.Duration, transport http.RoundTripper) *http.Client 
 	}
 }
 
-func NewSecuredHTTPClient(timeout time.Duration, roundTripper HTTPRoundTripper, provider TokenProvider) (*http.Client, error) {
+func NewSecuredHTTPClient(timeout time.Duration, roundTripper HTTPRoundTripper, providers ...TokenProvider) (*http.Client, error) {
 	transport := &SecuredTransport{
-		roundTripper:  roundTripper,
-		tokenProvider: provider,
-		lock:          sync.Mutex{},
+		roundTripper:   roundTripper,
+		tokenProviders: providers,
+		lock:           sync.Mutex{},
 	}
 
 	return &http.Client{
