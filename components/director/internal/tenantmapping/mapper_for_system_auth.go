@@ -100,7 +100,6 @@ func (m *mapperForSystemAuth) getTenantAndScopesForIntegrationSystem(ctx context
 }
 
 func (m *mapperForSystemAuth) getTenantAndScopesForApplicationOrRuntime(ctx context.Context, sysAuth *model.SystemAuth, refObjType model.SystemAuthReferenceObjectType, reqData oathkeeper.ReqData, authFlow oathkeeper.AuthFlow) (TenantContext, string, error) {
-	fmt.Println("entering getTenantAndScopesForApplicationOrRuntime")
 	var externalTenantID, scopes string
 	var err error
 
@@ -116,14 +115,12 @@ func (m *mapperForSystemAuth) getTenantAndScopesForApplicationOrRuntime(ctx cont
 	}
 
 	if authFlow.IsCertFlow() || authFlow.IsOneTimeTokenFlow() {
-		fmt.Println("flow is cert flow and scopes are below")
 		declaredScopes, err := m.scopesGetter.GetRequiredScopes(buildPath(refObjType))
 		if err != nil {
 			return TenantContext{}, scopes, errors.Wrap(err, "while fetching scopes")
 		}
 
 		scopes = strings.Join(declaredScopes, " ")
-		fmt.Println(scopes)
 	}
 
 	externalTenantID, err = reqData.GetExternalTenantID()
