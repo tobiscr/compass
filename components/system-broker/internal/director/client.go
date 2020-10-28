@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
 
 	"github.com/asaskevich/govalidator"
 	schema "github.com/kyma-incubator/compass/components/director/pkg/graphql"
@@ -72,35 +73,80 @@ func (c *GraphQLClient) FetchApplications(ctx context.Context) (ApplicationsOutp
 	query := fmt.Sprintf(`query {
 			result: applications(first: %%d, after: %%q) {
 				%s
-				packages(first: %%d, after: %%q) {
-					%s
-					apiDefinitions(first: %%d, after: %%q) {
-						%s
-					}
-					eventDefinitions(first: %%d, after: %%q) {
-						%s
-					}
-					documents(first: %%d, after:  %%q) {
-						%s
-					}
-				}
 			}
 	}`,
 		c.outputGraphqlizer.Page(c.outputGraphqlizer.ForApplication()),
-		c.outputGraphqlizer.Page(c.outputGraphqlizer.ForPackage()),
-		c.outputGraphqlizer.Page(c.outputGraphqlizer.ForAPIDefinition()),
-		c.outputGraphqlizer.Page(c.outputGraphqlizer.ForEventDefinition()),
-		c.outputGraphqlizer.Page(c.outputGraphqlizer.ForDocument()),
 	)
-	fmt.Println(">>>>", query)
-	queryGenerator := func(pageSize int, page string) string {
-		return fmt.Sprintf(query, pageSize, page)
+
+	queryGenerator := func(args ...interface{}) string {
+		return fmt.Sprintf(query, args...)
 	}
 
-	pager := NewPager(queryGenerator, 1, 5, c.pageSize, c.gcli, nil)
-	if err := pager.ListAll(ctx, &response); err != nil {
+	pager := NewPager(queryGenerator, "result.pageInfo", 1, c.pageSize, c.gcli, []Level{
+		{
+			queryGenerator: func(args ...interface{}) string {
+				query := fmt.Sprintf(`query {
+					result: applications(first: %%d, after: %%q) {
+						id
+						packages(first: %%d, after: %%q) {
+							%s
+						}
+					}
+			}`,
+					c.outputGraphqlizer.Page(c.outputGraphqlizer.ForPackage()),
+				)
+				return fmt.Sprintf(query, args...)
+			},
+			PageInfoPath: "result.data.packages.pageInfo",
+			children: []Level{
+				{
+					PageInfoPath: "result.data.packages.data.apiDefinitions.pageInfo",
+					queryGenerator: func(args ...interface{}) string {
+						query := fmt.Sprintf(`query {
+						result: applications(first: %%d, after: %%q) {
+							id
+							packages(first: %%d, after: %%q) {
+								id
+								apiDefinitions(first: %%d, after: %%q) {
+									%s
+								}
+							}
+						}
+				}`,
+							c.outputGraphqlizer.Page(c.outputGraphqlizer.ForAPIDefinition()),
+						)
+						return fmt.Sprintf(query, args...)
+					},
+				},
+				{
+					PageInfoPath: "result.data.packages.data.eventDefinitions.pageInfo",
+					queryGenerator: func(args ...interface{}) string {
+						query := fmt.Sprintf(`query {
+						result: applications(first: %%d, after: %%q) {
+							id
+							packages(first: %%d, after: %%q) {
+								id
+								eventDefinitions(first: %%d, after: %%q) {
+									%s
+								}
+							}
+						}
+				}`,
+							c.outputGraphqlizer.Page(c.outputGraphqlizer.ForEventDefinition()),
+						)
+						return fmt.Sprintf(query, args...)
+					},
+				},
+			}},
+	}, nil)
+
+	wg := &sync.WaitGroup{}
+
+	if err := pager.ListAll(ctx, wg, &response); err != nil {
 		return nil, errors.Wrap(err, "while fetching applications in gqlclient")
 	}
+
+	wg.Wait()
 
 	return response, nil
 }

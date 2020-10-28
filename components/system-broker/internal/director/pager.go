@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"strings"
+	"sync"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 
@@ -27,93 +29,102 @@ type Pager struct {
 	PageToken      string
 	Client         Client
 	hasNext        bool
-	currentDepth   int
-	maxDepth       int
+	depth          int
 	prevParams     []interface{}
-	levels         map[string][]Level
+	levels         []Level
+	PageInfoPath   string
 }
 
 type Level struct {
-	children map[string][]Level
+	queryGenerator func(...interface{}) string
+	PageInfoPath   string
+	children       []Level
 }
 
-func NewPager(queryGenerator func(...interface{}) string, currentDepth, maxDepth int, pageSize int, client Client, levels map[string][]Level, prevParams []interface{}) *Pager {
+func NewPager(queryGenerator func(...interface{}) string, pageInfoPath string, depth int, pageSize int, client Client, levels []Level, prevParams []interface{}) *Pager {
 	return &Pager{
 		QueryGenerator: queryGenerator,
 		PageSize:       pageSize,
 		Client:         client,
 		hasNext:        true,
-		currentDepth:   currentDepth,
-		maxDepth:       maxDepth,
+		depth:          depth,
 		prevParams:     prevParams,
 		levels:         levels,
+		PageInfoPath:   pageInfoPath,
 	}
 }
 
-func (p *Pager) Next(ctx context.Context, output interface{}) error {
+func (p *Pager) Next(ctx context.Context, wg *sync.WaitGroup, output interface{}) error {
 	if !p.hasNext {
 		return errors.New("no more pages")
 	}
 	var query string
-	if p.currentDepth == 1 {
-		params := make([]interface{}, 0)
-		for i := 1; i < p.maxDepth; i++ {
-			params = append(params, p.PageSize, "")
-		}
-		params = append([]interface{}{p.PageSize, p.PageToken}, params...)
 
-		query = p.QueryGenerator(params...)
-	} else if len(p.prevParams) > 0 {
-
-		// TODO
+	params := p.prevParams
+	leftParams := p.depth - (len(params) / 2)
+	for i := 0; i < leftParams; i++ {
+		params = append(params, p.PageSize, p.PageToken)
 	}
+	query = p.QueryGenerator(params...)
+	fmt.Println(">>>>>", query)
 
 	req := gcli.NewRequest(query)
 
-	response := GenericOutput{
-		Result: &GenericPage{
-			Data: output,
-		},
-	}
+	// response := GenericOutput{
+	// 	Result: &GenericPage{
+	// 		Data: output,
+	// 	},
+	// }
+	var response map[string]interface{}
 
 	err := p.Client.Do(ctx, req, &response)
 	if err != nil {
 		return errors.Wrap(err, "while getting page")
 	}
 
-	if response.Result == nil {
-		return errors.New("unexpected empty response")
-	}
+	p.processChildren(ctx, wg, p.levels)
 
-	if !response.Result.PageInfo.HasNextPage {
+	// if response.Result == nil {
+	// 	return errors.New("unexpected empty response")
+	// }
+
+	pathSegements := strings.Split(p.PageInfoPath, ".")
+	var pageInfo = response
+	for _, ps := range pathSegements {
+		pageInfo = pageInfo[ps].(map[string]interface{})
+	}
+	hasNextPage := pageInfo["hasNextPage"].(bool)
+
+	if !hasNextPage {
 		p.hasNext = false
 		return nil
 	}
 
-	for _, children := range p.levels {
-		for _, child := range children {
-			innerPager := NewPager(p.QueryGenerator, p.currentDepth+1, p.maxDepth, p.PageSize, p.Client, child.children, []interface{}{
-				p.PageSize,
-				p.PageToken,
-			})
-			go func() {
-				// TODO: Where to output?
-				innerPager.ListAll(ctx, nil)
-			}()
-		}
-
-	}
-
-	p.PageToken = string(response.Result.PageInfo.EndCursor)
+	p.PageToken = pageInfo["endCursor"].(string)
 
 	return nil
+}
+
+func (p *Pager) processChildren(ctx context.Context, wg *sync.WaitGroup, levels []Level) {
+	for _, level := range levels {
+		newParams := p.prevParams
+		newParams = append(newParams, p.PageSize, p.PageToken)
+		innerPager := NewPager(level.queryGenerator, level.PageInfoPath, p.depth+1, p.PageSize, p.Client, level.children, newParams)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			// TODO: Where to output?
+			var result interface{}
+			innerPager.ListAll(ctx, wg, &result)
+		}()
+	}
 }
 
 func (p *Pager) HasNext() bool {
 	return p.hasNext
 }
 
-func (p *Pager) ListAll(ctx context.Context, output interface{}) error {
+func (p *Pager) ListAll(ctx context.Context, wg *sync.WaitGroup, output interface{}) error {
 	itemsType := reflect.TypeOf(output)
 	if itemsType.Kind() != reflect.Ptr || itemsType.Elem().Kind() != reflect.Slice {
 		return fmt.Errorf("items should be a pointer to a slice, but got %v", itemsType)
@@ -123,7 +134,7 @@ func (p *Pager) ListAll(ctx context.Context, output interface{}) error {
 
 	for p.HasNext() {
 		pageSlice := reflect.New(itemsType.Elem())
-		err := p.Next(ctx, pageSlice.Interface())
+		err := p.Next(ctx, wg, pageSlice.Interface())
 		if err != nil {
 			return err
 		}

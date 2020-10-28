@@ -300,19 +300,19 @@ func (suite *OSBCatalogTestSuite) TearDownSuite() {
 	suite.testContext.CleanUp()
 }
 
-func (suite *OSBCatalogTestSuite) TestEmptyResponse() {
-	suite.configureResponse("query", "applications", appsEmptyResponse)
-	suite.testContext.SystemBroker.GET("/v2/catalog").WithHeader("X-Broker-API-Version", "2.15").Expect().
-		Status(http.StatusOK).
-		Body().Equal("{\"services\":[]}\n")
-}
+// func (suite *OSBCatalogTestSuite) TestEmptyResponse() {
+// 	suite.configureResponse("query", "applications", appsEmptyResponse)
+// 	suite.testContext.SystemBroker.GET("/v2/catalog").WithHeader("X-Broker-API-Version", "2.15").Expect().
+// 		Status(http.StatusOK).
+// 		Body().Equal("{\"services\":[]}\n")
+// }
 
-func (suite *OSBCatalogTestSuite) TestResponseWithOnePage() {
-	suite.configureResponse("query", "applications", appsMockResponse)
-	suite.testContext.SystemBroker.GET("/v2/catalog").WithHeader("X-Broker-API-Version", "2.15").Expect().
-		Status(http.StatusOK).
-		Body().Equal(appsExpectedCatalog)
-}
+// func (suite *OSBCatalogTestSuite) TestResponseWithOnePage() {
+// 	suite.configureResponse("query", "applications", appsMockResponse)
+// 	suite.testContext.SystemBroker.GET("/v2/catalog").WithHeader("X-Broker-API-Version", "2.15").Expect().
+// 		Status(http.StatusOK).
+// 		Body().Equal(appsExpectedCatalog)
+// }
 
 func (suite *OSBCatalogTestSuite) TestResponseWithSeveralPages() {
 	suite.configureResponse("query", "applications", appsPageResponse1)
@@ -322,14 +322,14 @@ func (suite *OSBCatalogTestSuite) TestResponseWithSeveralPages() {
 		Body().Equal(appsExpectedCatalogPaging)
 }
 
-func (suite *OSBCatalogTestSuite) TestErrorWhileFetchingApplicaitons() {
-	suite.configureResponse("query", "applications", appsPageResponse1)
-	suite.configureResponse("query", "applications", appsErrorResponse)
+// func (suite *OSBCatalogTestSuite) TestErrorWhileFetchingApplicaitons() {
+// 	suite.configureResponse("query", "applications", appsPageResponse1)
+// 	suite.configureResponse("query", "applications", appsErrorResponse)
 
-	suite.testContext.SystemBroker.GET("/v2/catalog").WithHeader("X-Broker-API-Version", "2.15").Expect().
-		Status(http.StatusInternalServerError).
-		JSON().Object().Value("description").Equal("could not build catalog")
-}
+// 	suite.testContext.SystemBroker.GET("/v2/catalog").WithHeader("X-Broker-API-Version", "2.15").Expect().
+// 		Status(http.StatusInternalServerError).
+// 		JSON().Object().Value("description").Equal("could not build catalog")
+// }
 
 func (suite *OSBCatalogTestSuite) configureResponse(queryType, queryName, response string) {
 	var applicationsResponse map[string]interface{}
