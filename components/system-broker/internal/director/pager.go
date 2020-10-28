@@ -22,19 +22,31 @@ type GenericOutput struct {
 }
 
 type Pager struct {
-	QueryGenerator func(pageSize int, page string) string
+	QueryGenerator func(...interface{}) string
 	PageSize       int
 	PageToken      string
 	Client         Client
 	hasNext        bool
+	currentDepth   int
+	maxDepth       int
+	prevParams     []interface{}
+	levels         map[string][]Level
 }
 
-func NewPager(queryGenerator func(pageSize int, page string) string, pageSize int, client Client) *Pager {
+type Level struct {
+	children map[string][]Level
+}
+
+func NewPager(queryGenerator func(...interface{}) string, currentDepth, maxDepth int, pageSize int, client Client, levels map[string][]Level, prevParams []interface{}) *Pager {
 	return &Pager{
 		QueryGenerator: queryGenerator,
 		PageSize:       pageSize,
 		Client:         client,
 		hasNext:        true,
+		currentDepth:   currentDepth,
+		maxDepth:       maxDepth,
+		prevParams:     prevParams,
+		levels:         levels,
 	}
 }
 
@@ -42,8 +54,20 @@ func (p *Pager) Next(ctx context.Context, output interface{}) error {
 	if !p.hasNext {
 		return errors.New("no more pages")
 	}
+	var query string
+	if p.currentDepth == 1 {
+		params := make([]interface{}, 0)
+		for i := 1; i < p.maxDepth; i++ {
+			params = append(params, p.PageSize, "")
+		}
+		params = append([]interface{}{p.PageSize, p.PageToken}, params...)
 
-	query := p.QueryGenerator(p.PageSize, p.PageToken)
+		query = p.QueryGenerator(params...)
+	} else if len(p.prevParams) > 0 {
+
+		// TODO
+	}
+
 	req := gcli.NewRequest(query)
 
 	response := GenericOutput{
@@ -64,6 +88,20 @@ func (p *Pager) Next(ctx context.Context, output interface{}) error {
 	if !response.Result.PageInfo.HasNextPage {
 		p.hasNext = false
 		return nil
+	}
+
+	for _, children := range p.levels {
+		for _, child := range children {
+			innerPager := NewPager(p.QueryGenerator, p.currentDepth+1, p.maxDepth, p.PageSize, p.Client, child.children, []interface{}{
+				p.PageSize,
+				p.PageToken,
+			})
+			go func() {
+				// TODO: Where to output?
+				innerPager.ListAll(ctx, nil)
+			}()
+		}
+
 	}
 
 	p.PageToken = string(response.Result.PageInfo.EndCursor)

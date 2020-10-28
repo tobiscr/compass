@@ -52,8 +52,7 @@ type GraphQLizer interface {
 
 func NewGraphQLClient(gqlClient Client, gqlizer GraphQLizer, gqlFieldsProvider GqlFieldsProvider, c *Config) *GraphQLClient {
 	return &GraphQLClient{
-		gcli: gqlClient,
-		//queryProvider:     queryProvider{}, - gqlizers are better
+		gcli:              gqlClient,
 		inputGraphqlizer:  gqlizer,
 		outputGraphqlizer: gqlFieldsProvider,
 		pageSize:          c.PageSize,
@@ -65,7 +64,6 @@ type GraphQLClient struct {
 	inputGraphqlizer  GraphQLizer
 	outputGraphqlizer GqlFieldsProvider
 	pageSize          int
-	//queryProvider     queryProvider
 }
 
 func (c *GraphQLClient) FetchApplications(ctx context.Context) (ApplicationsOutput, error) {
@@ -73,14 +71,33 @@ func (c *GraphQLClient) FetchApplications(ctx context.Context) (ApplicationsOutp
 
 	query := fmt.Sprintf(`query {
 			result: applications(first: %%d, after: %%q) {
+				%s
+				packages(first: %%d, after: %%q) {
 					%s
+					apiDefinitions(first: %%d, after: %%q) {
+						%s
+					}
+					eventDefinitions(first: %%d, after: %%q) {
+						%s
+					}
+					documents(first: %%d, after:  %%q) {
+						%s
+					}
+				}
 			}
-	}`, c.outputGraphqlizer.Page(c.outputGraphqlizer.ForApplication()))
+	}`,
+		c.outputGraphqlizer.Page(c.outputGraphqlizer.ForApplication()),
+		c.outputGraphqlizer.Page(c.outputGraphqlizer.ForPackage()),
+		c.outputGraphqlizer.Page(c.outputGraphqlizer.ForAPIDefinition()),
+		c.outputGraphqlizer.Page(c.outputGraphqlizer.ForEventDefinition()),
+		c.outputGraphqlizer.Page(c.outputGraphqlizer.ForDocument()),
+	)
+	fmt.Println(">>>>", query)
 	queryGenerator := func(pageSize int, page string) string {
 		return fmt.Sprintf(query, pageSize, page)
 	}
 
-	pager := NewPager(queryGenerator, c.pageSize, c.gcli)
+	pager := NewPager(queryGenerator, 1, 5, c.pageSize, c.gcli, nil)
 	if err := pager.ListAll(ctx, &response); err != nil {
 		return nil, errors.Wrap(err, "while fetching applications in gqlclient")
 	}

@@ -92,7 +92,6 @@ func (g *GqlFakeRouter) graphqlHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	queryField := query.Operations[0].SelectionSet[0].(*ast.Field)
-
 	queryName := queryField.Name
 	queryType := string(query.Operations[0].Operation)
 	key := GraphqlQueryKey{
