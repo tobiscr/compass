@@ -79,12 +79,13 @@ func fatalOnError(err error) {
 func prepareGqlClient(cfg *config.Config, uudSrv uuid.Service) (*director.GraphQLClient, error) {
 	// prepare raw http transport and http client based on cfg
 	httpTransport := httputil.NewCorrelationIDTransport(httputil.NewErrorHandlerTransport(httputil.NewHTTPTransport(cfg.HttpClient)), uudSrv)
-	httpClient := httputil.NewClient(cfg.HttpClient.Timeout, httpTransport)
+	// httpClient := httputil.NewClient(cfg.HttpClient.Timeout, httpTransport)
 
-	oauthTokenProvider, err := oauth.NewTokenProvider(cfg.OAuthProvider, httpClient)
-	if err != nil {
-		return nil, err
-	}
+	oauthTokenProvider := oauth.NewTokenProviderFromValue("eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzY29wZXMiOiJhcHBsaWNhdGlvbjpyZWFkIGF1dG9tYXRpY19zY2VuYXJpb19hc3NpZ25tZW50OndyaXRlIGF1dG9tYXRpY19zY2VuYXJpb19hc3NpZ25tZW50OnJlYWQgaGVhbHRoX2NoZWNrczpyZWFkIGFwcGxpY2F0aW9uOndyaXRlIHJ1bnRpbWU6d3JpdGUgbGFiZWxfZGVmaW5pdGlvbjp3cml0ZSBsYWJlbF9kZWZpbml0aW9uOnJlYWQgcnVudGltZTpyZWFkIHRlbmFudDpyZWFkIiwidGVuYW50IjoiM2U2NGViYWUtMzhiNS00NmEwLWIxZWQtOWNjZWUxNTNhMGFlIn0.")
+	// oauthTokenProvider, err := oauth.NewTokenProvider(cfg.OAuthProvider, httpClient)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	securedTransport := httputil.NewSecuredTransport(cfg.HttpClient.Timeout, httpTransport, oauthTokenProvider)
 	securedClient := &http.Client{

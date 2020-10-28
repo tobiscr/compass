@@ -87,9 +87,11 @@ func (c *GraphQLClient) FetchApplications(ctx context.Context) (ApplicationsOutp
 			queryGenerator: func(args ...interface{}) string {
 				query := fmt.Sprintf(`query {
 					result: applications(first: %%d, after: %%q) {
-						id
-						packages(first: %%d, after: %%q) {
-							%s
+						data {
+							id
+							packages(first: %%d, after: %%q) {
+								%s
+							}
 						}
 					}
 			}`,
@@ -104,11 +106,15 @@ func (c *GraphQLClient) FetchApplications(ctx context.Context) (ApplicationsOutp
 					queryGenerator: func(args ...interface{}) string {
 						query := fmt.Sprintf(`query {
 						result: applications(first: %%d, after: %%q) {
-							id
-							packages(first: %%d, after: %%q) {
+							data {
 								id
-								apiDefinitions(first: %%d, after: %%q) {
-									%s
+								packages(first: %%d, after: %%q) {
+									data {
+										id
+										apiDefinitions(first: %%d, after: %%q) {
+											%s
+										}
+									}
 								}
 							}
 						}
@@ -123,11 +129,15 @@ func (c *GraphQLClient) FetchApplications(ctx context.Context) (ApplicationsOutp
 					queryGenerator: func(args ...interface{}) string {
 						query := fmt.Sprintf(`query {
 						result: applications(first: %%d, after: %%q) {
-							id
-							packages(first: %%d, after: %%q) {
+							data {
 								id
-								eventDefinitions(first: %%d, after: %%q) {
-									%s
+								packages(first: %%d, after: %%q) {
+									data {
+										id
+										eventDefinitions(first: %%d, after: %%q) {
+											%s
+										}
+									}
 								}
 							}
 						}

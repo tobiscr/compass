@@ -110,13 +110,17 @@ func (p *Pager) processChildren(ctx context.Context, wg *sync.WaitGroup, levels 
 		newParams := p.prevParams
 		newParams = append(newParams, p.PageSize, p.PageToken)
 		innerPager := NewPager(level.queryGenerator, level.PageInfoPath, p.depth+1, p.PageSize, p.Client, level.children, newParams)
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			// TODO: Where to output?
-			var result interface{}
-			innerPager.ListAll(ctx, wg, &result)
-		}()
+		// wg.Add(1)
+		// go func() {
+		fmt.Println("Starting inner pager")
+		// 	defer wg.Done()
+		// 	// TODO: Where to output?
+		var result []interface{}
+		wgg := &sync.WaitGroup{}
+		innerPager.ListAll(ctx, wgg, &result)
+		wgg.Wait()
+		fmt.Println("Finished inner pager")
+		// }()
 	}
 }
 
