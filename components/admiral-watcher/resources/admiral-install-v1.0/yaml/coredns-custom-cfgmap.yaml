@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+data:
+  istio.server: |
+    global:8053 {
+            errors
+            cache 30
+            forward . <<put the value returned from $(kubectl get svc -n istio-system istiocoredns -o jsonpath={.spec.clusterIP})>>
+        }

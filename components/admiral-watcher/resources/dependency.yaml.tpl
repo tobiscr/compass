@@ -1,0 +1,11 @@
+---
+apiVersion: admiral.io/v1alpha1
+kind: Dependency
+metadata:
+  name: dependency
+  namespace: admiral
+spec:
+  source: webapp
+  identityLabel: identity
+  destinations:
+    {{.destinations}}

@@ -1,0 +1,7 @@
+apiVersion: addons.kyma-project.io/v1alpha1
+kind: ClusterAddonsConfiguration
+metadata:
+  name: xf-addons
+spec:
+  repositories:
+    - url: "github.com/sap/xf-addons//addons/index.yaml?ref=0.11"

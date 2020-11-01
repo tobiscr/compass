@@ -1,0 +1,23 @@
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  labels:
+    identity: greeting
+  name: default.commerce-mock.global-se
+  namespace: admiral-sync
+spec:
+  addresses:
+  - 240.0.10.3
+  endpoints:
+  - address: a512cc22d5e014cd783c587a938821b7-1030933956.eu-west-2.elb.amazonaws.com
+    locality: eu-west-2
+    ports:
+      http: 15443
+  hosts:
+  - default.commerce-mock.global
+  location: MESH_INTERNAL
+  ports:
+  - name: http
+    number: 80
+    protocol: http
+  resolution: DNS

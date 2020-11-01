@@ -1,0 +1,18 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: default.commerce-mock.global-default-vs
+  namespace: admiral-sync
+spec:
+  exportTo:
+  - '*'
+  gateways:
+  - istio-multicluster-ingressgateway
+  hosts:
+  - default.commerce-mock.global
+  http:
+  - route:
+    - destination:
+        host: commerce-mock.mocks.svc.cluster.local
+        port:
+          number: 80
