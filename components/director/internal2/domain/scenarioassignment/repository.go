@@ -7,8 +7,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/internal/repo"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/repo"
 )
 
 const tableName string = `public.automatic_scenario_assignments`

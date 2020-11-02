@@ -2,7 +2,7 @@ package authenticator
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"github.com/kyma-incubator/compass/components/director/internal/consumer"
+	"github.com/kyma-incubator/compass/components/director/internal2/consumer"
 )
 
 type Claims struct {

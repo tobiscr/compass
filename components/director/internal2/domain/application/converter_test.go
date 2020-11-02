@@ -7,11 +7,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/kyma-incubator/compass/components/director/internal/repo/testdb"
+	"github.com/kyma-incubator/compass/components/director/internal2/repo/testdb"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/application"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/application/automock"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/application"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/application/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"
 )

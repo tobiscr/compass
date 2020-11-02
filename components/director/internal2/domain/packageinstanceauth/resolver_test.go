@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/packageinstanceauth"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/packageinstanceauth/automock"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/packageinstanceauth"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/packageinstanceauth/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"

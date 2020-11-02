@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/kyma-incubator/compass/components/director/internal/healthz/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/healthz/automock"
 	"github.com/pkg/errors"
 
 	"github.com/sirupsen/logrus"

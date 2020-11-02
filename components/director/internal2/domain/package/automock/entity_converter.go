@@ -3,8 +3,8 @@
 package automock
 
 import (
-	mp_package "github.com/kyma-incubator/compass/components/director/internal/domain/package"
-	model "github.com/kyma-incubator/compass/components/director/internal/model"
+	mp_package "github.com/kyma-incubator/compass/components/director/internal2/domain/package"
+	model "github.com/kyma-incubator/compass/components/director/internal2/model"
 	mock "github.com/stretchr/testify/mock"
 )
 

@@ -5,12 +5,12 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/tenant"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant/automock"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/internal/repo/testdb"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/tenant/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/repo/testdb"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

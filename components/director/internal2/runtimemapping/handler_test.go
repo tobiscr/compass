@@ -10,15 +10,15 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
 	"github.com/pkg/errors"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/kyma-incubator/compass/components/director/internal/oathkeeper"
-	"github.com/kyma-incubator/compass/components/director/internal/runtimemapping/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/oathkeeper"
+	"github.com/kyma-incubator/compass/components/director/internal2/runtimemapping/automock"
 )
 
 func TestHandler(t *testing.T) {

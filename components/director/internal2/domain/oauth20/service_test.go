@@ -9,9 +9,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/oauth20"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/oauth20/automock"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/oauth20"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/oauth20/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

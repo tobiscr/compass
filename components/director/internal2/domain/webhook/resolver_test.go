@@ -10,8 +10,8 @@ import (
 
 	"testing"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/webhook"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/webhook/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/webhook"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/webhook/automock"
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 

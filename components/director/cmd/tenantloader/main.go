@@ -3,14 +3,14 @@ package main
 import (
 	"context"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
-	"github.com/kyma-incubator/compass/components/director/internal/uid"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/tenant"
+	"github.com/kyma-incubator/compass/components/director/internal2/uid"
 	"github.com/pkg/errors"
 	"github.com/vrischmann/envconfig"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 
-	"github.com/kyma-incubator/compass/components/director/internal/externaltenant"
+	"github.com/kyma-incubator/compass/components/director/internal2/externaltenant"
 	log "github.com/sirupsen/logrus"
 )
 

@@ -8,12 +8,12 @@ import (
 	"github.com/kyma-incubator/compass/components/director/pkg/resource"
 
 	"github.com/google/uuid"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/label"
-	"github.com/kyma-incubator/compass/components/director/internal/repo"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/label"
+	"github.com/kyma-incubator/compass/components/director/internal2/repo"
 	"github.com/pkg/errors"
 
-	"github.com/kyma-incubator/compass/components/director/internal/labelfilter"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/labelfilter"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 )
 
 const runtimeTable string = `public.runtimes`

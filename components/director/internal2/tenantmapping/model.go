@@ -1,7 +1,7 @@
 package tenantmapping
 
 import (
-	"github.com/kyma-incubator/compass/components/director/internal/consumer"
+	"github.com/kyma-incubator/compass/components/director/internal2/consumer"
 )
 
 const (

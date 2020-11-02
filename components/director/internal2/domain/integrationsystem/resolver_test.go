@@ -8,11 +8,11 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/integrationsystem"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/integrationsystem/automock"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/integrationsystem"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/integrationsystem/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/tenant"
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"

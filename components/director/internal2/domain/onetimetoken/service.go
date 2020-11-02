@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"github.com/avast/retry-go"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/pairing"
 	"github.com/kyma-incubator/compass/components/director/pkg/request"

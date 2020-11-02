@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/label"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/label"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

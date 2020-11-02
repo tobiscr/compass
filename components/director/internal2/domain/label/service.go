@@ -8,7 +8,7 @@ import (
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/kyma-incubator/compass/components/director/pkg/jsonschema"
 	"github.com/pkg/errors"
 )

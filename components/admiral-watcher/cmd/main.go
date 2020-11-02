@@ -22,7 +22,6 @@ import (
 	"github.com/kyma-incubator/compass/components/admiral-watcher/pkg/env"
 	"github.com/kyma-incubator/compass/components/admiral-watcher/pkg/log"
 	"github.com/kyma-incubator/compass/components/admiral-watcher/pkg/signal"
-	"github.com/kyma-incubator/compass/components/admiral-watcher/pkg/uuid"
 	"os"
 )
 
@@ -46,7 +45,9 @@ func main() {
 	ctx, err = log.Configure(ctx, cfg.Log)
 	fatalOnError(err)
 
-	uuidSrv := uuid.NewService()
+	//storage
+	//handlers
+	//notifications
 
 }
 

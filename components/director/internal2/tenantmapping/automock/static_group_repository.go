@@ -3,7 +3,7 @@
 package automock
 
 import (
-	tenantmapping "github.com/kyma-incubator/compass/components/director/internal/tenantmapping"
+	tenantmapping "github.com/kyma-incubator/compass/components/director/internal2/tenantmapping"
 	mock "github.com/stretchr/testify/mock"
 )
 

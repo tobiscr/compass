@@ -12,8 +12,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/kyma-incubator/compass/components/director/internal/repo/testdb"
-	"github.com/kyma-incubator/compass/components/director/internal/statusupdate"
+	"github.com/kyma-incubator/compass/components/director/internal2/repo/testdb"
+	"github.com/kyma-incubator/compass/components/director/internal2/statusupdate"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 	"github.com/stretchr/testify/require"
 )

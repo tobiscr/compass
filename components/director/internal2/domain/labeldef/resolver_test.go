@@ -10,10 +10,10 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/labeldef"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/labeldef/automock"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/labeldef"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/labeldef/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/tenant"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 	pautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"

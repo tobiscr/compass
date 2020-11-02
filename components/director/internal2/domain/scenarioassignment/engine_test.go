@@ -8,9 +8,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/scenarioassignment"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/scenarioassignment/automock"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/scenarioassignment"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/scenarioassignment/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )

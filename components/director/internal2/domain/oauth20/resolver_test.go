@@ -6,9 +6,9 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/pkg/str"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/oauth20"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/oauth20/automock"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/oauth20"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/oauth20/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"

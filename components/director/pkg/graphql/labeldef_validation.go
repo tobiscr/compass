@@ -2,7 +2,7 @@ package graphql
 
 import (
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 	"github.com/kyma-incubator/compass/components/director/pkg/jsonschema"
 	"github.com/pkg/errors"

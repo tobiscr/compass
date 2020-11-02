@@ -11,7 +11,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 )
 
 //go:generate mockery -name=ApplicationTemplateRepository -output=automock -outpkg=automock -case=underscore

@@ -8,12 +8,12 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/systemauth/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/systemauth/automock"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/systemauth"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/internal/repo/testdb"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/systemauth"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/repo/testdb"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 	"github.com/stretchr/testify/require"
 )

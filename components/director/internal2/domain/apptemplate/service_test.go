@@ -7,12 +7,12 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/pkg/str"
 
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/apptemplate"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/apptemplate"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/apptemplate/automock"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/apptemplate/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/tenant"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

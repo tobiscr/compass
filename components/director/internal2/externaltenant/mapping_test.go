@@ -6,9 +6,9 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 
-	"github.com/kyma-incubator/compass/components/director/internal/externaltenant"
+	"github.com/kyma-incubator/compass/components/director/internal2/externaltenant"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -8,8 +8,8 @@ import (
 	"github.com/kyma-incubator/compass/components/director/pkg/resource"
 
 	"github.com/google/uuid"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/eventing/automock"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/eventing/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"

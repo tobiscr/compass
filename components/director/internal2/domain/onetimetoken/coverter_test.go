@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/onetimetoken"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/onetimetoken"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/stretchr/testify/assert"
 )
 

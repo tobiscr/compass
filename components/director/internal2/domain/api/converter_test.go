@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/version"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/version"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/api"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/api/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/api"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/api/automock"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"

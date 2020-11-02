@@ -8,17 +8,17 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/packageinstanceauth"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/packageinstanceauth"
 
-	mp_package "github.com/kyma-incubator/compass/components/director/internal/domain/package"
+	mp_package "github.com/kyma-incubator/compass/components/director/internal2/domain/package"
 
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/label"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/label"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/tenant"
 	"github.com/pkg/errors"
 
-	"github.com/kyma-incubator/compass/components/director/internal/consumer"
+	"github.com/kyma-incubator/compass/components/director/internal2/consumer"
 
 	"github.com/99designs/gqlgen/graphql"
 )

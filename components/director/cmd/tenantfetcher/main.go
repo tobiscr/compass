@@ -3,10 +3,10 @@ package main
 import (
 	"time"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
-	"github.com/kyma-incubator/compass/components/director/internal/metrics"
-	"github.com/kyma-incubator/compass/components/director/internal/tenantfetcher"
-	"github.com/kyma-incubator/compass/components/director/internal/uid"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/tenant"
+	"github.com/kyma-incubator/compass/components/director/internal2/metrics"
+	"github.com/kyma-incubator/compass/components/director/internal2/tenantfetcher"
+	"github.com/kyma-incubator/compass/components/director/internal2/uid"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"

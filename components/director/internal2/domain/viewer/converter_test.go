@@ -3,10 +3,10 @@ package viewer_test
 import (
 	"testing"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/viewer"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/viewer"
 
 	"github.com/google/uuid"
-	"github.com/kyma-incubator/compass/components/director/internal/consumer"
+	"github.com/kyma-incubator/compass/components/director/internal2/consumer"
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

@@ -14,12 +14,12 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
-	"github.com/kyma-incubator/compass/components/director/internal/consumer"
+	"github.com/kyma-incubator/compass/components/director/internal2/consumer"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/tenant"
 	"github.com/kyma-incubator/compass/components/director/pkg/scope"
 
 	"github.com/dgrijalva/jwt-go"

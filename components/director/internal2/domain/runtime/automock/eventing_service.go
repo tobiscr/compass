@@ -5,7 +5,7 @@ package automock
 import (
 	context "context"
 
-	model "github.com/kyma-incubator/compass/components/director/internal/model"
+	model "github.com/kyma-incubator/compass/components/director/internal2/model"
 	mock "github.com/stretchr/testify/mock"
 
 	uuid "github.com/google/uuid"

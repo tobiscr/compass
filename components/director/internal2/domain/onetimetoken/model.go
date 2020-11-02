@@ -1,6 +1,6 @@
 package onetimetoken
 
-import "github.com/kyma-incubator/compass/components/director/internal/model"
+import "github.com/kyma-incubator/compass/components/director/internal2/model"
 
 type ConnectorTokenModel struct {
 	AppToken     ConnectorToken `json:"generateApplicationToken"`

@@ -15,16 +15,16 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/kyma-incubator/compass/components/director/internal/statusupdate"
+	"github.com/kyma-incubator/compass/components/director/internal2/statusupdate"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/kyma-incubator/compass/components/director/internal/statusupdate/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/statusupdate/automock"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
 
-	"github.com/kyma-incubator/compass/components/director/internal/consumer"
+	"github.com/kyma-incubator/compass/components/director/internal2/consumer"
 )
 
 const (

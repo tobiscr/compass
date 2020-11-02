@@ -10,8 +10,8 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
-	"github.com/kyma-incubator/compass/components/director/internal/tenantfetcher"
-	"github.com/kyma-incubator/compass/components/director/internal/tenantfetcher/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/tenantfetcher"
+	"github.com/kyma-incubator/compass/components/director/internal2/tenantfetcher/automock"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

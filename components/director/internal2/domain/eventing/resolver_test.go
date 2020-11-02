@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/eventing/automock"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/eventing/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/tenant"
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"

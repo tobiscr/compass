@@ -4,11 +4,11 @@ import (
 	"database/sql/driver"
 	"time"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/eventdef"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/version"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/eventdef"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/version"
 
-	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/internal/repo"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/repo"
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/str"
 )

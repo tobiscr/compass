@@ -15,10 +15,10 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/api"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/api/automock"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/api"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/api/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/tenant"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

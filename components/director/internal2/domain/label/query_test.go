@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/kyma-incubator/compass/components/director/internal/labelfilter"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/labelfilter"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 )
 
 func Test_FilterQuery(t *testing.T) {

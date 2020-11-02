@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/internal/tenantfetcher"
-	"github.com/kyma-incubator/compass/components/director/internal/tenantfetcher/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/tenantfetcher"
+	"github.com/kyma-incubator/compass/components/director/internal2/tenantfetcher/automock"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
 

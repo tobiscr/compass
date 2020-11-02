@@ -8,15 +8,15 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/auth"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/auth"
 
-	mp_package "github.com/kyma-incubator/compass/components/director/internal/domain/package"
+	mp_package "github.com/kyma-incubator/compass/components/director/internal2/domain/package"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/package/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/package/automock"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"

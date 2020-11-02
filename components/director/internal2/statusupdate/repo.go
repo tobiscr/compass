@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/kyma-incubator/compass/components/director/internal/timestamp"
+	"github.com/kyma-incubator/compass/components/director/internal2/timestamp"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 

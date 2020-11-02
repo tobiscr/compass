@@ -4,16 +4,16 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/label"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/label"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
-	"github.com/kyma-incubator/compass/components/director/internal/labelfilter"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/tenant"
+	"github.com/kyma-incubator/compass/components/director/internal2/labelfilter"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/pkg/errors"
 )
 

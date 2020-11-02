@@ -11,9 +11,9 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/labeldef"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/labeldef/automock"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/labeldef"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/labeldef/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

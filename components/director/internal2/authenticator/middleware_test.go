@@ -13,20 +13,20 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
-	"github.com/kyma-incubator/compass/components/director/internal/consumer"
+	"github.com/kyma-incubator/compass/components/director/internal2/consumer"
 
 	"github.com/lestrrat-go/jwx/jwk"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/scope"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/tenant"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/kyma-incubator/compass/components/director/internal/authenticator"
+	"github.com/kyma-incubator/compass/components/director/internal2/authenticator"
 )
 
 const defaultTenant = "af9f84a9-1d3a-4d9f-ae0c-94f883b33b6e"

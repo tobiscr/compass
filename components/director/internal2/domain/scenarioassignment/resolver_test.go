@@ -7,9 +7,9 @@ import (
 
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/scenarioassignment"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/scenarioassignment/automock"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/scenarioassignment"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/scenarioassignment/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
 	"github.com/pkg/errors"

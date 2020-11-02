@@ -11,8 +11,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/document"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/document/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/document"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/document/automock"
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/stretchr/testify/assert"

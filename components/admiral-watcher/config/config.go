@@ -17,15 +17,10 @@
 package config
 
 import (
-	"github.com/kyma-incubator/compass/components/admiral-watcher/pg"
 	"reflect"
 
 	"github.com/kyma-incubator/compass/components/admiral-watcher/pkg/env"
-	"github.com/kyma-incubator/compass/components/admiral-watcher/pkg/graphql"
-	"github.com/kyma-incubator/compass/components/admiral-watcher/pkg/http"
 	"github.com/kyma-incubator/compass/components/admiral-watcher/pkg/log"
-	"github.com/kyma-incubator/compass/components/admiral-watcher/pkg/oauth"
-	"github.com/kyma-incubator/compass/components/admiral-watcher/pkg/server"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 )
@@ -35,8 +30,7 @@ type Validatable interface {
 }
 
 type Config struct {
-	Log     *log.Config     `mapstructure:"log"`
-	Storage *storage.Config `mapstructure:"storage"`
+	Log *log.Config `mapstructure:"log"`
 }
 
 func AddPFlags(set *pflag.FlagSet) {
@@ -46,11 +40,7 @@ func AddPFlags(set *pflag.FlagSet) {
 
 func DefaultConfig() *Config {
 	return &Config{
-		Server:        server.DefaultConfig(),
-		Log:           log.DefaultConfig(),
-		HttpClient:    http.DefaultConfig(),
-		GraphQLClient: graphql.DefaultConfig(),
-		OAuthProvider: oauth.DefaultConfig(),
+		Log: log.DefaultConfig(),
 	}
 }
 

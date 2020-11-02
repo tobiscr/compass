@@ -13,10 +13,10 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/onetimetoken"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/onetimetoken/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/onetimetoken"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/onetimetoken/automock"
 	gcli "github.com/machinebox/graphql"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"

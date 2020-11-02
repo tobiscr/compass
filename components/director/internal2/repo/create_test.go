@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/kyma-incubator/compass/components/director/internal/repo"
-	"github.com/kyma-incubator/compass/components/director/internal/repo/testdb"
+	"github.com/kyma-incubator/compass/components/director/internal2/repo"
+	"github.com/kyma-incubator/compass/components/director/internal2/repo/testdb"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/require"

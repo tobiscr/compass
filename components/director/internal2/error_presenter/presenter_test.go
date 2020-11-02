@@ -8,9 +8,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/kyma-incubator/compass/components/director/internal/error_presenter"
+	"github.com/kyma-incubator/compass/components/director/internal2/error_presenter"
 
-	"github.com/kyma-incubator/compass/components/director/internal/uid"
+	"github.com/kyma-incubator/compass/components/director/internal2/uid"
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 	"github.com/sirupsen/logrus/hooks/test"
 

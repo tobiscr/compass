@@ -9,13 +9,13 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
-	"github.com/kyma-incubator/compass/components/director/internal/oathkeeper"
-	"github.com/kyma-incubator/compass/components/director/internal/tenantmapping"
+	"github.com/kyma-incubator/compass/components/director/internal2/oathkeeper"
+	"github.com/kyma-incubator/compass/components/director/internal2/tenantmapping"
 
 	"github.com/google/uuid"
-	systemauthmock "github.com/kyma-incubator/compass/components/director/internal/domain/systemauth/automock"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
-	tenantmappingmock "github.com/kyma-incubator/compass/components/director/internal/tenantmapping/automock"
+	systemauthmock "github.com/kyma-incubator/compass/components/director/internal2/domain/systemauth/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
+	tenantmappingmock "github.com/kyma-incubator/compass/components/director/internal2/tenantmapping/automock"
 	"github.com/kyma-incubator/compass/components/director/pkg/str"
 	"github.com/stretchr/testify/mock"
 )

@@ -8,15 +8,15 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 
 	"github.com/stretchr/testify/assert"
 
-	mp_package "github.com/kyma-incubator/compass/components/director/internal/domain/package"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/package/automock"
+	mp_package "github.com/kyma-incubator/compass/components/director/internal2/domain/package"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/package/automock"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/kyma-incubator/compass/components/director/internal/repo/testdb"
+	"github.com/kyma-incubator/compass/components/director/internal2/repo/testdb"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 	"github.com/stretchr/testify/require"
 )

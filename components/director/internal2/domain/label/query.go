@@ -7,8 +7,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/google/uuid"
-	"github.com/kyma-incubator/compass/components/director/internal/labelfilter"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/labelfilter"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 )
 
 // SetCombination type defines possible result set combination for querying

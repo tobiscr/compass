@@ -8,17 +8,17 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/pkg/inputvalidation"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/tenant"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/eventing"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/eventing"
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/google/uuid"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 
-	"github.com/kyma-incubator/compass/components/director/internal/labelfilter"
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/labelfilter"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/pkg/errors"
 )

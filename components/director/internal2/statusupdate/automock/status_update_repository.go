@@ -5,7 +5,7 @@ package automock
 import (
 	context "context"
 
-	statusupdate "github.com/kyma-incubator/compass/components/director/internal/statusupdate"
+	statusupdate "github.com/kyma-incubator/compass/components/director/internal2/statusupdate"
 	mock "github.com/stretchr/testify/mock"
 )
 

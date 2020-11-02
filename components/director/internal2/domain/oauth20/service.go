@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 	"github.com/kyma-incubator/compass/components/director/pkg/request"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"

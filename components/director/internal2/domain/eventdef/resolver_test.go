@@ -11,10 +11,10 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/kyma-incubator/compass/components/director/internal/model"
+	"github.com/kyma-incubator/compass/components/director/internal2/model"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/eventdef"
-	"github.com/kyma-incubator/compass/components/director/internal/domain/eventdef/automock"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/eventdef"
+	"github.com/kyma-incubator/compass/components/director/internal2/domain/eventdef/automock"
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/stretchr/testify/assert"

@@ -7,8 +7,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/kyma-incubator/compass/components/director/internal/consumer"
-	"github.com/kyma-incubator/compass/components/director/internal/oathkeeper"
+	"github.com/kyma-incubator/compass/components/director/internal2/consumer"
+	"github.com/kyma-incubator/compass/components/director/internal2/oathkeeper"
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 	"github.com/pkg/errors"
 )
