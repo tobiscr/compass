@@ -57,6 +57,22 @@ func (fp *GqlFieldsProvider) ForApplication(ctx ...FieldCtx) string {
 		ctx, []string{"Application.package", "Application.apiDefinition", "Application.eventDefinition"})
 }
 
+func (fp *GqlFieldsProvider) ForApplicationPageable(ctx ...FieldCtx) string {
+	return addFieldsFromContext(fmt.Sprintf(`
+		id
+		name
+		providerName
+		description
+		integrationSystemID
+		labels
+		status {condition timestamp}
+		webhooks {%s}
+		healthCheckURL
+		auths {%s}
+		eventingConfiguration { defaultURL }
+	`, fp.ForWebhooks(), fp.ForSystemAuth()), ctx, []string{"Application.packages"})
+}
+
 func (fp *GqlFieldsProvider) ForApplicationTemplate(ctx ...FieldCtx) string {
 	return fmt.Sprintf(`id
 		name
@@ -286,6 +302,17 @@ func (fp *GqlFieldsProvider) ForPackage(ctx ...FieldCtx) string {
 		eventDefinitions {%s}
 		documents {%s}`, fp.ForPackageInstanceAuth(), fp.ForAuth(), fp.Page(fp.ForAPIDefinition(ctx...)), fp.Page(fp.ForEventDefinition()), fp.Page(fp.ForDocument())),
 		ctx, []string{"Package.instanceAuth"})
+}
+
+func (fp *GqlFieldsProvider) ForPackagePageable(ctx ...FieldCtx) string {
+	return addFieldsFromContext(fmt.Sprintf(`
+		id
+		name
+		description
+		instanceAuthRequestInputSchema
+		instanceAuths {%s}
+		defaultInstanceAuth {%s}`, fp.ForPackageInstanceAuth(), fp.ForAuth()),
+		ctx, []string{"Package.instanceAuth", "Package.apiDefinitions", "Package.eventDefinitions", "Package.documents"})
 }
 
 func (fp *GqlFieldsProvider) ForPackageInstanceAuth() string {
