@@ -17,12 +17,11 @@
 package config
 
 import (
+	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 	"reflect"
+	"time"
 
-	"github.com/kyma-incubator/compass/components/admiral-watcher/pkg/env"
 	"github.com/kyma-incubator/compass/components/admiral-watcher/pkg/log"
-	"github.com/pkg/errors"
-	"github.com/spf13/pflag"
 )
 
 type Validatable interface {
@@ -30,27 +29,25 @@ type Validatable interface {
 }
 
 type Config struct {
-	Log *log.Config `mapstructure:"log"`
-}
-
-func AddPFlags(set *pflag.FlagSet) {
-	env.CreatePFlags(set, DefaultConfig())
-	env.CreatePFlagsForConfigFile(set)
+	Log      *log.Config
+	Database persistence.DatabaseConfig
 }
 
 func DefaultConfig() *Config {
 	return &Config{
 		Log: log.DefaultConfig(),
+		Database: persistence.DatabaseConfig{
+			User:               "director",
+			Password:           "OcbsP37S1eS32xrPEWQYJ71Y",
+			Host:               "localhost",
+			Port:               "5432",
+			Name:               "director",
+			SSLMode:            "disable",
+			MaxOpenConnections: 10,
+			MaxIdleConnections: 10,
+			ConnMaxLifetime:    30 * time.Minute,
+		},
 	}
-}
-
-func New(env env.Environment) (*Config, error) {
-	config := DefaultConfig()
-	if err := env.Unmarshal(config); err != nil {
-		return nil, errors.Wrapf(err, "error loading cfg")
-	}
-
-	return config, nil
 }
 
 func (c *Config) Validate() error {

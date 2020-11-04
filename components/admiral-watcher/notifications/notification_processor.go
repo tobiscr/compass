@@ -1,4 +1,4 @@
-package storage
+package notifications
 
 import (
 	"bytes"
@@ -31,7 +31,7 @@ const (
 type Notification struct {
 	Table  Table
 	Action Action
-	Data   []byte
+	Data   json.RawMessage
 }
 
 func (n *Notification) Validate() error {
@@ -49,27 +49,15 @@ func (n *Notification) Validate() error {
 	return nil
 }
 
-type NotificationHandler interface {
-	HandleCreate(ctx context.Context, data []byte) error
-	HandleUpdate(ctx context.Context, data []byte) error
-	HandleDelete(ctx context.Context, data []byte) error
-}
-
-type NotificationListener interface {
-	Listen(channel string) error
-	Ping() error
-	Close() error
-	NotificationChannel() <-chan *pq.Notification
-}
-
 type HandlerKey struct {
 	NotificationChannel string
 	ResourceType        resource.Type
 }
 
-func NewNotificationProcessor(handlers map[HandlerKey]NotificationHandler) *NotificationProcessor {
+func NewNotificationProcessor(cfg persistence.DatabaseConfig, handlers map[HandlerKey]NotificationHandler) *NotificationProcessor {
 	return &NotificationProcessor{
-		Handlers: handlers,
+		Handlers:      handlers,
+		StorageConfig: cfg,
 	}
 }
 
@@ -103,8 +91,9 @@ func (np *NotificationProcessor) connect(ctx context.Context) error {
 		}
 	}
 
-	listener := pq.NewListener(np.StorageConfig.GetConnString(), time.Second*5, time.Minute*10, reporter)
-	if err := listener.Listen("admiral"); err != nil {
+	connString := np.StorageConfig.GetConnString()
+	listener := pq.NewListener(connString, time.Second*5, time.Minute*10, reporter)
+	if err := listener.Listen("events"); err != nil {
 		return errors.Errorf("failed to listen on channel %s: %s", "admiral", err)
 	}
 
@@ -114,9 +103,14 @@ func (np *NotificationProcessor) connect(ctx context.Context) error {
 }
 
 func (np *NotificationProcessor) processLoop(ctx context.Context) {
-
 	for {
 		select {
+		case <-ctx.Done():
+			log.D().Debug("Stopping notifications processor...")
+			if err := np.listener.Close(); err != nil {
+				log.D().Errorf("Closing notifications processor returned error : %s", err)
+				return
+			}
 		case n := <-np.listener.NotificationChannel():
 			log.C(ctx).Infof("Received data from channel [%s]", n.Channel)
 			var prettyJSON bytes.Buffer
@@ -182,12 +176,7 @@ func (np *NotificationProcessor) processLoop(ctx context.Context) {
 					log.C(ctx).WithError(err).Error("pinging listener failed")
 				}
 			}()
-		case <-ctx.Done():
-			log.D().Debug("Stopping notifications processor...")
-			if err := np.listener.Close(); err != nil {
-				log.D().Errorf("Closing notifications processor returned error : %s", err)
-				return
-			}
+			log.C(ctx).Warn("Successfully checking watch connection")
 		}
 	}
 }

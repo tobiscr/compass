@@ -1,4 +1,4 @@
-package storage
+package notifications
 
 import (
 	"context"
@@ -10,22 +10,16 @@ import (
 )
 
 type Label struct {
-	ID        string `db:"id" json:"id"`
-	TenantID  string `db:"tenant_id" json:"tenant_id"`
-	Key       string `db:"key" json:"key"`
-	AppID     string `db:"app_id" json:"app_id"`
-	RuntimeID string `db:"runtime_id" json:"runtime_id"`
-	Value     string `db:"value" json:"value"`
-}
-
-type NotificationLabelHandler interface {
-	HandleCreate(ctx context.Context, label Label) error
-	HandleUpdate(ctx context.Context, label Label) error
-	HandleDelete(ctx context.Context, label Label) error
+	ID        string   `db:"id" json:"id"`
+	TenantID  string   `db:"tenant_id" json:"tenant_id"`
+	Key       string   `db:"key" json:"key"`
+	AppID     string   `db:"app_id" json:"app_id"`
+	RuntimeID string   `db:"runtime_id" json:"runtime_id"`
+	Value     []string `db:"value" json:"value"`
 }
 
 type LabelNotificationHandler struct {
-	handlers map[resource.Type]NotificationLabelHandler
+	Handlers map[resource.Type]NotificationLabelHandler
 }
 
 func (l *LabelNotificationHandler) HandleCreate(ctx context.Context, data []byte) error {
@@ -36,10 +30,16 @@ func (l *LabelNotificationHandler) HandleCreate(ctx context.Context, data []byte
 
 	if !strings.Contains(strings.ToLower(label.Key), "scenario") {
 		log.C(ctx).Warnf("handling events for creation of labels with key %s is noop", label.Key)
+		return nil
+	}
+
+	if len(label.Value) == 1 && label.Value[0] == "DEFAULT" {
+		log.C(ctx).Warnf("handling events for creation of labels with key %s and single value DEFAULT is noop", label.Key)
+		return nil
 	}
 
 	if len(label.AppID) != 0 {
-		handler, ok := l.handlers[resource.Application]
+		handler, ok := l.Handlers[resource.Application]
 		if !ok {
 			return errors.New("handler for applications label creation not found")
 		}
@@ -48,7 +48,7 @@ func (l *LabelNotificationHandler) HandleCreate(ctx context.Context, data []byte
 			return err
 		}
 	} else if len(label.RuntimeID) != 0 {
-		handler, ok := l.handlers[resource.Runtime]
+		handler, ok := l.Handlers[resource.Runtime]
 		if !ok {
 			return errors.New("handler for applications label creation not found")
 		}
@@ -72,10 +72,11 @@ func (l *LabelNotificationHandler) HandleUpdate(ctx context.Context, data []byte
 
 	if !strings.Contains(strings.ToLower(label.Key), "scenario") {
 		log.C(ctx).Warnf("handling events for creation of labels with key %s is noop", label.Key)
+		return nil
 	}
 
 	if len(label.AppID) != 0 {
-		handler, ok := l.handlers[resource.Application]
+		handler, ok := l.Handlers[resource.Application]
 		if !ok {
 			return errors.New("handler for applications label creation not found")
 		}
@@ -84,7 +85,7 @@ func (l *LabelNotificationHandler) HandleUpdate(ctx context.Context, data []byte
 			return err
 		}
 	} else if len(label.RuntimeID) != 0 {
-		handler, ok := l.handlers[resource.Runtime]
+		handler, ok := l.Handlers[resource.Runtime]
 		if !ok {
 			return errors.New("handler for applications label creation not found")
 		}
@@ -108,10 +109,16 @@ func (l *LabelNotificationHandler) HandleDelete(ctx context.Context, data []byte
 
 	if !strings.Contains(strings.ToLower(label.Key), "scenario") {
 		log.C(ctx).Warnf("handling events for creation of labels with key %s is noop", label.Key)
+		return nil
+	}
+
+	if len(label.Value) == 1 && label.Value[0] == "DEFAULT" {
+		log.C(ctx).Warnf("handling events for creation of labels with key %s and single value DEFAULT is noop", label.Key)
+		return nil
 	}
 
 	if len(label.AppID) != 0 {
-		handler, ok := l.handlers[resource.Application]
+		handler, ok := l.Handlers[resource.Application]
 		if !ok {
 			return errors.New("handler for applications label creation not found")
 		}
@@ -120,7 +127,7 @@ func (l *LabelNotificationHandler) HandleDelete(ctx context.Context, data []byte
 			return err
 		}
 	} else if len(label.RuntimeID) != 0 {
-		handler, ok := l.handlers[resource.Runtime]
+		handler, ok := l.Handlers[resource.Runtime]
 		if !ok {
 			return errors.New("handler for applications label creation not found")
 		}
@@ -134,5 +141,4 @@ func (l *LabelNotificationHandler) HandleDelete(ctx context.Context, data []byte
 
 	log.C(ctx).Infof("Successfully handled delete event for label %v", label)
 	return nil
-
 }

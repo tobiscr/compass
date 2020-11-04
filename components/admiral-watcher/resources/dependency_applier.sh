@@ -15,22 +15,14 @@ if [ "$#" -gt "0" ]; then
   dep=$1
 fi
 
-if [ "$#" -gt "1" ]; then
-  remote=$1
-fi
-
 admiral_cluster=${ROOT_PATH}/kubeconfigs/admiral.yaml
-remote_cluster=${ROOT_PATH}/kubeconfigs/${remote}
 
 export KUBECONFIG=$admiral_cluster
+
+echo $dep
 
 cat <<EOF > dep.yaml
 $dep
 EOF
 
 kubectl apply -f dep.yaml
-kubectl rollout restart deployment/admiral -n admiral
-
-export KUBECONFIG=$remote_cluster
-
-kubectl delete -all serviceentries -n admiral-sync

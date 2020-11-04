@@ -16,13 +16,13 @@ type Runner struct {
 }
 
 func (r *Runner) Run(ctx context.Context, scriptName string, args ...string) error {
-	cmdArgs := append([]string{scriptName}, args...)
+	cmdArgs := append([]string{r.ScriptsLocation + "/" + scriptName}, args...)
 	log.C(ctx).Infof("Executing %s %s", scriptName, strings.Join(args, " "))
 
 	cmd := exec.Command("/bin/sh", cmdArgs...)
-	outputBytes, err := cmd.Output()
+	outputBytes, err := cmd.CombinedOutput()
 	if err != nil {
-		return errors.Errorf("failed executing script %s: %s", scriptName, err)
+		return errors.Errorf("failed executing script %s: %s: %s", scriptName, err, string(outputBytes))
 	}
 
 	log.C(ctx).Infof("\n=====================\n%s=====================\n", string(outputBytes))
@@ -37,4 +37,20 @@ func (r *Runner) ApplyDependency(ctx context.Context, dep types.Dependency, remo
 
 func (r *Runner) DeleteDependency(ctx context.Context, dep string, remote string) error {
 	return r.Run(ctx, "dependency_cleaner.sh", dep, remote)
+}
+
+func (r *Runner) RegisterRuntime(ctx context.Context, remote string) error {
+	return r.Run(ctx, "register_consumer_cluster.sh", remote)
+}
+
+func (r *Runner) RegisterApplication(ctx context.Context, remote string) error {
+	return r.Run(ctx, "register_provider_cluster.sh", remote)
+}
+
+func (r *Runner) DeleteRuntime(ctx context.Context, remote string) error {
+	return r.Run(ctx, "cleanup_remote_cluster.sh", remote)
+}
+
+func (r *Runner) DeleteApplication(ctx context.Context, remote string) error {
+	return r.Run(ctx, "cleanup_remote_cluster.sh", remote)
 }
