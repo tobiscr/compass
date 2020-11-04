@@ -19,6 +19,7 @@ package osb
 import (
 	"context"
 	"github.com/kyma-incubator/compass/components/system-broker/internal/director"
+	"github.com/pivotal-cf/brokerapi/domain/apiresponses"
 
 	"github.com/kyma-incubator/compass/components/system-broker/pkg/log"
 	"github.com/pivotal-cf/brokerapi/v7/domain"
@@ -59,8 +60,13 @@ func (b *GetBindingEndpoint) GetBinding(ctx context.Context, instanceID, binding
 			"binding_id":  bindingID,
 		},
 	})
-	if err != nil {
+	if err != nil && !IsNotFoundError(err) {
 		return domain.GetBindingSpec{}, errors.Wrapf(err, "while getting package instance credentials from director")
+	}
+
+	if IsNotFoundError(err) {
+		logger.Info("Package instance credentials not found")
+		return domain.GetBindingSpec{}, apiresponses.ErrBindingDoesNotExist
 	}
 
 	if len(resp.InstanceAuths) != 1 {

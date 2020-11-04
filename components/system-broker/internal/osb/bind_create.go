@@ -107,7 +107,7 @@ func (b *BindEndpoint) Bind(ctx context.Context, instanceID, bindingID string, d
 	logger.Infof("package instance credentials have status %s", auth.Status.Condition)
 
 	if IsFailed(auths[0].Status) {
-		return domain.Binding{}, errors.Errorf("requesting package instance credentials from director failed, got status %+v", *auth.Status)
+		return domain.Binding{}, errors.Errorf("requesting package instance credentials from director failed, found existing credentials with status %+v", *auth.Status)
 	}
 
 	logger.Info("Successfully found package instance credentials")
