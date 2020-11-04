@@ -99,7 +99,7 @@ func (b *BindLastOperationEndpoint) LastBindingOperation(ctx context.Context, in
 			// this would trigger orphan mitigation
 			state = domain.Failed
 		case schema.PackageInstanceAuthStatusConditionUnused: // error
-			// pretty questionable status, may happen if deprovisioning is triggered before async provisioning succeeds
+			// pretty questionable status, may happen if unbind is triggered before async bind succeeds
 			//TODO do we want to trigger orphan mitigation, just return error or force platform to continue polling here?
 			fallthrough
 		default:

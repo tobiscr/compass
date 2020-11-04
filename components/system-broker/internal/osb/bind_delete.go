@@ -18,7 +18,6 @@ package osb
 
 import (
 	"context"
-	"fmt"
 	"github.com/kyma-incubator/compass/components/system-broker/internal/director"
 	"github.com/pkg/errors"
 
@@ -78,7 +77,7 @@ func (b *UnbindEndpoint) Unbind(ctx context.Context, instanceID, bindingID strin
 		logger.Info("Package credentials for binding exist and are not used. Deletion is already in progress")
 		return domain.UnbindSpec{
 			IsAsync:       true,
-			OperationData: fmt.Sprintf("%s:%s:%s:%s", UnbindOp, appID, packageID, auth.ID),
+			OperationData: string(UnbindOp),
 		}, nil
 	}
 
