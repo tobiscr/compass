@@ -17,7 +17,7 @@ func DefaultConfig() *Config {
 func (c *Config) Validate() error {
 	if c.PageSize < 1 {
 		return errors.New("graphql page size must be a positive number")
-	} else if c.PageSize < 1 {
+	} else if c.PageConcurrency < 1 {
 		return errors.New("graphql page concurrency must be a positive number")
 	}
 

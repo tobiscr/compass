@@ -3,8 +3,6 @@ package scheduler
 import (
 	"context"
 	"sync"
-
-	"github.com/pkg/errors"
 )
 
 type Scheduler struct {
@@ -61,6 +59,6 @@ func (s Scheduler) Wait() error {
 		return nil
 	case err := <-s.errChan:
 		s.cancelFunc()
-		return errors.Wrap(err, "while fetching packages for apps")
+		return err
 	}
 }

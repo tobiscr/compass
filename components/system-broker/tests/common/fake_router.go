@@ -119,7 +119,21 @@ func (g *GqlFakeRouter) graphqlHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	response, err := g.getResponseByKey(key)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, err)
+		errJson := struct {
+			Errors []struct {
+				Message string
+			}
+		}{
+			Errors: make([]struct{ Message string }, 1),
+		}
+
+		errJson.Errors[0] = struct{ Message string }{
+			Message: err.Error(),
+		}
+		if err := json.NewEncoder(w).Encode(errJson); err != nil {
+			writeError(w, http.StatusInternalServerError, err)
+			return
+		}
 		return
 	}
 

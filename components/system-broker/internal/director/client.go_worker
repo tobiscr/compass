@@ -73,7 +73,7 @@ func (c *GraphQLClient) FetchApplications(ctx context.Context) (ApplicationsOutp
 			result: applications(first: $first, after: $after) {
 					%s
 			}
-	 }`, c.outputGraphqlizer.Page(c.outputGraphqlizer.ForApplicationPageable()))
+	}`, c.outputGraphqlizer.Page(c.outputGraphqlizer.ForApplicationPageable()))
 
 	pager := paginator.NewPaginator(query, c.pageSize, c.gcli)
 	apps := &ApplicationResponse{}
@@ -83,30 +83,27 @@ func (c *GraphQLClient) FetchApplications(ctx context.Context) (ApplicationsOutp
 		return nil, errors.Wrap(err, "while listing all apps")
 	}
 
-	s := scheduler.New(ctx, c.pageConcurrency)
-	s.Schedule(func(ctx context.Context) error {
-		return c.fetchPackages(ctx, appsResult)
-	})
+	workChan := make(chan func(context.Context) error, 400)
+	worker := scheduler.NewWorker(ctx, c.pageConcurrency, workChan)
+	worker.Start()
+	c.fetchPackages(appsResult, workChan)
 
-	err = s.Wait()
+	fmt.Println(">>>>waiting")
+	err = worker.Wait()
 	if err != nil {
 		return nil, errors.Wrap(err, "while fetching applicaiotns")
 	}
 	return appsResult, nil
 }
 
-func (c *GraphQLClient) fetchPackages(ctx context.Context, apps ApplicationsOutput) error {
-	s := scheduler.New(ctx, c.pageConcurrency)
-
+func (c *GraphQLClient) fetchPackages(apps ApplicationsOutput, w chan func(context.Context) error) {
 	for i, app := range apps {
-		f := c.fetchPackagesForApp(ctx, i, app, apps)
-		s.Schedule(f)
+		f := c.fetchPackagesForApp(i, app, apps, w)
+		w <- f
 	}
-
-	return s.Wait()
 }
 
-func (c *GraphQLClient) fetchPackagesForApp(ctx context.Context, i int, app schema.ApplicationExt, apps ApplicationsOutput) func(ctx context.Context) error {
+func (c *GraphQLClient) fetchPackagesForApp(i int, app schema.ApplicationExt, apps ApplicationsOutput, w chan func(context.Context) error) func(ctx context.Context) error {
 	return func(ctx context.Context) error {
 		select {
 		case <-ctx.Done():
@@ -115,12 +112,12 @@ func (c *GraphQLClient) fetchPackagesForApp(ctx context.Context, i int, app sche
 		}
 
 		query := fmt.Sprintf(`query($first: Int, $after: PageCursor) {
-				 result: application(id: %q) {
-					 packages(first: $first, after: $after) {
-					 %s
-					 }
-				 }
-			 }`, app.ID, c.outputGraphqlizer.Page(c.outputGraphqlizer.ForPackagePageable()))
+				result: application(id: %q) {
+					packages(first: $first, after: $after) {
+					%s
+					}
+				}
+			}`, app.ID, c.outputGraphqlizer.Page(c.outputGraphqlizer.ForPackagePageable()))
 
 		pager := paginator.NewPaginator(query, c.pageSize, c.gcli)
 		packages := &PackagesResponse{}
@@ -138,48 +135,41 @@ func (c *GraphQLClient) fetchPackagesForApp(ctx context.Context, i int, app sche
 			Data: packagesResult,
 		}
 
-		s := scheduler.New(ctx, c.pageConcurrency)
-
-		s.Schedule(func(ctx context.Context) error {
-			return c.fetchApiDefinitions(ctx, app.ID, packagesResult)
-		})
-		s.Schedule(func(ctx context.Context) error {
-			return c.fetchEventDefinitions(ctx, app.ID, packagesResult)
-		})
-		s.Schedule(func(ctx context.Context) error {
-			return c.fetchDocuments(ctx, app.ID, packagesResult)
-		})
-
-		return s.Wait()
+		w <- func(ctx context.Context) error {
+			c.fetchApiDefinitions(app.ID, packagesResult, w)
+			return nil
+		}
+		w <- func(ctx context.Context) error {
+			c.fetchEventDefinitions(app.ID, packagesResult, w)
+			return nil
+		}
+		w <- func(ctx context.Context) error {
+			c.fetchDocuments(app.ID, packagesResult, w)
+			return nil
+		}
+		return nil
 	}
 }
 
-func (c *GraphQLClient) fetchApiDefinitions(ctx context.Context, appID string, packages PackagessOutput) error {
-	s := scheduler.New(ctx, c.pageConcurrency)
+func (c *GraphQLClient) fetchApiDefinitions(appID string, packages PackagessOutput, w chan func(context.Context) error) {
 	for i, packaged := range packages {
 		f := c.fetchApiDefForPackage(i, packaged, appID, packages)
-		s.Schedule(f)
+		w <- f
 	}
-	return s.Wait()
 }
 
-func (c *GraphQLClient) fetchEventDefinitions(ctx context.Context, appID string, packages PackagessOutput) error {
-	s := scheduler.New(ctx, c.pageConcurrency)
+func (c *GraphQLClient) fetchEventDefinitions(appID string, packages PackagessOutput, w chan func(context.Context) error) {
 	for i, packaged := range packages {
 		f := c.fetchEventDefForPackage(i, packaged, appID, packages)
-		s.Schedule(f)
+		w <- f
 	}
-
-	return s.Wait()
 }
 
-func (c *GraphQLClient) fetchDocuments(ctx context.Context, appID string, packages PackagessOutput) error {
-	s := scheduler.New(ctx, c.pageConcurrency)
+func (c *GraphQLClient) fetchDocuments(appID string, packages PackagessOutput, w chan func(context.Context) error) {
 	for i, packaged := range packages {
 		f := c.fetchDocumentsForPackage(i, packaged, appID, packages)
-		s.Schedule(f)
+		w <- f
 	}
-	return s.Wait()
 }
 
 func (c *GraphQLClient) fetchApiDefForPackage(i int, packaged *schema.PackageExt, appID string, packages PackagessOutput) func(ctx context.Context) error {
@@ -191,14 +181,14 @@ func (c *GraphQLClient) fetchApiDefForPackage(i int, packaged *schema.PackageExt
 		}
 
 		query := fmt.Sprintf(`query($first: Int, $after: PageCursor) {
-	 result: application(id: %q) {
-		 package(id: %q) {
-			 apiDefinitions(first: $first, after: $after) {
-				 %s
-			 }
-		   }
-	 }
- }`, appID, packaged.ID, c.outputGraphqlizer.Page(c.outputGraphqlizer.ForAPIDefinition()))
+	result: application(id: %q) {
+		package(id: %q) {
+			apiDefinitions(first: $first, after: $after) {
+				%s
+			}
+		  }
+	}
+}`, appID, packaged.ID, c.outputGraphqlizer.Page(c.outputGraphqlizer.ForAPIDefinition()))
 
 		pager := paginator.NewPaginator(query, c.pageSize, c.gcli)
 		definitions := &ApiDefinitionsResponse{}
@@ -227,14 +217,14 @@ func (c *GraphQLClient) fetchEventDefForPackage(i int, packaged *schema.PackageE
 		}
 
 		query := fmt.Sprintf(`query($first: Int, $after: PageCursor) {
- result: application(id: %q) {
-	 package(id: %q) {
-		 eventDefinitions(first: $first, after: $after) {
-			 %s
-		 }
-	   }
- }
- }`, appID, packaged.ID, c.outputGraphqlizer.Page(c.outputGraphqlizer.ForEventDefinition()))
+result: application(id: %q) {
+	package(id: %q) {
+		eventDefinitions(first: $first, after: $after) {
+			%s
+		}
+	  }
+}
+}`, appID, packaged.ID, c.outputGraphqlizer.Page(c.outputGraphqlizer.ForEventDefinition()))
 
 		pager := paginator.NewPaginator(query, c.pageSize, c.gcli)
 		definitions := &EventDefinitionsResponse{}
@@ -263,14 +253,14 @@ func (c *GraphQLClient) fetchDocumentsForPackage(i int, packaged *schema.Package
 		default:
 		}
 		query := fmt.Sprintf(`query($first: Int, $after: PageCursor) {
- result: application(id: %q) {
-	 package(id: %q) {
-		 documents(first: $first, after: $after) {
-			 %s
-		 }
-	   }
- }
- }`, appID, packaged.ID, c.outputGraphqlizer.Page(c.outputGraphqlizer.ForDocument()))
+result: application(id: %q) {
+	package(id: %q) {
+		documents(first: $first, after: $after) {
+			%s
+		}
+	  }
+}
+}`, appID, packaged.ID, c.outputGraphqlizer.Page(c.outputGraphqlizer.ForDocument()))
 
 		pager := paginator.NewPaginator(query, c.pageSize, c.gcli)
 		definitions := &DocumentsResponse{}
@@ -307,43 +297,43 @@ func (c *GraphQLClient) RequestPackageInstanceCredentialsCreation(ctx context.Co
 	}
 
 	gqlRequest := gcli.NewRequest(fmt.Sprintf(`mutation {
-			   result: requestPackageInstanceAuthCreation(
-				 packageID: "%s"
-				 in: {
-				   context: %s
-				   inputParams: %s
-				 }
-			   ) {
-					 id
-					 context
-					 auth {
-					   additionalHeaders
-					   additionalQueryParams
-					   requestAuth {
-						 csrf {
-						   tokenEndpointURL
-						 }
-					   }
-					   credential {
-						 ... on OAuthCredentialData {
-						   clientId
-						   clientSecret
-						   url
-						 }
-						 ... on BasicCredentialData {
-						   username
-						   password
-						 }
-					   }
-					 }
-					 status {
-					   condition
-					   timestamp
-					   message
-					   reason
-					 }
+			  result: requestPackageInstanceAuthCreation(
+				packageID: "%s"
+				in: {
+				  context: %s
+    			  inputParams: %s
+				}
+			  ) {
+					id
+					context
+					auth {
+					  additionalHeaders
+					  additionalQueryParams
+					  requestAuth {
+						csrf {
+						  tokenEndpointURL
+						}
+					  }
+					  credential {
+						... on OAuthCredentialData {
+						  clientId
+						  clientSecret
+						  url
+						}
+						... on BasicCredentialData {
+						  username
+						  password
+						}
+					  }
 					}
-				 }`, in.PackageID, inContext, input))
+					status {
+					  condition
+					  timestamp
+					  message
+					  reason
+					}
+			  	 }
+				}`, in.PackageID, inContext, input))
 
 	var resp RequestPackageInstanceCredentialsOutput
 	if err = c.gcli.Do(ctx, gqlRequest, &resp); err != nil {
@@ -359,12 +349,12 @@ func (c *GraphQLClient) FindPackageInstanceCredentialsForContext(ctx context.Con
 	}
 
 	gqlRequest := gcli.NewRequest(fmt.Sprintf(`query {
-			 result: application(id: "%s") {
-						 package(id: "%s") {
-							 %s
-						  }
-					 }
-				 }`, in.ApplicationID, in.PackageID, c.outputGraphqlizer.ForPackage()))
+			result: application(id: "%s") {
+						package(id: "%s") {
+							%s
+					 	}
+					}
+				}`, in.ApplicationID, in.PackageID, c.outputGraphqlizer.ForPackage()))
 
 	var resp struct {
 		Result schema.ApplicationExt `json:"result"`
@@ -419,41 +409,41 @@ func (c *GraphQLClient) FindPackageInstanceCredentials(ctx context.Context, in *
 	}
 
 	gqlRequest := gcli.NewRequest(fmt.Sprintf(`query {
-			   result: application(id: %q) {
-						 package(id: %q) {
-						   instanceAuth(id: %q) {
-							 id
-							 context
-							 auth {
-							   additionalHeaders
-							   additionalQueryParams
-							   requestAuth {
-								 csrf {
-								   tokenEndpointURL
-								 }
-							   }
-							   credential {
-								 ... on OAuthCredentialData {
-								   clientId
-								   clientSecret
-								   url
-								 }
-								 ... on BasicCredentialData {
-								   username
-								   password
-								 }
-							   }
-							 }
-							 status {
-							   condition
-							   timestamp
-							   message
-							   reason
-							 }
-						   }
-						 }
-					   }
-					 }`, in.ApplicationID, in.PackageID, in.InstanceAuthID))
+			  result: application(id: %q) {
+						package(id: %q) {
+						  instanceAuth(id: %q) {
+							id
+							context
+							auth {
+							  additionalHeaders
+							  additionalQueryParams
+							  requestAuth {
+								csrf {
+								  tokenEndpointURL
+								}
+							  }
+							  credential {
+								... on OAuthCredentialData {
+								  clientId
+								  clientSecret
+								  url
+								}
+								... on BasicCredentialData {
+								  username
+								  password
+								}
+							  }
+							}
+							status {
+							  condition
+							  timestamp
+							  message
+							  reason
+							}
+						  }
+						}
+					  }
+					}`, in.ApplicationID, in.PackageID, in.InstanceAuthID))
 
 	var response struct {
 		Result schema.ApplicationExt `json:"result"`
@@ -477,16 +467,16 @@ func (c *GraphQLClient) RequestPackageInstanceCredentialsDeletion(ctx context.Co
 	}
 
 	gqlRequest := gcli.NewRequest(fmt.Sprintf(`mutation {
-			   result: requestPackageInstanceAuthDeletion(authID: %q) {
-						 id
-						 status {
-						   condition
-						   timestamp
-						   message
-						   reason
-						 }
-					   }
-					 }`, in.InstanceAuthID))
+			  result: requestPackageInstanceAuthDeletion(authID: %q) {
+						id
+						status {
+						  condition
+						  timestamp
+						  message
+						  reason
+						}
+					  }
+					}`, in.InstanceAuthID))
 
 	var resp struct {
 		Result RequestPackageInstanceAuthDeletionOutput `json:"result"`
@@ -509,25 +499,25 @@ func (c *GraphQLClient) FindSpecification(ctx context.Context, in *FindPackageSp
 	}
 
 	gqlRequest := gcli.NewRequest(fmt.Sprintf(`query {
-			   result: application(id: %q) {
-						 package(id: %q) {
-						   apiDefinition(id: %q) {
-							   spec {
-								 data
-								 type
-								 format
-							   }
-						   }
-						   eventDefinition(id: %q) {
-							   spec {
-								 data
-								 type
-								 format
-							   }
-						   }
-						 }
-					   }
-					 }`, in.ApplicationID, in.PackageID, in.DefinitionID, in.DefinitionID))
+			  result: application(id: %q) {
+						package(id: %q) {
+						  apiDefinition(id: %q) {
+							  spec {
+								data
+								type
+								format
+							  }
+						  }
+						  eventDefinition(id: %q) {
+							  spec {
+								data
+								type
+								format
+							  }
+						  }
+						}
+					  }
+					}`, in.ApplicationID, in.PackageID, in.DefinitionID, in.DefinitionID))
 
 	var response struct {
 		Result schema.ApplicationExt `json:"result"`
