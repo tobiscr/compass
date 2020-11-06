@@ -24,6 +24,6 @@ kubectl apply -f $ADMIRAL_HOME/yaml/remotecluster.yaml
 export KUBECONFIG=$remote_cluster
 $ADMIRAL_HOME/scripts/cluster-secret.sh $admiral_cluster $remote_cluster admiral
 
-export KUBECONFIG=$admiral_cluster
+export KUBECONFIG=$remote_cluster
 kubectl apply -f $ADMIRAL_HOME/yaml/webapp.yaml
 kubectl rollout status deployment webapp -n sample

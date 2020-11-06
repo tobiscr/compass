@@ -16,7 +16,7 @@ type DatabaseConfig struct {
 	SSLMode            string        `envconfig:"default=disable,APP_DB_SSL"`
 	MaxOpenConnections int           `envconfig:"default=2,APP_DB_MAX_OPEN_CONNECTIONS"`
 	MaxIdleConnections int           `envconfig:"default=2,APP_DB_MAX_IDLE_CONNECTIONS"`
-	ConnMaxLifetime    time.Duration `envconfig:"default=30m,APP_DB_CONNECTION_MAX_LIFETIME"`
+	ConnMaxLifetime    time.Duration `envconfig:"default=3000m,APP_DB_CONNECTION_MAX_LIFETIME"`
 }
 
 func (cfg DatabaseConfig) GetConnString() string {

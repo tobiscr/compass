@@ -35,8 +35,8 @@ func (r *Runner) ApplyDependency(ctx context.Context, dep types.Dependency, remo
 	return r.Run(ctx, "dependency_applier.sh", dependencyString, remote)
 }
 
-func (r *Runner) DeleteDependency(ctx context.Context, dep string, remote string) error {
-	return r.Run(ctx, "dependency_cleaner.sh", dep, remote)
+func (r *Runner) DeleteDependency(ctx context.Context, dep string, remote1, remote2 string) error {
+	return r.Run(ctx, "dependency_cleaner.sh", dep, remote1, remote2)
 }
 
 func (r *Runner) RegisterRuntime(ctx context.Context, remote string) error {
@@ -48,9 +48,9 @@ func (r *Runner) RegisterApplication(ctx context.Context, remote string) error {
 }
 
 func (r *Runner) DeleteRuntime(ctx context.Context, remote string) error {
-	return r.Run(ctx, "cleanup_remote_cluster.sh", remote)
+	return r.Run(ctx, "cleanup_remote_consumer_cluster.sh", remote)
 }
 
-func (r *Runner) DeleteApplication(ctx context.Context, remote string) error {
-	return r.Run(ctx, "cleanup_remote_cluster.sh", remote)
+func (r *Runner) DeleteApplication(ctx context.Context, remote1, remote2 string) error {
+	return r.Run(ctx, "cleanup_remote_provider_cluster.sh", remote1, remote2)
 }

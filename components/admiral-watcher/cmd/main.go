@@ -23,7 +23,6 @@ import (
 	"github.com/kyma-incubator/compass/components/admiral-watcher/script"
 	"github.com/kyma-incubator/compass/components/admiral-watcher/templates"
 	"github.com/kyma-incubator/compass/components/director/pkg/resource"
-	"github.com/vrischmann/envconfig"
 	"net/http"
 	"os"
 	"path"
@@ -65,10 +64,10 @@ func main() {
 	signal.HandleInterrupts(ctx, cancel, term)
 
 	cfg := config.DefaultConfig()
-	err := envconfig.InitWithPrefix(&cfg, "APP")
-	fatalOnError(err)
+	//err := envconfig.InitWithPrefix(&cfg, "APP")
+	//fatalOnError(err)
 
-	err = cfg.Validate()
+	err := cfg.Validate()
 	fatalOnError(err)
 
 	ctx, err = log.Configure(ctx, cfg.Log)

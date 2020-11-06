@@ -130,7 +130,7 @@ func (a *AppLabelNotificationHandler) handle(ctx context.Context, label Label) e
 		}
 
 		if len(appNames) == 0 {
-			if err := a.ScriptRunner.DeleteDependency(ctx, "dep-rt-"+runtime.ID, "admiral.yaml"); err != nil {
+			if err := a.ScriptRunner.DeleteDependency(ctx, "dep-rt-"+runtime.ID, "admiral.yaml", "runtime.yaml"); err != nil {
 				return err
 			}
 		} else {
@@ -149,6 +149,9 @@ func (a *AppLabelNotificationHandler) handle(ctx context.Context, label Label) e
 					IdentityLabel: "identity",
 					Destinations:  appNames,
 				},
+			}
+			if err := a.ScriptRunner.DeleteDependency(ctx, "dep-rt-"+runtime.ID, "admiral.yaml", "runtime.yaml"); err != nil {
+				return err
 			}
 			if err := a.ScriptRunner.ApplyDependency(ctx, dep, "admiral.yaml"); err != nil {
 				return err

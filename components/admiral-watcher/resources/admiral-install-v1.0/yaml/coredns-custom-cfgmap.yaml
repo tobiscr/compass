@@ -8,5 +8,5 @@ data:
     global:8053 {
             errors
             cache 30
-            forward . <<put the value returned from $(kubectl get svc -n istio-system istiocoredns -o jsonpath={.spec.clusterIP})>>
+            forward . 100.64.121.189
         }

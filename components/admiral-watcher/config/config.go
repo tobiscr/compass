@@ -38,7 +38,7 @@ func DefaultConfig() *Config {
 		Log: log.DefaultConfig(),
 		Database: persistence.DatabaseConfig{
 			User:               "director",
-			Password:           "OcbsP37S1eS32xrPEWQYJ71Y",
+			Password:           "bu0ohthee0woh0equ1DahG2cu2aeceec",
 			Host:               "localhost",
 			Port:               "5432",
 			Name:               "director",

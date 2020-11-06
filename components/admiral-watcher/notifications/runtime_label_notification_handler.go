@@ -49,7 +49,7 @@ func (a *RuntimeLabelNotificationHandler) HandleDelete(ctx context.Context, labe
 	runtime, err := a.RuntimeGetter.Get(ctx, label.RuntimeID)
 	if err != nil {
 		if apperrors.IsNotFoundError(err) {
-			log.C(ctx).Infof("runtime with name %s not found. Skipping label event", runtime.Name)
+			log.C(ctx).Infof("runtime with id %s not found. Skipping label event", label.RuntimeID)
 			err = tx.Commit()
 			if err != nil {
 				return err
@@ -64,7 +64,7 @@ func (a *RuntimeLabelNotificationHandler) HandleDelete(ctx context.Context, labe
 		return nil
 	}
 
-	if err := a.ScriptRunner.DeleteDependency(ctx, "dep-rt-"+label.RuntimeID, "runtime.yaml"); err != nil {
+	if err := a.ScriptRunner.DeleteDependency(ctx, "dep-rt-"+label.RuntimeID, "admiral.yaml", "runtime.yaml"); err != nil {
 		return err
 	}
 

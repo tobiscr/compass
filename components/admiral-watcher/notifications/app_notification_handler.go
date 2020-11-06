@@ -86,7 +86,7 @@ func (l *AppNotificationHandler) HandleDelete(ctx context.Context, data []byte) 
 		return nil
 	}
 
-	if err := l.ScriptRunner.DeleteApplication(ctx, "commerce.yaml"); err != nil {
+	if err := l.ScriptRunner.DeleteApplication(ctx, "commerce.yaml", "runtime.yaml"); err != nil {
 		return err
 	}
 
