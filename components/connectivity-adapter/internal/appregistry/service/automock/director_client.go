@@ -5,7 +5,7 @@ package automock
 import (
 	context "context"
 
-	graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	externalschema "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,18 +15,18 @@ type DirectorClient struct {
 }
 
 // CreateAPIDefinition provides a mock function with given fields: ctx, packageID, apiDefinitionInput
-func (_m *DirectorClient) CreateAPIDefinition(ctx context.Context, packageID string, apiDefinitionInput graphql.APIDefinitionInput) (string, error) {
+func (_m *DirectorClient) CreateAPIDefinition(ctx context.Context, packageID string, apiDefinitionInput externalschema.APIDefinitionInput) (string, error) {
 	ret := _m.Called(ctx, packageID, apiDefinitionInput)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(context.Context, string, graphql.APIDefinitionInput) string); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, externalschema.APIDefinitionInput) string); ok {
 		r0 = rf(ctx, packageID, apiDefinitionInput)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, graphql.APIDefinitionInput) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, externalschema.APIDefinitionInput) error); ok {
 		r1 = rf(ctx, packageID, apiDefinitionInput)
 	} else {
 		r1 = ret.Error(1)
@@ -36,18 +36,18 @@ func (_m *DirectorClient) CreateAPIDefinition(ctx context.Context, packageID str
 }
 
 // CreateDocument provides a mock function with given fields: ctx, packageID, documentInput
-func (_m *DirectorClient) CreateDocument(ctx context.Context, packageID string, documentInput graphql.DocumentInput) (string, error) {
+func (_m *DirectorClient) CreateDocument(ctx context.Context, packageID string, documentInput externalschema.DocumentInput) (string, error) {
 	ret := _m.Called(ctx, packageID, documentInput)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(context.Context, string, graphql.DocumentInput) string); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, externalschema.DocumentInput) string); ok {
 		r0 = rf(ctx, packageID, documentInput)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, graphql.DocumentInput) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, externalschema.DocumentInput) error); ok {
 		r1 = rf(ctx, packageID, documentInput)
 	} else {
 		r1 = ret.Error(1)
@@ -57,18 +57,18 @@ func (_m *DirectorClient) CreateDocument(ctx context.Context, packageID string, 
 }
 
 // CreateEventDefinition provides a mock function with given fields: ctx, packageID, eventDefinitionInput
-func (_m *DirectorClient) CreateEventDefinition(ctx context.Context, packageID string, eventDefinitionInput graphql.EventDefinitionInput) (string, error) {
+func (_m *DirectorClient) CreateEventDefinition(ctx context.Context, packageID string, eventDefinitionInput externalschema.EventDefinitionInput) (string, error) {
 	ret := _m.Called(ctx, packageID, eventDefinitionInput)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(context.Context, string, graphql.EventDefinitionInput) string); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, externalschema.EventDefinitionInput) string); ok {
 		r0 = rf(ctx, packageID, eventDefinitionInput)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, graphql.EventDefinitionInput) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, externalschema.EventDefinitionInput) error); ok {
 		r1 = rf(ctx, packageID, eventDefinitionInput)
 	} else {
 		r1 = ret.Error(1)
@@ -78,18 +78,18 @@ func (_m *DirectorClient) CreateEventDefinition(ctx context.Context, packageID s
 }
 
 // CreatePackage provides a mock function with given fields: ctx, appID, in
-func (_m *DirectorClient) CreatePackage(ctx context.Context, appID string, in graphql.PackageCreateInput) (string, error) {
+func (_m *DirectorClient) CreatePackage(ctx context.Context, appID string, in externalschema.PackageCreateInput) (string, error) {
 	ret := _m.Called(ctx, appID, in)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(context.Context, string, graphql.PackageCreateInput) string); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, externalschema.PackageCreateInput) string); ok {
 		r0 = rf(ctx, appID, in)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, graphql.PackageCreateInput) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, externalschema.PackageCreateInput) error); ok {
 		r1 = rf(ctx, appID, in)
 	} else {
 		r1 = ret.Error(1)
@@ -155,14 +155,14 @@ func (_m *DirectorClient) DeletePackage(ctx context.Context, packageID string) e
 }
 
 // GetPackage provides a mock function with given fields: ctx, appID, packageID
-func (_m *DirectorClient) GetPackage(ctx context.Context, appID string, packageID string) (graphql.PackageExt, error) {
+func (_m *DirectorClient) GetPackage(ctx context.Context, appID string, packageID string) (externalschema.PackageExt, error) {
 	ret := _m.Called(ctx, appID, packageID)
 
-	var r0 graphql.PackageExt
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) graphql.PackageExt); ok {
+	var r0 externalschema.PackageExt
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) externalschema.PackageExt); ok {
 		r0 = rf(ctx, appID, packageID)
 	} else {
-		r0 = ret.Get(0).(graphql.PackageExt)
+		r0 = ret.Get(0).(externalschema.PackageExt)
 	}
 
 	var r1 error
@@ -176,15 +176,15 @@ func (_m *DirectorClient) GetPackage(ctx context.Context, appID string, packageI
 }
 
 // ListPackages provides a mock function with given fields: ctx, appID
-func (_m *DirectorClient) ListPackages(ctx context.Context, appID string) ([]*graphql.PackageExt, error) {
+func (_m *DirectorClient) ListPackages(ctx context.Context, appID string) ([]*externalschema.PackageExt, error) {
 	ret := _m.Called(ctx, appID)
 
-	var r0 []*graphql.PackageExt
-	if rf, ok := ret.Get(0).(func(context.Context, string) []*graphql.PackageExt); ok {
+	var r0 []*externalschema.PackageExt
+	if rf, ok := ret.Get(0).(func(context.Context, string) []*externalschema.PackageExt); ok {
 		r0 = rf(ctx, appID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*graphql.PackageExt)
+			r0 = ret.Get(0).([]*externalschema.PackageExt)
 		}
 	}
 
@@ -199,11 +199,11 @@ func (_m *DirectorClient) ListPackages(ctx context.Context, appID string) ([]*gr
 }
 
 // SetApplicationLabel provides a mock function with given fields: ctx, appID, label
-func (_m *DirectorClient) SetApplicationLabel(ctx context.Context, appID string, label graphql.LabelInput) error {
+func (_m *DirectorClient) SetApplicationLabel(ctx context.Context, appID string, label externalschema.LabelInput) error {
 	ret := _m.Called(ctx, appID, label)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, graphql.LabelInput) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, externalschema.LabelInput) error); ok {
 		r0 = rf(ctx, appID, label)
 	} else {
 		r0 = ret.Error(0)
@@ -213,11 +213,11 @@ func (_m *DirectorClient) SetApplicationLabel(ctx context.Context, appID string,
 }
 
 // UpdatePackage provides a mock function with given fields: ctx, packageID, in
-func (_m *DirectorClient) UpdatePackage(ctx context.Context, packageID string, in graphql.PackageUpdateInput) error {
+func (_m *DirectorClient) UpdatePackage(ctx context.Context, packageID string, in externalschema.PackageUpdateInput) error {
 	ret := _m.Called(ctx, packageID, in)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, graphql.PackageUpdateInput) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, externalschema.PackageUpdateInput) error); ok {
 		r0 = rf(ctx, packageID, in)
 	} else {
 		r0 = ret.Error(0)

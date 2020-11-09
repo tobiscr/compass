@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 
 	"github.com/pkg/errors"
 )
@@ -23,10 +23,10 @@ func NewAppLabeler() *labeler {
 	return &labeler{}
 }
 
-func (l *labeler) WriteServiceReference(appLabels graphql.Labels, serviceReference LegacyServiceReference) (graphql.LabelInput, error) {
+func (l *labeler) WriteServiceReference(appLabels externalschema.Labels, serviceReference LegacyServiceReference) (externalschema.LabelInput, error) {
 	services, err := l.readLabel(appLabels)
 	if err != nil {
-		return graphql.LabelInput{}, err
+		return externalschema.LabelInput{}, err
 	}
 
 	services[serviceReference.ID] = serviceReference
@@ -34,7 +34,7 @@ func (l *labeler) WriteServiceReference(appLabels graphql.Labels, serviceReferen
 	return l.writeLabel(services)
 }
 
-func (l *labeler) ReadServiceReference(appLabels graphql.Labels, serviceID string) (LegacyServiceReference, error) {
+func (l *labeler) ReadServiceReference(appLabels externalschema.Labels, serviceID string) (LegacyServiceReference, error) {
 	services, err := l.readLabel(appLabels)
 	if err != nil {
 		return LegacyServiceReference{}, err
@@ -48,10 +48,10 @@ func (l *labeler) ReadServiceReference(appLabels graphql.Labels, serviceID strin
 	return service, nil
 }
 
-func (l *labeler) DeleteServiceReference(appLabels graphql.Labels, serviceID string) (graphql.LabelInput, error) {
+func (l *labeler) DeleteServiceReference(appLabels externalschema.Labels, serviceID string) (externalschema.LabelInput, error) {
 	services, err := l.readLabel(appLabels)
 	if err != nil {
-		return graphql.LabelInput{}, err
+		return externalschema.LabelInput{}, err
 	}
 
 	delete(services, serviceID)
@@ -59,7 +59,7 @@ func (l *labeler) DeleteServiceReference(appLabels graphql.Labels, serviceID str
 	return l.writeLabel(services)
 }
 
-func (l *labeler) ListServiceReferences(appLabels graphql.Labels) ([]LegacyServiceReference, error) {
+func (l *labeler) ListServiceReferences(appLabels externalschema.Labels) ([]LegacyServiceReference, error) {
 	services, err := l.readLabel(appLabels)
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (l *labeler) ListServiceReferences(appLabels graphql.Labels) ([]LegacyServi
 	return serviceReferences, nil
 }
 
-func (l *labeler) readLabel(appLabels graphql.Labels) (map[string]LegacyServiceReference, error) {
+func (l *labeler) readLabel(appLabels externalschema.Labels) (map[string]LegacyServiceReference, error) {
 	value := appLabels[legacyServicesLabelKey]
 	if value == nil {
 		value = "{}"
@@ -96,13 +96,13 @@ func (l *labeler) readLabel(appLabels graphql.Labels) (map[string]LegacyServiceR
 	return services, nil
 }
 
-func (l *labeler) writeLabel(services map[string]LegacyServiceReference) (graphql.LabelInput, error) {
+func (l *labeler) writeLabel(services map[string]LegacyServiceReference) (externalschema.LabelInput, error) {
 	marshalledServices, err := json.Marshal(services)
 	if err != nil {
-		return graphql.LabelInput{}, errors.Wrap(err, "while marshalling JSON value")
+		return externalschema.LabelInput{}, errors.Wrap(err, "while marshalling JSON value")
 	}
 
-	return graphql.LabelInput{
+	return externalschema.LabelInput{
 		Key:   legacyServicesLabelKey,
 		Value: strconv.Quote(string(marshalledServices)),
 	}, nil

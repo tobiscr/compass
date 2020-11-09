@@ -6,7 +6,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -21,21 +21,21 @@ func TestLabeler_WriteServiceReference(t *testing.T) {
 
 	testCases := []struct {
 		Name              string
-		InputLabels       graphql.Labels
+		InputLabels       externalschema.Labels
 		InputSvcReference service.LegacyServiceReference
-		ExpectedOutput    graphql.LabelInput
+		ExpectedOutput    externalschema.LabelInput
 		ExpectedError     error
 	}{
 		{
 			Name: "Success",
-			InputLabels: graphql.Labels{
+			InputLabels: externalschema.Labels{
 				legacyServicesLabelKey: `{"foo":{"id":"foo","identifier":"bar"}}`,
 			},
 			InputSvcReference: service.LegacyServiceReference{
 				ID:         "biz",
 				Identifier: "baz",
 			},
-			ExpectedOutput: graphql.LabelInput{
+			ExpectedOutput: externalschema.LabelInput{
 				Key:   legacyServicesLabelKey,
 				Value: `"{\"biz\":{\"id\":\"biz\",\"identifier\":\"baz\"},\"foo\":{\"id\":\"foo\",\"identifier\":\"bar\"}}"`,
 			},
@@ -43,12 +43,12 @@ func TestLabeler_WriteServiceReference(t *testing.T) {
 		},
 		{
 			Name:        "Success when map value is nil",
-			InputLabels: graphql.Labels{},
+			InputLabels: externalschema.Labels{},
 			InputSvcReference: service.LegacyServiceReference{
 				ID:         "foo",
 				Identifier: "bar",
 			},
-			ExpectedOutput: graphql.LabelInput{
+			ExpectedOutput: externalschema.LabelInput{
 				Key:   legacyServicesLabelKey,
 				Value: `"{\"foo\":{\"id\":\"foo\",\"identifier\":\"bar\"}}"`,
 			},
@@ -56,14 +56,14 @@ func TestLabeler_WriteServiceReference(t *testing.T) {
 		},
 		{
 			Name: "Error when value is not a string",
-			InputLabels: graphql.Labels{
+			InputLabels: externalschema.Labels{
 				legacyServicesLabelKey: 10,
 			},
 			InputSvcReference: service.LegacyServiceReference{
 				ID:         "foo",
 				Identifier: "bar",
 			},
-			ExpectedOutput: graphql.LabelInput{},
+			ExpectedOutput: externalschema.LabelInput{},
 			ExpectedError:  errors.New("invalid type: expected: string; actual: int"),
 		},
 	}
@@ -91,13 +91,13 @@ func TestLabeler_ReadServiceReference(t *testing.T) {
 
 	testCases := []struct {
 		Name           string
-		InputLabels    graphql.Labels
+		InputLabels    externalschema.Labels
 		ExpectedOutput service.LegacyServiceReference
 		ExpectedError  error
 	}{
 		{
 			Name: "Success",
-			InputLabels: graphql.Labels{
+			InputLabels: externalschema.Labels{
 				legacyServicesLabelKey: fmt.Sprintf(`{"%[1]s":{"id":"%[1]s","identifier":"%s"}}`, svcID, svcIdentifier),
 			},
 			ExpectedOutput: service.LegacyServiceReference{
@@ -108,13 +108,13 @@ func TestLabeler_ReadServiceReference(t *testing.T) {
 		},
 		{
 			Name:           "Success when map value is nil",
-			InputLabels:    graphql.Labels{},
+			InputLabels:    externalschema.Labels{},
 			ExpectedOutput: service.LegacyServiceReference{},
 			ExpectedError:  nil,
 		},
 		{
 			Name: "Error when value is not a string",
-			InputLabels: graphql.Labels{
+			InputLabels: externalschema.Labels{
 				legacyServicesLabelKey: 10,
 			},
 			ExpectedOutput: service.LegacyServiceReference{},
@@ -143,13 +143,13 @@ func TestLabeler_ListServiceReferences(t *testing.T) {
 
 	testCases := []struct {
 		Name           string
-		InputLabels    graphql.Labels
+		InputLabels    externalschema.Labels
 		ExpectedOutput []service.LegacyServiceReference
 		ExpectedError  error
 	}{
 		{
 			Name: "Success",
-			InputLabels: graphql.Labels{
+			InputLabels: externalschema.Labels{
 				legacyServicesLabelKey: `{"foo":{"id":"foo","identifier":"foo"}, "bar":{"id":"bar","identifier":"bar"}}`,
 			},
 			ExpectedOutput: []service.LegacyServiceReference{
@@ -166,13 +166,13 @@ func TestLabeler_ListServiceReferences(t *testing.T) {
 		},
 		{
 			Name:           "Success when map value is nil",
-			InputLabels:    graphql.Labels{},
+			InputLabels:    externalschema.Labels{},
 			ExpectedOutput: nil,
 			ExpectedError:  nil,
 		},
 		{
 			Name: "Error when value is not a string",
-			InputLabels: graphql.Labels{
+			InputLabels: externalschema.Labels{
 				legacyServicesLabelKey: 10,
 			},
 			ExpectedOutput: []service.LegacyServiceReference{},
@@ -202,16 +202,16 @@ func TestLabeler_DeleteServiceReference(t *testing.T) {
 
 	testCases := []struct {
 		Name           string
-		InputLabels    graphql.Labels
-		ExpectedOutput graphql.LabelInput
+		InputLabels    externalschema.Labels
+		ExpectedOutput externalschema.LabelInput
 		ExpectedError  error
 	}{
 		{
 			Name: "Success",
-			InputLabels: graphql.Labels{
+			InputLabels: externalschema.Labels{
 				legacyServicesLabelKey: `{"foo":{"id":"foo","identifier":"foo"}, "bar":{"id":"bar","identifier":"bar"}}`,
 			},
-			ExpectedOutput: graphql.LabelInput{
+			ExpectedOutput: externalschema.LabelInput{
 				Key:   "legacy_servicesMetadata",
 				Value: `"{\"bar\":{\"id\":\"bar\",\"identifier\":\"bar\"}}"`,
 			},
@@ -219,8 +219,8 @@ func TestLabeler_DeleteServiceReference(t *testing.T) {
 		},
 		{
 			Name:        "Success when map value is nil",
-			InputLabels: graphql.Labels{},
-			ExpectedOutput: graphql.LabelInput{
+			InputLabels: externalschema.Labels{},
+			ExpectedOutput: externalschema.LabelInput{
 				Key:   "legacy_servicesMetadata",
 				Value: `"{}"`,
 			},
@@ -228,10 +228,10 @@ func TestLabeler_DeleteServiceReference(t *testing.T) {
 		},
 		{
 			Name: "Error when value is not a string",
-			InputLabels: graphql.Labels{
+			InputLabels: externalschema.Labels{
 				legacyServicesLabelKey: 10,
 			},
-			ExpectedOutput: graphql.LabelInput{},
+			ExpectedOutput: externalschema.LabelInput{},
 			ExpectedError:  errors.New("invalid type: expected: string; actual: int"),
 		},
 	}

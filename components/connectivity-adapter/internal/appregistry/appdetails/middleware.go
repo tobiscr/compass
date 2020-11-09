@@ -10,8 +10,8 @@ import (
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/pkg/gqlcli"
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/pkg/res"
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/pkg/retry"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql/graphqlizer"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema/graphqlizer"
 	gcli "github.com/machinebox/graphql"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -80,5 +80,5 @@ func (mw *applicationMiddleware) Middleware(next http.Handler) http.Handler {
 }
 
 type GqlSuccessfulAppPage struct {
-	Result graphql.ApplicationPageExt `json:"result"`
+	Result externalschema.ApplicationPageExt `json:"result"`
 }

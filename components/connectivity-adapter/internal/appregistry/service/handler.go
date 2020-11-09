@@ -9,7 +9,7 @@ import (
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/internal/appregistry/model"
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/pkg/apperrors"
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/pkg/res"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -18,27 +18,27 @@ import (
 
 //go:generate mockery -name=DirectorClient -output=automock -outpkg=automock -case=underscore
 type DirectorClient interface {
-	CreatePackage(ctx context.Context, appID string, in graphql.PackageCreateInput) (string, error)
-	GetPackage(ctx context.Context, appID string, packageID string) (graphql.PackageExt, error)
-	ListPackages(ctx context.Context, appID string) ([]*graphql.PackageExt, error)
+	CreatePackage(ctx context.Context, appID string, in externalschema.PackageCreateInput) (string, error)
+	GetPackage(ctx context.Context, appID string, packageID string) (externalschema.PackageExt, error)
+	ListPackages(ctx context.Context, appID string) ([]*externalschema.PackageExt, error)
 	DeletePackage(ctx context.Context, packageID string) error
-	UpdatePackage(ctx context.Context, packageID string, in graphql.PackageUpdateInput) error
+	UpdatePackage(ctx context.Context, packageID string, in externalschema.PackageUpdateInput) error
 
-	CreateAPIDefinition(ctx context.Context, packageID string, apiDefinitionInput graphql.APIDefinitionInput) (string, error)
-	CreateEventDefinition(ctx context.Context, packageID string, eventDefinitionInput graphql.EventDefinitionInput) (string, error)
-	CreateDocument(ctx context.Context, packageID string, documentInput graphql.DocumentInput) (string, error)
+	CreateAPIDefinition(ctx context.Context, packageID string, apiDefinitionInput externalschema.APIDefinitionInput) (string, error)
+	CreateEventDefinition(ctx context.Context, packageID string, eventDefinitionInput externalschema.EventDefinitionInput) (string, error)
+	CreateDocument(ctx context.Context, packageID string, documentInput externalschema.DocumentInput) (string, error)
 	DeleteAPIDefinition(ctx context.Context, apiID string) error
 	DeleteEventDefinition(ctx context.Context, eventID string) error
 	DeleteDocument(ctx context.Context, documentID string) error
 
-	SetApplicationLabel(ctx context.Context, appID string, label graphql.LabelInput) error
+	SetApplicationLabel(ctx context.Context, appID string, label externalschema.LabelInput) error
 }
 
 //go:generate mockery -name=Converter -output=automock -outpkg=automock -case=underscore
 type Converter interface {
-	DetailsToGraphQLCreateInput(deprecated model.ServiceDetails) (graphql.PackageCreateInput, error)
-	GraphQLCreateInputToUpdateInput(in graphql.PackageCreateInput) graphql.PackageUpdateInput
-	GraphQLToServiceDetails(converted graphql.PackageExt, legacyServiceReference LegacyServiceReference) (model.ServiceDetails, error)
+	DetailsToGraphQLCreateInput(deprecated model.ServiceDetails) (externalschema.PackageCreateInput, error)
+	GraphQLCreateInputToUpdateInput(in externalschema.PackageCreateInput) externalschema.PackageUpdateInput
+	GraphQLToServiceDetails(converted externalschema.PackageExt, legacyServiceReference LegacyServiceReference) (model.ServiceDetails, error)
 	ServiceDetailsToService(in model.ServiceDetails, serviceID string) (model.Service, error)
 }
 
@@ -54,10 +54,10 @@ type Validator interface {
 
 //go:generate mockery -name=AppLabeler -output=automock -outpkg=automock -case=underscore
 type AppLabeler interface {
-	WriteServiceReference(appLabels graphql.Labels, serviceReference LegacyServiceReference) (graphql.LabelInput, error)
-	DeleteServiceReference(appLabels graphql.Labels, serviceID string) (graphql.LabelInput, error)
-	ReadServiceReference(appLabels graphql.Labels, serviceID string) (LegacyServiceReference, error)
-	ListServiceReferences(appLabels graphql.Labels) ([]LegacyServiceReference, error)
+	WriteServiceReference(appLabels externalschema.Labels, serviceReference LegacyServiceReference) (externalschema.LabelInput, error)
+	DeleteServiceReference(appLabels externalschema.Labels, serviceID string) (externalschema.LabelInput, error)
+	ReadServiceReference(appLabels externalschema.Labels, serviceID string) (LegacyServiceReference, error)
+	ListServiceReferences(appLabels externalschema.Labels) ([]LegacyServiceReference, error)
 }
 
 const serviceIDVarKey = "serviceId"
@@ -395,7 +395,7 @@ func (h *Handler) getServiceID(request *http.Request) string {
 	return id
 }
 
-func (h *Handler) createRelatedObjectsForPackage(ctx context.Context, dirCli DirectorClient, pkgID string, pkg graphql.PackageCreateInput) error {
+func (h *Handler) createRelatedObjectsForPackage(ctx context.Context, dirCli DirectorClient, pkgID string, pkg externalschema.PackageCreateInput) error {
 	for _, apiDef := range pkg.APIDefinitions {
 		if apiDef == nil {
 			continue
@@ -432,7 +432,7 @@ func (h *Handler) createRelatedObjectsForPackage(ctx context.Context, dirCli Dir
 	return nil
 }
 
-func (h *Handler) deleteRelatedObjectsForPackage(ctx context.Context, dirCli DirectorClient, pkg graphql.PackageExt) error {
+func (h *Handler) deleteRelatedObjectsForPackage(ctx context.Context, dirCli DirectorClient, pkg externalschema.PackageExt) error {
 	for _, apiDef := range pkg.APIDefinitions.Data {
 		if apiDef == nil {
 			continue

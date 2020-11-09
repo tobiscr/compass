@@ -4,13 +4,13 @@ import (
 	"context"
 	"testing"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql/graphqlizer"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema/graphqlizer"
 	"github.com/pkg/errors"
 
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/internal/appregistry/director"
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/internal/appregistry/director/automock"
 	gcliautomock "github.com/kyma-incubator/compass/components/connectivity-adapter/pkg/gqlcli/automock"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	"github.com/kyma-incubator/compass/components/director/pkg/str"
 	gcli "github.com/machinebox/graphql"
 	"github.com/stretchr/testify/assert"
@@ -22,7 +22,7 @@ var testErr = errors.New("Test error")
 
 func TestDirectorClient_CreatePackage(t *testing.T) {
 	appID := "foo"
-	in := graphql.PackageCreateInput{
+	in := externalschema.PackageCreateInput{
 		Name: "bar",
 	}
 	gqlRequest := gcli.NewRequest("mutation {\n\t\t\tresult: addPackage(applicationID: \"foo\", in: input) {\n\t\t\t\tid\n\t\t\t}}")
@@ -49,7 +49,7 @@ func TestDirectorClient_CreatePackage(t *testing.T) {
 						return
 					}
 
-					res.Result = graphql.PackageExt{Package: graphql.Package{ID: "resID"}}
+					res.Result = externalschema.PackageExt{Package: externalschema.Package{ID: "resID"}}
 				}).Return(nil).Once()
 				return am
 			},
@@ -80,7 +80,7 @@ func TestDirectorClient_CreatePackage(t *testing.T) {
 						return
 					}
 
-					res.Result = graphql.PackageExt{Package: graphql.Package{ID: "resID"}}
+					res.Result = externalschema.PackageExt{Package: externalschema.Package{ID: "resID"}}
 				}).Return(nil).Once()
 				return am
 			},
@@ -146,7 +146,7 @@ func TestDirectorClient_CreatePackage(t *testing.T) {
 
 func TestDirectorClient_UpdatePackage(t *testing.T) {
 	packageID := "foo"
-	in := graphql.PackageUpdateInput{
+	in := externalschema.PackageUpdateInput{
 		Name: "bar",
 	}
 	gqlRequest := gcli.NewRequest("mutation {\n\t\t\tresult: updatePackage(id: \"foo\", in: input) {\n\t\t\t\tid\n\t\t\t}\n\t\t}")
@@ -254,13 +254,13 @@ func TestDirectorClient_UpdatePackage(t *testing.T) {
 func TestDirectorClient_GetPackage(t *testing.T) {
 	appID := "foo"
 	packageID := "foo"
-	successResult := graphql.PackageExt{Package: graphql.Package{ID: "1"}}
+	successResult := externalschema.PackageExt{Package: externalschema.Package{ID: "1"}}
 	gqlRequest := gcli.NewRequest("query {\n\t\t\tresult: application(id: \"foo\") {\n\t\t\t\tfields\n\t\t\t\t}\n\t\t\t}")
 
 	tests := []struct {
 		Name           string
 		GQLClientFn    func() *gcliautomock.GraphQLClient
-		ExpectedResult *graphql.PackageExt
+		ExpectedResult *externalschema.PackageExt
 		ExpectedErr    error
 	}{
 		{
@@ -278,7 +278,7 @@ func TestDirectorClient_GetPackage(t *testing.T) {
 						return
 					}
 
-					res.Result = graphql.ApplicationExt{Package: successResult}
+					res.Result = externalschema.ApplicationExt{Package: successResult}
 				}).Return(nil).Once()
 				return am
 			},
@@ -304,7 +304,7 @@ func TestDirectorClient_GetPackage(t *testing.T) {
 						return
 					}
 
-					res.Result = graphql.ApplicationExt{Package: successResult}
+					res.Result = externalschema.ApplicationExt{Package: successResult}
 				}).Return(nil).Once()
 				return am
 			},
@@ -350,13 +350,13 @@ func TestDirectorClient_GetPackage(t *testing.T) {
 
 func TestDirectorClient_ListPackages(t *testing.T) {
 	appID := "foo"
-	successResult := []*graphql.PackageExt{{Package: graphql.Package{ID: "1"}}, {Package: graphql.Package{ID: "2"}}}
+	successResult := []*externalschema.PackageExt{{Package: externalschema.Package{ID: "1"}}, {Package: externalschema.Package{ID: "2"}}}
 	gqlRequest := gcli.NewRequest("query {\n\t\t\tresult: application(id: \"foo\") {\n\t\t\t\tfields\n\t\t\t\t}\n\t\t\t}")
 
 	tests := []struct {
 		Name           string
 		GQLClientFn    func() *gcliautomock.GraphQLClient
-		ExpectedResult []*graphql.PackageExt
+		ExpectedResult []*externalschema.PackageExt
 		ExpectedErr    error
 	}{
 		{
@@ -374,7 +374,7 @@ func TestDirectorClient_ListPackages(t *testing.T) {
 						return
 					}
 
-					res.Result = graphql.ApplicationExt{Packages: graphql.PackagePageExt{Data: successResult}}
+					res.Result = externalschema.ApplicationExt{Packages: externalschema.PackagePageExt{Data: successResult}}
 				}).Return(nil).Once()
 				return am
 			},
@@ -400,7 +400,7 @@ func TestDirectorClient_ListPackages(t *testing.T) {
 						return
 					}
 
-					res.Result = graphql.ApplicationExt{Packages: graphql.PackagePageExt{Data: successResult}}
+					res.Result = externalschema.ApplicationExt{Packages: externalschema.PackagePageExt{Data: successResult}}
 				}).Return(nil).Once()
 				return am
 			},
@@ -519,7 +519,7 @@ func TestDirectorClient_DeletePackage(t *testing.T) {
 
 func TestDirectorClient_CreateAPIDefinition(t *testing.T) {
 	packageID := "foo"
-	in := graphql.APIDefinitionInput{
+	in := externalschema.APIDefinitionInput{
 		Name: "bar",
 	}
 	gqlRequest := gcli.NewRequest("mutation {\n\t\t\tresult: addAPIDefinitionToPackage(packageID: \"foo\", in: input) {\n\t\t\t\t\tfields\n\t\t\t\t}\n\t\t\t}")
@@ -546,7 +546,7 @@ func TestDirectorClient_CreateAPIDefinition(t *testing.T) {
 						return
 					}
 
-					res.Result = graphql.APIDefinition{ID: "resID"}
+					res.Result = externalschema.APIDefinition{ID: "resID"}
 				}).Return(nil).Once()
 				return am
 			},
@@ -577,7 +577,7 @@ func TestDirectorClient_CreateAPIDefinition(t *testing.T) {
 						return
 					}
 
-					res.Result = graphql.APIDefinition{ID: "resID"}
+					res.Result = externalschema.APIDefinition{ID: "resID"}
 				}).Return(nil).Once()
 				return am
 			},
@@ -720,7 +720,7 @@ func TestDirectorClient_DeleteAPIDefinition(t *testing.T) {
 
 func TestDirectorClient_CreateEventDefinition(t *testing.T) {
 	packageID := "foo"
-	in := graphql.EventDefinitionInput{
+	in := externalschema.EventDefinitionInput{
 		Name: "bar",
 	}
 	gqlRequest := gcli.NewRequest("mutation {\n\t\t\tresult: addEventDefinitionToPackage(packageID: \"foo\", in: input) {\n\t\t\t\t\tfields\n\t\t\t\t}\n\t\t\t}")
@@ -747,7 +747,7 @@ func TestDirectorClient_CreateEventDefinition(t *testing.T) {
 						return
 					}
 
-					res.Result = graphql.EventDefinition{ID: "resID"}
+					res.Result = externalschema.EventDefinition{ID: "resID"}
 				}).Return(nil).Once()
 				return am
 			},
@@ -778,7 +778,7 @@ func TestDirectorClient_CreateEventDefinition(t *testing.T) {
 						return
 					}
 
-					res.Result = graphql.EventDefinition{ID: "resID"}
+					res.Result = externalschema.EventDefinition{ID: "resID"}
 				}).Return(nil).Once()
 				return am
 			},
@@ -921,7 +921,7 @@ func TestDirectorClient_DeleteEventDefinition(t *testing.T) {
 
 func TestDirectorClient_CreateDocument(t *testing.T) {
 	packageID := "foo"
-	in := graphql.DocumentInput{
+	in := externalschema.DocumentInput{
 		Title: "bar",
 	}
 	gqlRequest := gcli.NewRequest("mutation {\n\t\t\tresult: addDocumentToPackage(packageID: \"foo\", in: input) {\n\t\t\t\t\tfields\n\t\t\t\t}\n\t\t\t}")
@@ -948,7 +948,7 @@ func TestDirectorClient_CreateDocument(t *testing.T) {
 						return
 					}
 
-					res.Result = graphql.Document{ID: "resID"}
+					res.Result = externalschema.Document{ID: "resID"}
 				}).Return(nil).Once()
 				return am
 			},
@@ -979,7 +979,7 @@ func TestDirectorClient_CreateDocument(t *testing.T) {
 						return
 					}
 
-					res.Result = graphql.Document{ID: "resID"}
+					res.Result = externalschema.Document{ID: "resID"}
 				}).Return(nil).Once()
 				return am
 			},
@@ -1122,7 +1122,7 @@ func TestDirectorClient_DeleteDocument(t *testing.T) {
 
 func TestDirectorClient_SetApplicationLabel(t *testing.T) {
 	appID := "foo"
-	labelInput := graphql.LabelInput{
+	labelInput := externalschema.LabelInput{
 		Key:   "testKey",
 		Value: "testVal",
 	}

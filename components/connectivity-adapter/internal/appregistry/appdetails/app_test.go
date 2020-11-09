@@ -6,19 +6,19 @@ import (
 	"testing"
 
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/internal/appregistry/appdetails"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-var value graphql.ApplicationExt = graphql.ApplicationExt{Application: graphql.Application{Name: "foo"}}
+var value externalschema.ApplicationExt = externalschema.ApplicationExt{Application: externalschema.Application{Name: "foo"}}
 
 func TestLoadFromContext(t *testing.T) {
 	testCases := []struct {
 		Name    string
 		Context context.Context
 
-		ExpectedResult     *graphql.ApplicationExt
+		ExpectedResult     *externalschema.ApplicationExt
 		ExpectedErrMessage string
 	}{
 		{

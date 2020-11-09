@@ -11,8 +11,8 @@ import (
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/internal/appregistry/director"
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/internal/appregistry/service"
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/pkg/gqlcli"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql/graphqlizer"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema/graphqlizer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -23,7 +23,7 @@ func TestRequestContextProvider_ForRequest(t *testing.T) {
 	rq.Header.Set(gqlcli.AuthorizationHeaderKey, "foo")
 
 	gqlCli := gqlcli.NewAuthorizedGraphQLClient("", time.Second, rq)
-	app := graphql.ApplicationExt{Application: graphql.Application{ID: "app-id"}}
+	app := externalschema.ApplicationExt{Application: externalschema.Application{ID: "app-id"}}
 	expected := service.RequestContext{
 		AppID:          app.ID,
 		DirectorClient: director.NewClient(gqlCli, &graphqlizer.Graphqlizer{}, &graphqlizer.GqlFieldsProvider{}),
@@ -79,7 +79,7 @@ func TestRequestContextProvider_ForRequest(t *testing.T) {
 	}
 }
 
-func fixContext(app *graphql.ApplicationExt, gqlCli gqlcli.GraphQLClient) context.Context {
+func fixContext(app *externalschema.ApplicationExt, gqlCli gqlcli.GraphQLClient) context.Context {
 	ctx := context.TODO()
 
 	if app != nil {

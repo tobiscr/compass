@@ -17,8 +17,7 @@ import (
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/pkg/apperrors"
 	connectorSchema "github.com/kyma-incubator/compass/components/connector/pkg/graphql/externalschema"
 	"github.com/kyma-incubator/compass/components/connector/pkg/oathkeeper"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
-	directorSchema "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	directorSchema "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -31,9 +30,9 @@ func TestHandler_Info(t *testing.T) {
 		oathkeeper.ClientIdFromTokenHeader: "myapp",
 	}
 
-	application := graphql.ApplicationExt{
-		Application:           graphql.Application{Name: "myappname"},
-		EventingConfiguration: graphql.ApplicationEventingConfiguration{DefaultURL: "https://default-events-url.com"},
+	application := directorSchema.ApplicationExt{
+		Application:           directorSchema.Application{Name: "myappname"},
+		EventingConfiguration: directorSchema.ApplicationEventingConfiguration{DefaultURL: "https://default-events-url.com"},
 	}
 
 	emptyResFunction := func(applicationName string, eventServiceBaseURL, tenant string, configuration connectorSchema.Configuration) (i interface{}, e error) {
@@ -198,7 +197,7 @@ func TestHandler_Info(t *testing.T) {
 		directorClientProviderMock := &directorMock.ClientProvider{}
 		connectorClientProviderMock := &connectorMock.ClientProvider{}
 		directorClientMock := &directorMock.Client{}
-		directorClientMock.On("GetApplication", mock.Anything, mock.AnythingOfType("string")).Return(graphql.ApplicationExt{}, apperrors.Internal("error"))
+		directorClientMock.On("GetApplication", mock.Anything, mock.AnythingOfType("string")).Return(directorSchema.ApplicationExt{}, apperrors.Internal("error"))
 		directorClientProviderMock.On("Client", mock.AnythingOfType("*http.Request")).Return(directorClientMock)
 
 		connectorClientMock := &connectorMock.Client{}
@@ -244,7 +243,7 @@ func TestHandler_Info(t *testing.T) {
 
 		directorClientProviderMock := &directorMock.ClientProvider{}
 		directorClientMock := &directorMock.Client{}
-		directorClientMock.On("GetApplication", mock.Anything, mock.AnythingOfType("string")).Return(graphql.ApplicationExt{}, nil)
+		directorClientMock.On("GetApplication", mock.Anything, mock.AnythingOfType("string")).Return(directorSchema.ApplicationExt{}, nil)
 		directorClientProviderMock.On("Client", mock.AnythingOfType("*http.Request")).Return(directorClientMock)
 
 		req := newRequestWithContext(strings.NewReader(""), headersFromToken)
@@ -289,7 +288,7 @@ func TestHandler_Info(t *testing.T) {
 
 		directorClientProviderMock := &directorMock.ClientProvider{}
 		directorClientMock := &directorMock.Client{}
-		directorClientMock.On("GetApplication", mock.Anything, mock.AnythingOfType("string")).Return(graphql.ApplicationExt{}, nil)
+		directorClientMock.On("GetApplication", mock.Anything, mock.AnythingOfType("string")).Return(directorSchema.ApplicationExt{}, nil)
 		directorClientProviderMock.On("Client", mock.AnythingOfType("*http.Request")).Return(directorClientMock)
 
 		req := newRequestWithContext(strings.NewReader(""), headersFromToken)

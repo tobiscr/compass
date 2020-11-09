@@ -3,7 +3,7 @@ package appdetails
 import (
 	"context"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	"github.com/pkg/errors"
 )
 
@@ -12,22 +12,22 @@ type AppDetailsContextKey struct{}
 var NoAppDetailsError = errors.New("cannot read Application details from context")
 var NilContextError = errors.New("context is empty")
 
-func LoadFromContext(ctx context.Context) (graphql.ApplicationExt, error) {
+func LoadFromContext(ctx context.Context) (externalschema.ApplicationExt, error) {
 	if ctx == nil {
-		return graphql.ApplicationExt{}, NilContextError
+		return externalschema.ApplicationExt{}, NilContextError
 	}
 
 	value := ctx.Value(AppDetailsContextKey{})
 
-	appDetails, ok := value.(graphql.ApplicationExt)
+	appDetails, ok := value.(externalschema.ApplicationExt)
 
 	if !ok {
-		return graphql.ApplicationExt{}, NoAppDetailsError
+		return externalschema.ApplicationExt{}, NoAppDetailsError
 	}
 
 	return appDetails, nil
 }
 
-func SaveToContext(ctx context.Context, appDetails graphql.ApplicationExt) context.Context {
+func SaveToContext(ctx context.Context, appDetails externalschema.ApplicationExt) context.Context {
 	return context.WithValue(ctx, AppDetailsContextKey{}, appDetails)
 }

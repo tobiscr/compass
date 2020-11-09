@@ -3,7 +3,7 @@
 package automock
 
 import (
-	graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	externalschema "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	mock "github.com/stretchr/testify/mock"
 
 	service "github.com/kyma-incubator/compass/components/connectivity-adapter/internal/appregistry/service"
@@ -15,18 +15,18 @@ type AppLabeler struct {
 }
 
 // DeleteServiceReference provides a mock function with given fields: appLabels, serviceID
-func (_m *AppLabeler) DeleteServiceReference(appLabels graphql.Labels, serviceID string) (graphql.LabelInput, error) {
+func (_m *AppLabeler) DeleteServiceReference(appLabels externalschema.Labels, serviceID string) (externalschema.LabelInput, error) {
 	ret := _m.Called(appLabels, serviceID)
 
-	var r0 graphql.LabelInput
-	if rf, ok := ret.Get(0).(func(graphql.Labels, string) graphql.LabelInput); ok {
+	var r0 externalschema.LabelInput
+	if rf, ok := ret.Get(0).(func(externalschema.Labels, string) externalschema.LabelInput); ok {
 		r0 = rf(appLabels, serviceID)
 	} else {
-		r0 = ret.Get(0).(graphql.LabelInput)
+		r0 = ret.Get(0).(externalschema.LabelInput)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(graphql.Labels, string) error); ok {
+	if rf, ok := ret.Get(1).(func(externalschema.Labels, string) error); ok {
 		r1 = rf(appLabels, serviceID)
 	} else {
 		r1 = ret.Error(1)
@@ -36,11 +36,11 @@ func (_m *AppLabeler) DeleteServiceReference(appLabels graphql.Labels, serviceID
 }
 
 // ListServiceReferences provides a mock function with given fields: appLabels
-func (_m *AppLabeler) ListServiceReferences(appLabels graphql.Labels) ([]service.LegacyServiceReference, error) {
+func (_m *AppLabeler) ListServiceReferences(appLabels externalschema.Labels) ([]service.LegacyServiceReference, error) {
 	ret := _m.Called(appLabels)
 
 	var r0 []service.LegacyServiceReference
-	if rf, ok := ret.Get(0).(func(graphql.Labels) []service.LegacyServiceReference); ok {
+	if rf, ok := ret.Get(0).(func(externalschema.Labels) []service.LegacyServiceReference); ok {
 		r0 = rf(appLabels)
 	} else {
 		if ret.Get(0) != nil {
@@ -49,7 +49,7 @@ func (_m *AppLabeler) ListServiceReferences(appLabels graphql.Labels) ([]service
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(graphql.Labels) error); ok {
+	if rf, ok := ret.Get(1).(func(externalschema.Labels) error); ok {
 		r1 = rf(appLabels)
 	} else {
 		r1 = ret.Error(1)
@@ -59,18 +59,18 @@ func (_m *AppLabeler) ListServiceReferences(appLabels graphql.Labels) ([]service
 }
 
 // ReadServiceReference provides a mock function with given fields: appLabels, serviceID
-func (_m *AppLabeler) ReadServiceReference(appLabels graphql.Labels, serviceID string) (service.LegacyServiceReference, error) {
+func (_m *AppLabeler) ReadServiceReference(appLabels externalschema.Labels, serviceID string) (service.LegacyServiceReference, error) {
 	ret := _m.Called(appLabels, serviceID)
 
 	var r0 service.LegacyServiceReference
-	if rf, ok := ret.Get(0).(func(graphql.Labels, string) service.LegacyServiceReference); ok {
+	if rf, ok := ret.Get(0).(func(externalschema.Labels, string) service.LegacyServiceReference); ok {
 		r0 = rf(appLabels, serviceID)
 	} else {
 		r0 = ret.Get(0).(service.LegacyServiceReference)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(graphql.Labels, string) error); ok {
+	if rf, ok := ret.Get(1).(func(externalschema.Labels, string) error); ok {
 		r1 = rf(appLabels, serviceID)
 	} else {
 		r1 = ret.Error(1)
@@ -80,18 +80,18 @@ func (_m *AppLabeler) ReadServiceReference(appLabels graphql.Labels, serviceID s
 }
 
 // WriteServiceReference provides a mock function with given fields: appLabels, serviceReference
-func (_m *AppLabeler) WriteServiceReference(appLabels graphql.Labels, serviceReference service.LegacyServiceReference) (graphql.LabelInput, error) {
+func (_m *AppLabeler) WriteServiceReference(appLabels externalschema.Labels, serviceReference service.LegacyServiceReference) (externalschema.LabelInput, error) {
 	ret := _m.Called(appLabels, serviceReference)
 
-	var r0 graphql.LabelInput
-	if rf, ok := ret.Get(0).(func(graphql.Labels, service.LegacyServiceReference) graphql.LabelInput); ok {
+	var r0 externalschema.LabelInput
+	if rf, ok := ret.Get(0).(func(externalschema.Labels, service.LegacyServiceReference) externalschema.LabelInput); ok {
 		r0 = rf(appLabels, serviceReference)
 	} else {
-		r0 = ret.Get(0).(graphql.LabelInput)
+		r0 = ret.Get(0).(externalschema.LabelInput)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(graphql.Labels, service.LegacyServiceReference) error); ok {
+	if rf, ok := ret.Get(1).(func(externalschema.Labels, service.LegacyServiceReference) error); ok {
 		r1 = rf(appLabels, serviceReference)
 	} else {
 		r1 = ret.Error(1)

@@ -6,7 +6,7 @@ import (
 
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/pkg/apperrors"
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/pkg/retry"
-	schema "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	schema "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	"github.com/machinebox/graphql"
 )
 

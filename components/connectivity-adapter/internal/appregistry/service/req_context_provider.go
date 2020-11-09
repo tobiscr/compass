@@ -3,19 +3,19 @@ package service
 import (
 	"net/http"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/internal/appregistry/director"
 
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/internal/appregistry/appdetails"
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/pkg/gqlcli"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql/graphqlizer"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema/graphqlizer"
 	"github.com/pkg/errors"
 )
 
 type RequestContext struct {
 	AppID          string
-	AppLabels      graphql.Labels
+	AppLabels      externalschema.Labels
 	DirectorClient DirectorClient
 }
 

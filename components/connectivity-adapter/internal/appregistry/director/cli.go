@@ -6,19 +6,19 @@ import (
 
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/pkg/gqlcli"
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/pkg/retry"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql/graphqlizer"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema/graphqlizer"
 	gcli "github.com/machinebox/graphql"
 	"github.com/pkg/errors"
 )
 
 //go:generate mockery -name=GraphQLizer -output=automock -outpkg=automock -case=underscore
 type GraphQLizer interface {
-	APIDefinitionInputToGQL(in graphql.APIDefinitionInput) (string, error)
-	EventDefinitionInputToGQL(in graphql.EventDefinitionInput) (string, error)
-	DocumentInputToGQL(in *graphql.DocumentInput) (string, error)
-	PackageCreateInputToGQL(in graphql.PackageCreateInput) (string, error)
-	PackageUpdateInputToGQL(in graphql.PackageUpdateInput) (string, error)
+	APIDefinitionInputToGQL(in externalschema.APIDefinitionInput) (string, error)
+	EventDefinitionInputToGQL(in externalschema.EventDefinitionInput) (string, error)
+	DocumentInputToGQL(in *externalschema.DocumentInput) (string, error)
+	PackageCreateInputToGQL(in externalschema.PackageCreateInput) (string, error)
+	PackageUpdateInputToGQL(in externalschema.PackageUpdateInput) (string, error)
 }
 
 //go:generate mockery -name=GqlFieldsProvider -output=automock -outpkg=automock -case=underscore
@@ -54,10 +54,10 @@ func (c *directorClient) GetApplicationsByNameRequest(appName string) *gcli.Requ
 }
 
 type CreatePackageResult struct {
-	Result graphql.PackageExt `json:"result"`
+	Result externalschema.PackageExt `json:"result"`
 }
 
-func (c *directorClient) CreatePackage(ctx context.Context, appID string, in graphql.PackageCreateInput) (string, error) {
+func (c *directorClient) CreatePackage(ctx context.Context, appID string, in externalschema.PackageCreateInput) (string, error) {
 	inStr, err := c.graphqlizer.PackageCreateInputToGQL(in)
 	if err != nil {
 		return "", errors.Wrap(err, "while preparing GraphQL input")
@@ -79,7 +79,7 @@ func (c *directorClient) CreatePackage(ctx context.Context, appID string, in gra
 	return resp.Result.ID, nil
 }
 
-func (c *directorClient) UpdatePackage(ctx context.Context, packageID string, in graphql.PackageUpdateInput) error {
+func (c *directorClient) UpdatePackage(ctx context.Context, packageID string, in externalschema.PackageUpdateInput) error {
 	inStr, err := c.graphqlizer.PackageUpdateInputToGQL(in)
 	if err != nil {
 		return errors.Wrap(err, "while preparing GraphQL input")
@@ -101,10 +101,10 @@ func (c *directorClient) UpdatePackage(ctx context.Context, packageID string, in
 }
 
 type GetPackageResult struct {
-	Result graphql.ApplicationExt `json:"result"`
+	Result externalschema.ApplicationExt `json:"result"`
 }
 
-func (c *directorClient) GetPackage(ctx context.Context, appID string, packageID string) (graphql.PackageExt, error) {
+func (c *directorClient) GetPackage(ctx context.Context, appID string, packageID string) (externalschema.PackageExt, error) {
 	gqlRequest := gcli.NewRequest(
 		fmt.Sprintf(`query {
 			result: application(id: "%s") {
@@ -118,17 +118,17 @@ func (c *directorClient) GetPackage(ctx context.Context, appID string, packageID
 
 	err := retry.GQLRun(c.cli.Run, ctx, gqlRequest, &resp)
 	if err != nil {
-		return graphql.PackageExt{}, errors.Wrap(err, "while doing GraphQL request")
+		return externalschema.PackageExt{}, errors.Wrap(err, "while doing GraphQL request")
 	}
 
 	return resp.Result.Package, nil
 }
 
 type ListPackagesResult struct {
-	Result graphql.ApplicationExt `json:"result"`
+	Result externalschema.ApplicationExt `json:"result"`
 }
 
-func (c *directorClient) ListPackages(ctx context.Context, appID string) ([]*graphql.PackageExt, error) {
+func (c *directorClient) ListPackages(ctx context.Context, appID string) ([]*externalschema.PackageExt, error) {
 	gqlRequest := gcli.NewRequest(
 		fmt.Sprintf(`query {
 			result: application(id: "%s") {
@@ -165,10 +165,10 @@ func (c *directorClient) DeletePackage(ctx context.Context, packageID string) er
 }
 
 type CreateAPIDefinitionResult struct {
-	Result graphql.APIDefinition `json:"result"`
+	Result externalschema.APIDefinition `json:"result"`
 }
 
-func (c *directorClient) CreateAPIDefinition(ctx context.Context, packageID string, apiDefinitionInput graphql.APIDefinitionInput) (string, error) {
+func (c *directorClient) CreateAPIDefinition(ctx context.Context, packageID string, apiDefinitionInput externalschema.APIDefinitionInput) (string, error) {
 	inStr, err := c.graphqlizer.APIDefinitionInputToGQL(apiDefinitionInput)
 	if err != nil {
 		return "", errors.Wrap(err, "while preparing GraphQL input")
@@ -207,10 +207,10 @@ func (c *directorClient) DeleteAPIDefinition(ctx context.Context, apiID string) 
 }
 
 type CreateEventDefinitionResult struct {
-	Result graphql.EventDefinition `json:"result"`
+	Result externalschema.EventDefinition `json:"result"`
 }
 
-func (c *directorClient) CreateEventDefinition(ctx context.Context, packageID string, eventDefinitionInput graphql.EventDefinitionInput) (string, error) {
+func (c *directorClient) CreateEventDefinition(ctx context.Context, packageID string, eventDefinitionInput externalschema.EventDefinitionInput) (string, error) {
 	inStr, err := c.graphqlizer.EventDefinitionInputToGQL(eventDefinitionInput)
 	if err != nil {
 		return "", errors.Wrap(err, "while preparing GraphQL input")
@@ -249,10 +249,10 @@ func (c *directorClient) DeleteEventDefinition(ctx context.Context, eventID stri
 }
 
 type CreateDocumentResult struct {
-	Result graphql.Document `json:"result"`
+	Result externalschema.Document `json:"result"`
 }
 
-func (c *directorClient) CreateDocument(ctx context.Context, packageID string, documentInput graphql.DocumentInput) (string, error) {
+func (c *directorClient) CreateDocument(ctx context.Context, packageID string, documentInput externalschema.DocumentInput) (string, error) {
 	inStr, err := c.graphqlizer.DocumentInputToGQL(&documentInput)
 	if err != nil {
 		return "", errors.Wrap(err, "while preparing GraphQL input")
@@ -290,7 +290,7 @@ func (c *directorClient) DeleteDocument(ctx context.Context, documentID string) 
 	return nil
 }
 
-func (c *directorClient) SetApplicationLabel(ctx context.Context, appID string, label graphql.LabelInput) error {
+func (c *directorClient) SetApplicationLabel(ctx context.Context, appID string, label externalschema.LabelInput) error {
 	gqlRequest := gcli.NewRequest(
 		fmt.Sprintf(`mutation {
 			result: setApplicationLabel(applicationID: "%s", key: "%s", value: %s) {

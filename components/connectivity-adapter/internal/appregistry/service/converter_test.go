@@ -6,18 +6,18 @@ import (
 
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/internal/appregistry/model"
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/internal/appregistry/service"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
-	additionalQueryParamsSerialized := graphql.QueryParamsSerialized(`{"q1":["a","b"],"q2":["c","d"]}`)
-	additionalHeadersSerialized := graphql.HttpHeadersSerialized(`{"h1":["e","f"],"h2":["g","h"]}`)
+	additionalQueryParamsSerialized := externalschema.QueryParamsSerialized(`{"q1":["a","b"],"q2":["c","d"]}`)
+	additionalHeadersSerialized := externalschema.HttpHeadersSerialized(`{"h1":["e","f"],"h2":["g","h"]}`)
 
 	type testCase struct {
 		given    model.ServiceDetails
-		expected graphql.PackageCreateInput
+		expected externalschema.PackageCreateInput
 	}
 
 	conv := service.NewConverter()
@@ -25,11 +25,11 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 	for name, tc := range map[string]testCase{
 		"name and description propagated to api": {
 			given: model.ServiceDetails{Name: "name", Description: "description", Api: &model.API{}},
-			expected: graphql.PackageCreateInput{
+			expected: externalschema.PackageCreateInput{
 				Name:                "name",
 				Description:         ptrString("description"),
-				DefaultInstanceAuth: &graphql.AuthInput{},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{},
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{
 						Name:        "name",
 						Description: ptrString("description"),
@@ -43,9 +43,9 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					TargetUrl: "http://target.url",
 				},
 			},
-			expected: graphql.PackageCreateInput{
-				DefaultInstanceAuth: &graphql.AuthInput{},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+			expected: externalschema.PackageCreateInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{},
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{
 						TargetURL: "http://target.url",
 					},
@@ -59,9 +59,9 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					Credentials: &model.CredentialsWithCSRF{},
 				},
 			},
-			expected: graphql.PackageCreateInput{
-				DefaultInstanceAuth: &graphql.AuthInput{},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+			expected: externalschema.PackageCreateInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{},
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{
 						TargetURL: "http://target.url",
 					},
@@ -75,15 +75,15 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					ApiType:   "ODATA",
 				},
 			},
-			expected: graphql.PackageCreateInput{
-				DefaultInstanceAuth: &graphql.AuthInput{},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+			expected: externalschema.PackageCreateInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{},
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{
 						TargetURL: "http://target.url",
-						Spec: &graphql.APISpecInput{
-							Type:   graphql.APISpecTypeOdata,
-							Format: graphql.SpecFormatXML,
-							FetchRequest: &graphql.FetchRequestInput{
+						Spec: &externalschema.APISpecInput{
+							Type:   externalschema.APISpecTypeOdata,
+							Format: externalschema.SpecFormatXML,
+							FetchRequest: &externalschema.FetchRequestInput{
 								URL: "http://target.url/$metadata",
 							},
 						},
@@ -98,13 +98,13 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					ApiType: "anything else",
 				},
 			},
-			expected: graphql.PackageCreateInput{
-				DefaultInstanceAuth: &graphql.AuthInput{},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+			expected: externalschema.PackageCreateInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{},
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{
-						Spec: &graphql.APISpecInput{
-							Type:   graphql.APISpecTypeOpenAPI,
-							Format: graphql.SpecFormatYaml,
+						Spec: &externalschema.APISpecInput{
+							Type:   externalschema.APISpecTypeOpenAPI,
+							Format: externalschema.SpecFormatYaml,
 						},
 					},
 				},
@@ -117,14 +117,14 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					Spec: json.RawMessage(`openapi: "3.0.0"`),
 				},
 			},
-			expected: graphql.PackageCreateInput{
-				DefaultInstanceAuth: &graphql.AuthInput{},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+			expected: externalschema.PackageCreateInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{},
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{
-						Spec: &graphql.APISpecInput{
-							Data:   ptrClob(graphql.CLOB(`openapi: "3.0.0"`)),
-							Type:   graphql.APISpecTypeOpenAPI,
-							Format: graphql.SpecFormatYaml,
+						Spec: &externalschema.APISpecInput{
+							Data:   ptrClob(externalschema.CLOB(`openapi: "3.0.0"`)),
+							Type:   externalschema.APISpecTypeOpenAPI,
+							Format: externalschema.SpecFormatYaml,
 						},
 					},
 				},
@@ -137,14 +137,14 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					Spec: json.RawMessage(`{"spec":"v0.0.1"}`),
 				},
 			},
-			expected: graphql.PackageCreateInput{
-				DefaultInstanceAuth: &graphql.AuthInput{},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+			expected: externalschema.PackageCreateInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{},
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{
-						Spec: &graphql.APISpecInput{
-							Data:   ptrClob(graphql.CLOB(`{"spec":"v0.0.1"}`)),
-							Type:   graphql.APISpecTypeOpenAPI,
-							Format: graphql.SpecFormatJSON,
+						Spec: &externalschema.APISpecInput{
+							Data:   ptrClob(externalschema.CLOB(`{"spec":"v0.0.1"}`)),
+							Type:   externalschema.APISpecTypeOpenAPI,
+							Format: externalschema.SpecFormatJSON,
 						},
 					},
 				},
@@ -157,14 +157,14 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					Spec: json.RawMessage(`<spec></spec>"`),
 				},
 			},
-			expected: graphql.PackageCreateInput{
-				DefaultInstanceAuth: &graphql.AuthInput{},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+			expected: externalschema.PackageCreateInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{},
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{
-						Spec: &graphql.APISpecInput{
-							Data:   ptrClob(graphql.CLOB(`<spec></spec>"`)),
-							Type:   graphql.APISpecTypeOpenAPI,
-							Format: graphql.SpecFormatXML,
+						Spec: &externalschema.APISpecInput{
+							Data:   ptrClob(externalschema.CLOB(`<spec></spec>"`)),
+							Type:   externalschema.APISpecTypeOpenAPI,
+							Format: externalschema.SpecFormatXML,
 						},
 					},
 				},
@@ -185,13 +185,13 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					},
 				},
 			},
-			expected: graphql.PackageCreateInput{
+			expected: externalschema.PackageCreateInput{
 				Name: "foo",
-				DefaultInstanceAuth: &graphql.AuthInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{
 					AdditionalQueryParamsSerialized: &additionalQueryParamsSerialized,
 					AdditionalHeadersSerialized:     &additionalHeadersSerialized,
 				},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{Name: "foo"},
 				},
 			},
@@ -211,12 +211,12 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					},
 				},
 			},
-			expected: graphql.PackageCreateInput{
-				DefaultInstanceAuth: &graphql.AuthInput{
+			expected: externalschema.PackageCreateInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{
 					AdditionalQueryParamsSerialized: &additionalQueryParamsSerialized,
 					AdditionalHeadersSerialized:     &additionalHeadersSerialized,
 				},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{},
 				},
 			},
@@ -241,12 +241,12 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					},
 				},
 			},
-			expected: graphql.PackageCreateInput{
-				DefaultInstanceAuth: &graphql.AuthInput{
+			expected: externalschema.PackageCreateInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{
 					AdditionalQueryParamsSerialized: &additionalQueryParamsSerialized,
 					AdditionalHeadersSerialized:     &additionalHeadersSerialized,
 				},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{},
 				},
 			},
@@ -265,19 +265,19 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					},
 				},
 			},
-			expected: graphql.PackageCreateInput{
-				DefaultInstanceAuth: &graphql.AuthInput{
-					Credential: &graphql.CredentialDataInput{
-						Basic: &graphql.BasicCredentialDataInput{
+			expected: externalschema.PackageCreateInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{
+					Credential: &externalschema.CredentialDataInput{
+						Basic: &externalschema.BasicCredentialDataInput{
 							Username: "user",
 							Password: "password",
 						},
 					},
-					RequestAuth: &graphql.CredentialRequestAuthInput{
-						Csrf: &graphql.CSRFTokenCredentialRequestAuthInput{TokenEndpointURL: "foo.bar"},
+					RequestAuth: &externalschema.CredentialRequestAuthInput{
+						Csrf: &externalschema.CSRFTokenCredentialRequestAuthInput{TokenEndpointURL: "foo.bar"},
 					},
 				},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{},
 				},
 			},
@@ -307,20 +307,20 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					},
 				},
 			},
-			expected: graphql.PackageCreateInput{
-				DefaultInstanceAuth: &graphql.AuthInput{
-					Credential: &graphql.CredentialDataInput{
-						Oauth: &graphql.OAuthCredentialDataInput{
+			expected: externalschema.PackageCreateInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{
+					Credential: &externalschema.CredentialDataInput{
+						Oauth: &externalschema.OAuthCredentialDataInput{
 							URL:          "http://oauth.url",
 							ClientID:     "client_id",
 							ClientSecret: "client_secret",
 						},
 					},
-					RequestAuth: &graphql.CredentialRequestAuthInput{
-						Csrf: &graphql.CSRFTokenCredentialRequestAuthInput{TokenEndpointURL: "foo.bar"},
+					RequestAuth: &externalschema.CredentialRequestAuthInput{
+						Csrf: &externalschema.CSRFTokenCredentialRequestAuthInput{TokenEndpointURL: "foo.bar"},
 					},
 				},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{},
 				},
 			},
@@ -331,16 +331,16 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					SpecificationUrl: "http://specification.url",
 				},
 			},
-			expected: graphql.PackageCreateInput{
-				DefaultInstanceAuth: &graphql.AuthInput{},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+			expected: externalschema.PackageCreateInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{},
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{
-						Spec: &graphql.APISpecInput{
-							FetchRequest: &graphql.FetchRequestInput{
+						Spec: &externalschema.APISpecInput{
+							FetchRequest: &externalschema.FetchRequestInput{
 								URL: "http://specification.url",
 							},
-							Format: graphql.SpecFormatJSON,
-							Type:   graphql.APISpecTypeOpenAPI,
+							Format: externalschema.SpecFormatJSON,
+							Type:   externalschema.APISpecTypeOpenAPI,
 						},
 					},
 				},
@@ -358,24 +358,24 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					},
 				},
 			},
-			expected: graphql.PackageCreateInput{
-				DefaultInstanceAuth: &graphql.AuthInput{},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+			expected: externalschema.PackageCreateInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{},
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{
-						Spec: &graphql.APISpecInput{
-							FetchRequest: &graphql.FetchRequestInput{
+						Spec: &externalschema.APISpecInput{
+							FetchRequest: &externalschema.FetchRequestInput{
 								URL: "http://specification.url",
-								Auth: &graphql.AuthInput{
-									Credential: &graphql.CredentialDataInput{
-										Basic: &graphql.BasicCredentialDataInput{
+								Auth: &externalschema.AuthInput{
+									Credential: &externalschema.CredentialDataInput{
+										Basic: &externalschema.BasicCredentialDataInput{
 											Username: "username",
 											Password: "password",
 										},
 									},
 								},
 							},
-							Type:   graphql.APISpecTypeOpenAPI,
-							Format: graphql.SpecFormatJSON,
+							Type:   externalschema.APISpecTypeOpenAPI,
+							Format: externalschema.SpecFormatJSON,
 						},
 					},
 				},
@@ -395,16 +395,16 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					},
 				},
 			},
-			expected: graphql.PackageCreateInput{
-				DefaultInstanceAuth: &graphql.AuthInput{},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+			expected: externalschema.PackageCreateInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{},
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{
-						Spec: &graphql.APISpecInput{
-							FetchRequest: &graphql.FetchRequestInput{
+						Spec: &externalschema.APISpecInput{
+							FetchRequest: &externalschema.FetchRequestInput{
 								URL: "http://specification.url",
-								Auth: &graphql.AuthInput{
-									Credential: &graphql.CredentialDataInput{
-										Oauth: &graphql.OAuthCredentialDataInput{
+								Auth: &externalschema.AuthInput{
+									Credential: &externalschema.CredentialDataInput{
+										Oauth: &externalschema.OAuthCredentialDataInput{
 											URL:          "http://oauth.url",
 											ClientID:     "client_id",
 											ClientSecret: "client_secret",
@@ -412,8 +412,8 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 									},
 								},
 							},
-							Type:   graphql.APISpecTypeOpenAPI,
-							Format: graphql.SpecFormatJSON,
+							Type:   externalschema.APISpecTypeOpenAPI,
+							Format: externalschema.SpecFormatJSON,
 						},
 					},
 				},
@@ -435,20 +435,20 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					},
 				},
 			},
-			expected: graphql.PackageCreateInput{
-				DefaultInstanceAuth: &graphql.AuthInput{},
-				APIDefinitions: []*graphql.APIDefinitionInput{
+			expected: externalschema.PackageCreateInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{},
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{
-						Spec: &graphql.APISpecInput{
-							FetchRequest: &graphql.FetchRequestInput{
+						Spec: &externalschema.APISpecInput{
+							FetchRequest: &externalschema.FetchRequestInput{
 								URL: "http://specification.url",
-								Auth: &graphql.AuthInput{
+								Auth: &externalschema.AuthInput{
 									AdditionalQueryParamsSerialized: &additionalQueryParamsSerialized,
 									AdditionalHeadersSerialized:     &additionalHeadersSerialized,
 								},
 							},
-							Format: graphql.SpecFormatJSON,
-							Type:   graphql.APISpecTypeOpenAPI,
+							Format: externalschema.SpecFormatJSON,
+							Type:   externalschema.APISpecTypeOpenAPI,
 						},
 					},
 				},
@@ -461,16 +461,16 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 					Spec: json.RawMessage(`asyncapi: "1.2.0"`),
 				},
 			},
-			expected: graphql.PackageCreateInput{
+			expected: externalschema.PackageCreateInput{
 				Name:                "foo",
-				DefaultInstanceAuth: &graphql.AuthInput{},
-				EventDefinitions: []*graphql.EventDefinitionInput{
+				DefaultInstanceAuth: &externalschema.AuthInput{},
+				EventDefinitions: []*externalschema.EventDefinitionInput{
 					{
 						Name: "foo",
-						Spec: &graphql.EventSpecInput{
+						Spec: &externalschema.EventSpecInput{
 							Data:   ptrClob(`asyncapi: "1.2.0"`),
-							Type:   graphql.EventSpecTypeAsyncAPI,
-							Format: graphql.SpecFormatYaml,
+							Type:   externalschema.EventSpecTypeAsyncAPI,
+							Format: externalschema.SpecFormatYaml,
 						},
 					},
 				},
@@ -490,7 +490,7 @@ func TestConverter_DetailsToGraphQLCreateInput(t *testing.T) {
 
 func TestConverter_GraphQLToServiceDetails(t *testing.T) {
 	type testCase struct {
-		given    graphql.PackageExt
+		given    externalschema.PackageExt
 		expected model.ServiceDetails
 	}
 	conv := service.NewConverter()
@@ -502,12 +502,12 @@ func TestConverter_GraphQLToServiceDetails(t *testing.T) {
 
 	for name, tc := range map[string]testCase{
 		"name and description is loaded from Package": {
-			given: graphql.PackageExt{
-				Package: graphql.Package{Name: "foo", Description: ptrString("description")},
-				APIDefinitions: graphql.APIDefinitionPageExt{
-					Data: []*graphql.APIDefinitionExt{
+			given: externalschema.PackageExt{
+				Package: externalschema.Package{Name: "foo", Description: ptrString("description")},
+				APIDefinitions: externalschema.APIDefinitionPageExt{
+					Data: []*externalschema.APIDefinitionExt{
 						{
-							APIDefinition: graphql.APIDefinition{},
+							APIDefinition: externalschema.APIDefinition{},
 						},
 					},
 				},
@@ -520,11 +520,11 @@ func TestConverter_GraphQLToServiceDetails(t *testing.T) {
 			},
 		},
 		"simple API": {
-			given: graphql.PackageExt{
-				APIDefinitions: graphql.APIDefinitionPageExt{
-					Data: []*graphql.APIDefinitionExt{
+			given: externalschema.PackageExt{
+				APIDefinitions: externalschema.APIDefinitionPageExt{
+					Data: []*externalschema.APIDefinitionExt{
 						{
-							APIDefinition: graphql.APIDefinition{
+							APIDefinition: externalschema.APIDefinition{
 								TargetURL: "http://target.url",
 							},
 						},
@@ -539,23 +539,23 @@ func TestConverter_GraphQLToServiceDetails(t *testing.T) {
 			},
 		},
 		"simple API with additional headers and query params": {
-			given: graphql.PackageExt{
-				Package: graphql.Package{
-					DefaultInstanceAuth: &graphql.Auth{
-						AdditionalQueryParams: &graphql.QueryParams{
+			given: externalschema.PackageExt{
+				Package: externalschema.Package{
+					DefaultInstanceAuth: &externalschema.Auth{
+						AdditionalQueryParams: &externalschema.QueryParams{
 							"q1": []string{"a", "b"},
 							"q2": []string{"c", "d"},
 						},
-						AdditionalHeaders: &graphql.HttpHeaders{
+						AdditionalHeaders: &externalschema.HttpHeaders{
 							"h1": []string{"e", "f"},
 							"h2": []string{"g", "h"},
 						},
 					},
 				},
-				APIDefinitions: graphql.APIDefinitionPageExt{
-					Data: []*graphql.APIDefinitionExt{
+				APIDefinitions: externalschema.APIDefinitionPageExt{
+					Data: []*externalschema.APIDefinitionExt{
 						{
-							APIDefinition: graphql.APIDefinition{
+							APIDefinition: externalschema.APIDefinition{
 								TargetURL: "http://target.url",
 							},
 						},
@@ -586,19 +586,19 @@ func TestConverter_GraphQLToServiceDetails(t *testing.T) {
 			},
 		},
 		"simple API with Basic Auth": {
-			given: graphql.PackageExt{
-				Package: graphql.Package{
-					DefaultInstanceAuth: &graphql.Auth{
-						Credential: &graphql.BasicCredentialData{
+			given: externalschema.PackageExt{
+				Package: externalschema.Package{
+					DefaultInstanceAuth: &externalschema.Auth{
+						Credential: &externalschema.BasicCredentialData{
 							Username: "username",
 							Password: "password",
 						},
 					},
 				},
-				APIDefinitions: graphql.APIDefinitionPageExt{
-					Data: []*graphql.APIDefinitionExt{
+				APIDefinitions: externalschema.APIDefinitionPageExt{
+					Data: []*externalschema.APIDefinitionExt{
 						{
-							APIDefinition: graphql.APIDefinition{
+							APIDefinition: externalschema.APIDefinition{
 								TargetURL: "http://target.url",
 							},
 						},
@@ -621,20 +621,20 @@ func TestConverter_GraphQLToServiceDetails(t *testing.T) {
 			},
 		},
 		"simple API with Oauth": {
-			given: graphql.PackageExt{
-				Package: graphql.Package{
-					DefaultInstanceAuth: &graphql.Auth{
-						Credential: &graphql.OAuthCredentialData{
+			given: externalschema.PackageExt{
+				Package: externalschema.Package{
+					DefaultInstanceAuth: &externalschema.Auth{
+						Credential: &externalschema.OAuthCredentialData{
 							URL:          "http://oauth.url",
 							ClientID:     "client_id",
 							ClientSecret: "client_secret",
 						},
 					},
 				},
-				APIDefinitions: graphql.APIDefinitionPageExt{
-					Data: []*graphql.APIDefinitionExt{
+				APIDefinitions: externalschema.APIDefinitionPageExt{
+					Data: []*externalschema.APIDefinitionExt{
 						{
-							APIDefinition: graphql.APIDefinition{
+							APIDefinition: externalschema.APIDefinition{
 								TargetURL: "http://target.url",
 							},
 						},
@@ -658,19 +658,19 @@ func TestConverter_GraphQLToServiceDetails(t *testing.T) {
 			},
 		},
 		"simple API with FetchRequest (query params and headers)": {
-			given: graphql.PackageExt{
-				APIDefinitions: graphql.APIDefinitionPageExt{
-					Data: []*graphql.APIDefinitionExt{
+			given: externalschema.PackageExt{
+				APIDefinitions: externalschema.APIDefinitionPageExt{
+					Data: []*externalschema.APIDefinitionExt{
 						{
-							Spec: &graphql.APISpecExt{
-								FetchRequest: &graphql.FetchRequest{
+							Spec: &externalschema.APISpecExt{
+								FetchRequest: &externalschema.FetchRequest{
 									URL: "http://apispec.url",
-									Auth: &graphql.Auth{
-										AdditionalQueryParams: &graphql.QueryParams{
+									Auth: &externalschema.Auth{
+										AdditionalQueryParams: &externalschema.QueryParams{
 											"q1": {"a", "b"},
 											"q2": {"c", "d"},
 										},
-										AdditionalHeaders: &graphql.HttpHeaders{
+										AdditionalHeaders: &externalschema.HttpHeaders{
 											"h1": {"e", "f"},
 											"h2": {"g", "h"},
 										},
@@ -695,15 +695,15 @@ func TestConverter_GraphQLToServiceDetails(t *testing.T) {
 			},
 		},
 		"simple API with Fetch Request protected with Basic Auth": {
-			given: graphql.PackageExt{
-				APIDefinitions: graphql.APIDefinitionPageExt{
-					Data: []*graphql.APIDefinitionExt{
+			given: externalschema.PackageExt{
+				APIDefinitions: externalschema.APIDefinitionPageExt{
+					Data: []*externalschema.APIDefinitionExt{
 						{
-							Spec: &graphql.APISpecExt{
-								FetchRequest: &graphql.FetchRequest{
+							Spec: &externalschema.APISpecExt{
+								FetchRequest: &externalschema.FetchRequest{
 									URL: "http://apispec.url",
-									Auth: &graphql.Auth{
-										Credential: &graphql.BasicCredentialData{
+									Auth: &externalschema.Auth{
+										Credential: &externalschema.BasicCredentialData{
 											Username: "username",
 											Password: "password",
 										},
@@ -725,15 +725,15 @@ func TestConverter_GraphQLToServiceDetails(t *testing.T) {
 			},
 		},
 		"simple API with Fetch Request protected with Oauth": {
-			given: graphql.PackageExt{
-				APIDefinitions: graphql.APIDefinitionPageExt{
-					Data: []*graphql.APIDefinitionExt{
+			given: externalschema.PackageExt{
+				APIDefinitions: externalschema.APIDefinitionPageExt{
+					Data: []*externalschema.APIDefinitionExt{
 						{
-							Spec: &graphql.APISpecExt{
-								FetchRequest: &graphql.FetchRequest{
+							Spec: &externalschema.APISpecExt{
+								FetchRequest: &externalschema.FetchRequest{
 									URL: "http://apispec.url",
-									Auth: &graphql.Auth{
-										Credential: &graphql.OAuthCredentialData{
+									Auth: &externalschema.Auth{
+										Credential: &externalschema.OAuthCredentialData{
 											URL:          "http://oauth.url",
 											ClientID:     "client_id",
 											ClientSecret: "client_secret",
@@ -757,11 +757,11 @@ func TestConverter_GraphQLToServiceDetails(t *testing.T) {
 			},
 		},
 		"events": {
-			given: graphql.PackageExt{
-				EventDefinitions: graphql.EventAPIDefinitionPageExt{
-					Data: []*graphql.EventAPIDefinitionExt{{
-						Spec: &graphql.EventAPISpecExt{
-							EventSpec: graphql.EventSpec{
+			given: externalschema.PackageExt{
+				EventDefinitions: externalschema.EventAPIDefinitionPageExt{
+					Data: []*externalschema.EventAPIDefinitionExt{{
+						Spec: &externalschema.EventAPISpecExt{
+							EventSpec: externalschema.EventSpec{
 								Data: ptrClob(`asyncapi: "1.2.0"`),
 							},
 						}},
@@ -786,11 +786,11 @@ func TestConverter_GraphQLToServiceDetails(t *testing.T) {
 	}
 
 	t.Run("identifier provided", func(t *testing.T) {
-		in := graphql.PackageExt{
-			APIDefinitions: graphql.APIDefinitionPageExt{
-				Data: []*graphql.APIDefinitionExt{
+		in := externalschema.PackageExt{
+			APIDefinitions: externalschema.APIDefinitionPageExt{
+				Data: []*externalschema.APIDefinitionExt{
 					{
-						APIDefinition: graphql.APIDefinition{
+						APIDefinition: externalschema.APIDefinition{
 							TargetURL: "http://target.url",
 						},
 					},
@@ -843,18 +843,18 @@ func TestConverter_ServiceDetailsToService(t *testing.T) {
 
 func TestConverter_GraphQLCreateInputToUpdateInput(t *testing.T) {
 	desc := "Desc"
-	schema := graphql.JSONSchema("foo")
-	auth := graphql.AuthInput{Credential: &graphql.CredentialDataInput{Basic: &graphql.BasicCredentialDataInput{
+	schema := externalschema.JSONSchema("foo")
+	auth := externalschema.AuthInput{Credential: &externalschema.CredentialDataInput{Basic: &externalschema.BasicCredentialDataInput{
 		Username: "foo",
 		Password: "bar",
 	}}}
-	in := graphql.PackageCreateInput{
+	in := externalschema.PackageCreateInput{
 		Name:                           "foo",
 		Description:                    &desc,
 		InstanceAuthRequestInputSchema: &schema,
 		DefaultInstanceAuth:            &auth,
 	}
-	expected := graphql.PackageUpdateInput{
+	expected := externalschema.PackageUpdateInput{
 		Name:                           "foo",
 		Description:                    &desc,
 		InstanceAuthRequestInputSchema: &schema,
@@ -876,26 +876,26 @@ func TestConverter_DetailsToGraphQLInput_TestSpecsRecognition(t *testing.T) {
 	apiCases := []struct {
 		Name           string
 		InputAPI       model.API
-		ExpectedType   graphql.APISpecType
-		ExpectedFormat graphql.SpecFormat
+		ExpectedType   externalschema.APISpecType
+		ExpectedFormat externalschema.SpecFormat
 	}{
 		{
 			Name:           "OpenAPI + YAML",
 			InputAPI:       fixAPIOpenAPIYAML(),
-			ExpectedType:   graphql.APISpecTypeOpenAPI,
-			ExpectedFormat: graphql.SpecFormatYaml,
+			ExpectedType:   externalschema.APISpecTypeOpenAPI,
+			ExpectedFormat: externalschema.SpecFormatYaml,
 		},
 		{
 			Name:           "OpenAPI + JSON",
 			InputAPI:       fixAPIOpenAPIJSON(),
-			ExpectedType:   graphql.APISpecTypeOpenAPI,
-			ExpectedFormat: graphql.SpecFormatJSON,
+			ExpectedType:   externalschema.APISpecTypeOpenAPI,
+			ExpectedFormat: externalschema.SpecFormatJSON,
 		},
 		{
 			Name:           "OData + XML",
 			InputAPI:       fixAPIODataXML(),
-			ExpectedType:   graphql.APISpecTypeOdata,
-			ExpectedFormat: graphql.SpecFormatXML,
+			ExpectedType:   externalschema.APISpecTypeOdata,
+			ExpectedFormat: externalschema.SpecFormatXML,
 		},
 	}
 
@@ -919,20 +919,20 @@ func TestConverter_DetailsToGraphQLInput_TestSpecsRecognition(t *testing.T) {
 	eventsCases := []struct {
 		Name           string
 		InputEvents    model.Events
-		ExpectedType   graphql.EventSpecType
-		ExpectedFormat graphql.SpecFormat
+		ExpectedType   externalschema.EventSpecType
+		ExpectedFormat externalschema.SpecFormat
 	}{
 		{
 			Name:           "Async API + JSON",
 			InputEvents:    fixEventsAsyncAPIJSON(),
-			ExpectedType:   graphql.EventSpecTypeAsyncAPI,
-			ExpectedFormat: graphql.SpecFormatJSON,
+			ExpectedType:   externalschema.EventSpecTypeAsyncAPI,
+			ExpectedFormat: externalschema.SpecFormatJSON,
 		},
 		{
 			Name:           "Async API + YAML",
 			InputEvents:    fixEventsAsyncAPIYAML(),
-			ExpectedType:   graphql.EventSpecTypeAsyncAPI,
-			ExpectedFormat: graphql.SpecFormatYaml,
+			ExpectedType:   externalschema.EventSpecTypeAsyncAPI,
+			ExpectedFormat: externalschema.SpecFormatYaml,
 		},
 	}
 
@@ -961,6 +961,6 @@ func ptrString(in string) *string {
 	return &in
 }
 
-func ptrClob(in graphql.CLOB) *graphql.CLOB {
+func ptrClob(in externalschema.CLOB) *externalschema.CLOB {
 	return &in
 }

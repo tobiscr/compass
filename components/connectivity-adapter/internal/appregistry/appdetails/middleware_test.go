@@ -12,8 +12,8 @@ import (
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/internal/appregistry/appdetails"
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/internal/appregistry/director"
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/pkg/gqlcli/automock"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql/graphqlizer"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema/graphqlizer"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -32,8 +32,8 @@ func TestMiddleware(t *testing.T) {
 	testErr := errors.New("test error")
 	t.Run("success", func(t *testing.T) {
 		//GIVEN
-		appPage := graphql.ApplicationPageExt{ApplicationPage: graphql.ApplicationPage{},
-			Data: []*graphql.ApplicationExt{&app}}
+		appPage := externalschema.ApplicationPageExt{ApplicationPage: externalschema.ApplicationPage{},
+			Data: []*externalschema.ApplicationExt{&app}}
 
 		logger, _ := test.NewNullLogger()
 
@@ -64,7 +64,7 @@ func TestMiddleware(t *testing.T) {
 
 	t.Run("application not found", func(t *testing.T) {
 		logger, _ := test.NewNullLogger()
-		emptyResponse := graphql.ApplicationPageExt{}
+		emptyResponse := externalschema.ApplicationPageExt{}
 
 		gqlQueryBuilder := director.NewClient(nil, &graphqlizer.Graphqlizer{}, &graphqlizer.GqlFieldsProvider{})
 		expectedQuery := gqlQueryBuilder.GetApplicationsByNameRequest(appName)
@@ -97,8 +97,8 @@ func TestMiddleware(t *testing.T) {
 
 	t.Run("found more than one application", func(t *testing.T) {
 		logger, _ := test.NewNullLogger()
-		appPage := graphql.ApplicationPageExt{ApplicationPage: graphql.ApplicationPage{},
-			Data: []*graphql.ApplicationExt{&app, &app}}
+		appPage := externalschema.ApplicationPageExt{ApplicationPage: externalschema.ApplicationPage{},
+			Data: []*externalschema.ApplicationExt{&app, &app}}
 		gqlQueryBuilder := director.NewClient(nil, &graphqlizer.Graphqlizer{}, &graphqlizer.GqlFieldsProvider{})
 		expectedQuery := gqlQueryBuilder.GetApplicationsByNameRequest(appName)
 
@@ -158,7 +158,7 @@ func TestMiddleware(t *testing.T) {
 
 }
 
-func assertAppInContext(t *testing.T, expectedApp graphql.ApplicationExt) func(w http.ResponseWriter, r *http.Request) {
+func assertAppInContext(t *testing.T, expectedApp externalschema.ApplicationExt) func(w http.ResponseWriter, r *http.Request) {
 	return func(writer http.ResponseWriter, r *http.Request) {
 		fmt.Println(r)
 		app, err := appdetails.LoadFromContext(r.Context())
@@ -168,7 +168,7 @@ func assertAppInContext(t *testing.T, expectedApp graphql.ApplicationExt) func(w
 	}
 }
 
-func injectDirectorResponse(t *testing.T, result graphql.ApplicationPageExt) func(args mock.Arguments) {
+func injectDirectorResponse(t *testing.T, result externalschema.ApplicationPageExt) func(args mock.Arguments) {
 	return func(args mock.Arguments) {
 		arg, ok := args.Get(2).(*appdetails.GqlSuccessfulAppPage)
 		if !ok {
@@ -178,9 +178,9 @@ func injectDirectorResponse(t *testing.T, result graphql.ApplicationPageExt) fun
 	}
 }
 
-func fixApplicationExt(name string) graphql.ApplicationExt {
-	return graphql.ApplicationExt{
-		Application: graphql.Application{
+func fixApplicationExt(name string) externalschema.ApplicationExt {
+	return externalschema.ApplicationExt{
+		Application: externalschema.Application{
 			ID:   uuid.New().String(),
 			Name: name,
 		},

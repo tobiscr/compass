@@ -3,7 +3,7 @@
 package automock
 
 import (
-	graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	externalschema "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	mock "github.com/stretchr/testify/mock"
 
 	model "github.com/kyma-incubator/compass/components/connectivity-adapter/internal/appregistry/model"
@@ -17,14 +17,14 @@ type Converter struct {
 }
 
 // DetailsToGraphQLCreateInput provides a mock function with given fields: deprecated
-func (_m *Converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails) (graphql.PackageCreateInput, error) {
+func (_m *Converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails) (externalschema.PackageCreateInput, error) {
 	ret := _m.Called(deprecated)
 
-	var r0 graphql.PackageCreateInput
-	if rf, ok := ret.Get(0).(func(model.ServiceDetails) graphql.PackageCreateInput); ok {
+	var r0 externalschema.PackageCreateInput
+	if rf, ok := ret.Get(0).(func(model.ServiceDetails) externalschema.PackageCreateInput); ok {
 		r0 = rf(deprecated)
 	} else {
-		r0 = ret.Get(0).(graphql.PackageCreateInput)
+		r0 = ret.Get(0).(externalschema.PackageCreateInput)
 	}
 
 	var r1 error
@@ -38,32 +38,32 @@ func (_m *Converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails
 }
 
 // GraphQLCreateInputToUpdateInput provides a mock function with given fields: in
-func (_m *Converter) GraphQLCreateInputToUpdateInput(in graphql.PackageCreateInput) graphql.PackageUpdateInput {
+func (_m *Converter) GraphQLCreateInputToUpdateInput(in externalschema.PackageCreateInput) externalschema.PackageUpdateInput {
 	ret := _m.Called(in)
 
-	var r0 graphql.PackageUpdateInput
-	if rf, ok := ret.Get(0).(func(graphql.PackageCreateInput) graphql.PackageUpdateInput); ok {
+	var r0 externalschema.PackageUpdateInput
+	if rf, ok := ret.Get(0).(func(externalschema.PackageCreateInput) externalschema.PackageUpdateInput); ok {
 		r0 = rf(in)
 	} else {
-		r0 = ret.Get(0).(graphql.PackageUpdateInput)
+		r0 = ret.Get(0).(externalschema.PackageUpdateInput)
 	}
 
 	return r0
 }
 
 // GraphQLToServiceDetails provides a mock function with given fields: converted, legacyServiceReference
-func (_m *Converter) GraphQLToServiceDetails(converted graphql.PackageExt, legacyServiceReference service.LegacyServiceReference) (model.ServiceDetails, error) {
+func (_m *Converter) GraphQLToServiceDetails(converted externalschema.PackageExt, legacyServiceReference service.LegacyServiceReference) (model.ServiceDetails, error) {
 	ret := _m.Called(converted, legacyServiceReference)
 
 	var r0 model.ServiceDetails
-	if rf, ok := ret.Get(0).(func(graphql.PackageExt, service.LegacyServiceReference) model.ServiceDetails); ok {
+	if rf, ok := ret.Get(0).(func(externalschema.PackageExt, service.LegacyServiceReference) model.ServiceDetails); ok {
 		r0 = rf(converted, legacyServiceReference)
 	} else {
 		r0 = ret.Get(0).(model.ServiceDetails)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(graphql.PackageExt, service.LegacyServiceReference) error); ok {
+	if rf, ok := ret.Get(1).(func(externalschema.PackageExt, service.LegacyServiceReference) error); ok {
 		r1 = rf(converted, legacyServiceReference)
 	} else {
 		r1 = ret.Error(1)
