@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/labeldef"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -18,13 +19,13 @@ func TestFromGraphQL(t *testing.T) {
 	t.Run("Correct schema", func(t *testing.T) {
 		// GIVEN
 		sut := labeldef.NewConverter()
-		schema := graphql.JSONSchema(`{"schema":"schema"}`)
+		schema := externalschema.JSONSchema(`{"schema":"schema"}`)
 		expectedSchema := map[string]interface{}{
 			"schema": interface{}("schema"),
 		}
 
 		// WHEN
-		actual, err := sut.FromGraphQL(graphql.LabelDefinitionInput{
+		actual, err := sut.FromGraphQL(externalschema.LabelDefinitionInput{
 			Key:    "some-key",
 			Schema: &schema,
 		}, testTenant)
@@ -40,9 +41,9 @@ func TestFromGraphQL(t *testing.T) {
 	t.Run("Error - invalid schema", func(t *testing.T) {
 		// GIVEN
 		sut := labeldef.NewConverter()
-		invalidSchema := graphql.JSONSchema(`"schema":`)
+		invalidSchema := externalschema.JSONSchema(`"schema":`)
 		// WHEN
-		_, err := sut.FromGraphQL(graphql.LabelDefinitionInput{
+		_, err := sut.FromGraphQL(externalschema.LabelDefinitionInput{
 			Key:    "some-key",
 			Schema: &invalidSchema,
 		}, testTenant)
@@ -56,7 +57,7 @@ func TestToGraphQL(t *testing.T) {
 		// GIVEN
 		sut := labeldef.NewConverter()
 		// WHEN
-		expectedSchema := graphql.JSONSchema(`{"schema":"schema"}`)
+		expectedSchema := externalschema.JSONSchema(`{"schema":"schema"}`)
 		anySchema := map[string]interface{}{
 			"schema": interface{}("schema"),
 		}

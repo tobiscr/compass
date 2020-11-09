@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/scenarioassignment"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/scenarioassignment/automock"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -19,16 +20,16 @@ import (
 )
 
 func TestResolverCreateAutomaticScenarioAssignment(t *testing.T) {
-	givenInput := graphql.AutomaticScenarioAssignmentSetInput{
+	givenInput := externalschema.AutomaticScenarioAssignmentSetInput{
 		ScenarioName: scenarioName,
-		Selector: &graphql.LabelSelectorInput{
+		Selector: &externalschema.LabelSelectorInput{
 			Key:   "key",
 			Value: "value",
 		},
 	}
-	expectedOutput := graphql.AutomaticScenarioAssignment{
+	expectedOutput := externalschema.AutomaticScenarioAssignment{
 		ScenarioName: scenarioName,
-		Selector: &graphql.Label{
+		Selector: &externalschema.Label{
 			Key:   "key",
 			Value: "value",
 		},
@@ -61,7 +62,7 @@ func TestResolverCreateAutomaticScenarioAssignment(t *testing.T) {
 		sut := scenarioassignment.NewResolver(transact, nil, nil)
 
 		// WHEN
-		_, err := sut.CreateAutomaticScenarioAssignment(context.TODO(), graphql.AutomaticScenarioAssignmentSetInput{})
+		_, err := sut.CreateAutomaticScenarioAssignment(context.TODO(), externalschema.AutomaticScenarioAssignmentSetInput{})
 
 		// THEN
 		assert.EqualError(t, err, "while beginning transaction: some persistence error")
@@ -166,7 +167,7 @@ func TestResolver_GetAutomaticScenarioAssignmentByScenario(t *testing.T) {
 }
 
 func TestResolver_AutomaticScenarioAssignmentsForSelector(t *testing.T) {
-	givenInput := graphql.LabelSelectorInput{
+	givenInput := externalschema.LabelSelectorInput{
 		Key:   "key",
 		Value: "value",
 	}
@@ -188,17 +189,17 @@ func TestResolver_AutomaticScenarioAssignmentsForSelector(t *testing.T) {
 		},
 	}
 
-	expectedOutput := []*graphql.AutomaticScenarioAssignment{
+	expectedOutput := []*externalschema.AutomaticScenarioAssignment{
 		{
 			ScenarioName: scenarioName,
-			Selector: &graphql.Label{
+			Selector: &externalschema.Label{
 				Key:   "key",
 				Value: "value",
 			},
 		},
 		{
 			ScenarioName: "scenario-B",
-			Selector: &graphql.Label{
+			Selector: &externalschema.Label{
 				Key:   "key",
 				Value: "value",
 			},
@@ -234,7 +235,7 @@ func TestResolver_AutomaticScenarioAssignmentsForSelector(t *testing.T) {
 		sut := scenarioassignment.NewResolver(transact, nil, nil)
 
 		// WHEN
-		_, err := sut.AutomaticScenarioAssignmentsForSelector(context.TODO(), graphql.LabelSelectorInput{})
+		_, err := sut.AutomaticScenarioAssignmentsForSelector(context.TODO(), externalschema.LabelSelectorInput{})
 
 		// THEN
 		assert.EqualError(t, err, "while beginning transaction: some persistence error")
@@ -295,7 +296,7 @@ func TestResolver_AutomaticScenarioAssignments(t *testing.T) {
 
 	gql1 := fixGQLWithScenarioName("foo")
 	gql2 := fixGQLWithScenarioName("bar")
-	gqlItems := []*graphql.AutomaticScenarioAssignment{
+	gqlItems := []*externalschema.AutomaticScenarioAssignment{
 		&gql1, &gql2,
 	}
 	gqlPage := fixGQLPageWithItems(gqlItems)
@@ -303,7 +304,7 @@ func TestResolver_AutomaticScenarioAssignments(t *testing.T) {
 	txGen := txtest.NewTransactionContextGenerator(testErr)
 
 	first := 2
-	gqlAfter := graphql.PageCursor("test")
+	gqlAfter := externalschema.PageCursor("test")
 	after := "test"
 
 	testCases := []struct {
@@ -311,7 +312,7 @@ func TestResolver_AutomaticScenarioAssignments(t *testing.T) {
 		TransactionerFn func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		ServiceFn       func() *automock.Service
 		ConverterFn     func() *automock.Converter
-		ExpectedResult  *graphql.AutomaticScenarioAssignmentPage
+		ExpectedResult  *externalschema.AutomaticScenarioAssignmentPage
 		ExpectedErr     error
 	}{
 		{
@@ -401,7 +402,7 @@ func TestResolver_AutomaticScenarioAssignments(t *testing.T) {
 }
 
 func TestResolver_DeleteAutomaticScenarioAssignmentsForSelector(t *testing.T) {
-	givenInput := graphql.LabelSelectorInput{
+	givenInput := externalschema.LabelSelectorInput{
 		Key:   "key",
 		Value: "value",
 	}
@@ -425,17 +426,17 @@ func TestResolver_DeleteAutomaticScenarioAssignmentsForSelector(t *testing.T) {
 		},
 	}
 
-	expectedOutput := []*graphql.AutomaticScenarioAssignment{
+	expectedOutput := []*externalschema.AutomaticScenarioAssignment{
 		{
 			ScenarioName: scenarioNameA,
-			Selector: &graphql.Label{
+			Selector: &externalschema.Label{
 				Key:   "key",
 				Value: "value",
 			},
 		},
 		{
 			ScenarioName: scenarioNameB,
-			Selector: &graphql.Label{
+			Selector: &externalschema.Label{
 				Key:   "key",
 				Value: "value",
 			},
@@ -473,7 +474,7 @@ func TestResolver_DeleteAutomaticScenarioAssignmentsForSelector(t *testing.T) {
 		sut := scenarioassignment.NewResolver(transact, nil, nil)
 
 		// WHEN
-		_, err := sut.DeleteAutomaticScenarioAssignmentsForSelector(context.TODO(), graphql.LabelSelectorInput{})
+		_, err := sut.DeleteAutomaticScenarioAssignmentsForSelector(context.TODO(), externalschema.LabelSelectorInput{})
 
 		// THEN
 		assert.EqualError(t, err, "while beginning transaction: some persistence error")

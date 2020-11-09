@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/inputvalidation"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 
 	"github.com/pkg/errors"
@@ -29,17 +30,17 @@ type ApplicationTemplateService interface {
 
 //go:generate mockery -name=ApplicationTemplateConverter -output=automock -outpkg=automock -case=underscore
 type ApplicationTemplateConverter interface {
-	ToGraphQL(in *model.ApplicationTemplate) (*graphql.ApplicationTemplate, error)
-	MultipleToGraphQL(in []*model.ApplicationTemplate) ([]*graphql.ApplicationTemplate, error)
-	InputFromGraphQL(in graphql.ApplicationTemplateInput) (model.ApplicationTemplateInput, error)
-	ApplicationFromTemplateInputFromGraphQL(in graphql.ApplicationFromTemplateInput) model.ApplicationFromTemplateInput
+	ToGraphQL(in *model.ApplicationTemplate) (*externalschema.ApplicationTemplate, error)
+	MultipleToGraphQL(in []*model.ApplicationTemplate) ([]*externalschema.ApplicationTemplate, error)
+	InputFromGraphQL(in externalschema.ApplicationTemplateInput) (model.ApplicationTemplateInput, error)
+	ApplicationFromTemplateInputFromGraphQL(in externalschema.ApplicationFromTemplateInput) model.ApplicationFromTemplateInput
 }
 
 //go:generate mockery -name=ApplicationConverter -output=automock -outpkg=automock -case=underscore
 type ApplicationConverter interface {
-	ToGraphQL(in *model.Application) *graphql.Application
-	CreateInputJSONToGQL(in string) (graphql.ApplicationRegisterInput, error)
-	CreateInputFromGraphQL(in graphql.ApplicationRegisterInput) (model.ApplicationRegisterInput, error)
+	ToGraphQL(in *model.Application) *externalschema.Application
+	CreateInputJSONToGQL(in string) (externalschema.ApplicationRegisterInput, error)
+	CreateInputFromGraphQL(in externalschema.ApplicationRegisterInput) (model.ApplicationRegisterInput, error)
 }
 
 //go:generate mockery -name=ApplicationService -output=automock -outpkg=automock -case=underscore
@@ -67,7 +68,7 @@ func NewResolver(transact persistence.Transactioner, appSvc ApplicationService, 
 	}
 }
 
-func (r *Resolver) ApplicationTemplate(ctx context.Context, id string) (*graphql.ApplicationTemplate, error) {
+func (r *Resolver) ApplicationTemplate(ctx context.Context, id string) (*externalschema.ApplicationTemplate, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -97,7 +98,7 @@ func (r *Resolver) ApplicationTemplate(ctx context.Context, id string) (*graphql
 	return out, nil
 }
 
-func (r *Resolver) ApplicationTemplates(ctx context.Context, first *int, after *graphql.PageCursor) (*graphql.ApplicationTemplatePage, error) {
+func (r *Resolver) ApplicationTemplates(ctx context.Context, first *int, after *externalschema.PageCursor) (*externalschema.ApplicationTemplatePage, error) {
 	var cursor string
 	if after != nil {
 		cursor = string(*after)
@@ -129,18 +130,18 @@ func (r *Resolver) ApplicationTemplates(ctx context.Context, first *int, after *
 		return nil, errors.Wrapf(err, "while converting application templates to graphql")
 	}
 
-	return &graphql.ApplicationTemplatePage{
+	return &externalschema.ApplicationTemplatePage{
 		Data:       gqlAppTemplate,
 		TotalCount: appTemplatePage.TotalCount,
-		PageInfo: &graphql.PageInfo{
-			StartCursor: graphql.PageCursor(appTemplatePage.PageInfo.StartCursor),
-			EndCursor:   graphql.PageCursor(appTemplatePage.PageInfo.EndCursor),
+		PageInfo: &externalschema.PageInfo{
+			StartCursor: externalschema.PageCursor(appTemplatePage.PageInfo.StartCursor),
+			EndCursor:   externalschema.PageCursor(appTemplatePage.PageInfo.EndCursor),
 			HasNextPage: appTemplatePage.PageInfo.HasNextPage,
 		},
 	}, nil
 }
 
-func (r *Resolver) CreateApplicationTemplate(ctx context.Context, in graphql.ApplicationTemplateInput) (*graphql.ApplicationTemplate, error) {
+func (r *Resolver) CreateApplicationTemplate(ctx context.Context, in externalschema.ApplicationTemplateInput) (*externalschema.ApplicationTemplate, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -179,7 +180,7 @@ func (r *Resolver) CreateApplicationTemplate(ctx context.Context, in graphql.App
 	return gqlAppTemplate, nil
 }
 
-func (r *Resolver) RegisterApplicationFromTemplate(ctx context.Context, in graphql.ApplicationFromTemplateInput) (*graphql.Application, error) {
+func (r *Resolver) RegisterApplicationFromTemplate(ctx context.Context, in externalschema.ApplicationFromTemplateInput) (*externalschema.Application, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -245,7 +246,7 @@ func (r *Resolver) RegisterApplicationFromTemplate(ctx context.Context, in graph
 	return gqlApp, nil
 }
 
-func (r *Resolver) UpdateApplicationTemplate(ctx context.Context, id string, in graphql.ApplicationTemplateInput) (*graphql.ApplicationTemplate, error) {
+func (r *Resolver) UpdateApplicationTemplate(ctx context.Context, id string, in externalschema.ApplicationTemplateInput) (*externalschema.ApplicationTemplate, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -282,7 +283,7 @@ func (r *Resolver) UpdateApplicationTemplate(ctx context.Context, id string, in 
 	return gqlAppTemplate, nil
 }
 
-func (r *Resolver) DeleteApplicationTemplate(ctx context.Context, id string) (*graphql.ApplicationTemplate, error) {
+func (r *Resolver) DeleteApplicationTemplate(ctx context.Context, id string) (*externalschema.ApplicationTemplate, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err

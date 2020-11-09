@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	"github.com/kyma-incubator/compass/components/director/pkg/str"
 	"github.com/pkg/errors"
 
@@ -8,13 +9,12 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 	"github.com/kyma-incubator/compass/components/director/internal/repo"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 )
 
 //go:generate mockery -name=VersionConverter -output=automock -outpkg=automock -case=underscore
 type VersionConverter interface {
-	ToGraphQL(in *model.Version) *graphql.Version
-	InputFromGraphQL(in *graphql.VersionInput) *model.VersionInput
+	ToGraphQL(in *model.Version) *externalschema.Version
+	InputFromGraphQL(in *externalschema.VersionInput) *model.VersionInput
 	FromEntity(version version.Version) *model.Version
 	ToEntity(version model.Version) version.Version
 }
@@ -28,12 +28,12 @@ func NewConverter(fr FetchRequestConverter, version VersionConverter) *converter
 	return &converter{fr: fr, version: version}
 }
 
-func (c *converter) ToGraphQL(in *model.APIDefinition) *graphql.APIDefinition {
+func (c *converter) ToGraphQL(in *model.APIDefinition) *externalschema.APIDefinition {
 	if in == nil {
 		return nil
 	}
 
-	return &graphql.APIDefinition{
+	return &externalschema.APIDefinition{
 		ID:          in.ID,
 		PackageID:   in.PackageID,
 		Name:        in.Name,
@@ -45,8 +45,8 @@ func (c *converter) ToGraphQL(in *model.APIDefinition) *graphql.APIDefinition {
 	}
 }
 
-func (c *converter) MultipleToGraphQL(in []*model.APIDefinition) []*graphql.APIDefinition {
-	var apis []*graphql.APIDefinition
+func (c *converter) MultipleToGraphQL(in []*model.APIDefinition) []*externalschema.APIDefinition {
+	var apis []*externalschema.APIDefinition
 	for _, a := range in {
 		if a == nil {
 			continue
@@ -57,7 +57,7 @@ func (c *converter) MultipleToGraphQL(in []*model.APIDefinition) []*graphql.APID
 	return apis
 }
 
-func (c *converter) MultipleInputFromGraphQL(in []*graphql.APIDefinitionInput) ([]*model.APIDefinitionInput, error) {
+func (c *converter) MultipleInputFromGraphQL(in []*externalschema.APIDefinitionInput) ([]*model.APIDefinitionInput, error) {
 	var arr []*model.APIDefinitionInput
 	for _, item := range in {
 		api, err := c.InputFromGraphQL(item)
@@ -71,7 +71,7 @@ func (c *converter) MultipleInputFromGraphQL(in []*graphql.APIDefinitionInput) (
 	return arr, nil
 }
 
-func (c *converter) InputFromGraphQL(in *graphql.APIDefinitionInput) (*model.APIDefinitionInput, error) {
+func (c *converter) InputFromGraphQL(in *externalschema.APIDefinitionInput) (*model.APIDefinitionInput, error) {
 	if in == nil {
 		return nil, nil
 	}
@@ -91,26 +91,26 @@ func (c *converter) InputFromGraphQL(in *graphql.APIDefinitionInput) (*model.API
 	}, nil
 }
 
-func (c *converter) SpecToGraphQL(definitionID string, in *model.APISpec) *graphql.APISpec {
+func (c *converter) SpecToGraphQL(definitionID string, in *model.APISpec) *externalschema.APISpec {
 	if in == nil {
 		return nil
 	}
 
-	var data *graphql.CLOB
+	var data *externalschema.CLOB
 	if in.Data != nil {
-		tmp := graphql.CLOB(*in.Data)
+		tmp := externalschema.CLOB(*in.Data)
 		data = &tmp
 	}
 
-	return &graphql.APISpec{
+	return &externalschema.APISpec{
 		Data:         data,
-		Type:         graphql.APISpecType(in.Type),
-		Format:       graphql.SpecFormat(in.Format),
+		Type:         externalschema.APISpecType(in.Type),
+		Format:       externalschema.SpecFormat(in.Format),
 		DefinitionID: definitionID,
 	}
 }
 
-func (c *converter) apiSpecInputFromGraphQL(in *graphql.APISpecInput) (*model.APISpecInput, error) {
+func (c *converter) apiSpecInputFromGraphQL(in *externalschema.APISpecInput) (*model.APISpecInput, error) {
 	if in == nil {
 		return nil, nil
 	}

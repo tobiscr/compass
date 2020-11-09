@@ -5,13 +5,14 @@ import (
 	"database/sql/driver"
 	"errors"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/scenarioassignment"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/pagination"
 )
 
@@ -26,7 +27,7 @@ func fixModel() model.AutomaticScenarioAssignment {
 	return fixModelWithScenarioName(scenarioName)
 }
 
-func fixGQL() graphql.AutomaticScenarioAssignment {
+func fixGQL() externalschema.AutomaticScenarioAssignment {
 	return fixGQLWithScenarioName(scenarioName)
 }
 
@@ -68,29 +69,29 @@ func fixModelPageWithItems(in []*model.AutomaticScenarioAssignment) model.Automa
 	}
 }
 
-func fixGQLWithScenarioName(scenario string) graphql.AutomaticScenarioAssignment {
-	return graphql.AutomaticScenarioAssignment{
+func fixGQLWithScenarioName(scenario string) externalschema.AutomaticScenarioAssignment {
+	return externalschema.AutomaticScenarioAssignment{
 		ScenarioName: scenario,
-		Selector: &graphql.Label{
+		Selector: &externalschema.Label{
 			Key:   "key",
 			Value: "value",
 		},
 	}
 }
 
-func fixGQLPage() graphql.AutomaticScenarioAssignmentPage {
+func fixGQLPage() externalschema.AutomaticScenarioAssignmentPage {
 	gql1 := fixGQLWithScenarioName("foo")
 	gql2 := fixGQLWithScenarioName("bar")
-	gqlItems := []*graphql.AutomaticScenarioAssignment{
+	gqlItems := []*externalschema.AutomaticScenarioAssignment{
 		&gql1, &gql2,
 	}
 	return fixGQLPageWithItems(gqlItems)
 }
 
-func fixGQLPageWithItems(in []*graphql.AutomaticScenarioAssignment) graphql.AutomaticScenarioAssignmentPage {
-	return graphql.AutomaticScenarioAssignmentPage{
+func fixGQLPageWithItems(in []*externalschema.AutomaticScenarioAssignment) externalschema.AutomaticScenarioAssignmentPage {
+	return externalschema.AutomaticScenarioAssignmentPage{
 		Data:       in,
-		PageInfo:   &graphql.PageInfo{},
+		PageInfo:   &externalschema.PageInfo{},
 		TotalCount: len(in),
 	}
 }

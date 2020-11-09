@@ -3,7 +3,7 @@
 package automock
 
 import (
-	graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	mock "github.com/stretchr/testify/mock"
 
 	model "github.com/kyma-incubator/compass/components/director/internal/model"
@@ -15,11 +15,11 @@ type RuntimeConverter struct {
 }
 
 // InputFromGraphQL provides a mock function with given fields: in
-func (_m *RuntimeConverter) InputFromGraphQL(in graphql.RuntimeInput) model.RuntimeInput {
+func (_m *RuntimeConverter) InputFromGraphQL(in externalschema.RuntimeInput) model.RuntimeInput {
 	ret := _m.Called(in)
 
 	var r0 model.RuntimeInput
-	if rf, ok := ret.Get(0).(func(graphql.RuntimeInput) model.RuntimeInput); ok {
+	if rf, ok := ret.Get(0).(func(externalschema.RuntimeInput) model.RuntimeInput); ok {
 		r0 = rf(in)
 	} else {
 		r0 = ret.Get(0).(model.RuntimeInput)
@@ -29,15 +29,15 @@ func (_m *RuntimeConverter) InputFromGraphQL(in graphql.RuntimeInput) model.Runt
 }
 
 // MultipleToGraphQL provides a mock function with given fields: in
-func (_m *RuntimeConverter) MultipleToGraphQL(in []*model.Runtime) []*graphql.Runtime {
+func (_m *RuntimeConverter) MultipleToGraphQL(in []*model.Runtime) []*externalschema.Runtime {
 	ret := _m.Called(in)
 
-	var r0 []*graphql.Runtime
-	if rf, ok := ret.Get(0).(func([]*model.Runtime) []*graphql.Runtime); ok {
+	var r0 []*externalschema.Runtime
+	if rf, ok := ret.Get(0).(func([]*model.Runtime) []*externalschema.Runtime); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*graphql.Runtime)
+			r0 = ret.Get(0).([]*externalschema.Runtime)
 		}
 	}
 
@@ -45,15 +45,15 @@ func (_m *RuntimeConverter) MultipleToGraphQL(in []*model.Runtime) []*graphql.Ru
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *RuntimeConverter) ToGraphQL(in *model.Runtime) *graphql.Runtime {
+func (_m *RuntimeConverter) ToGraphQL(in *model.Runtime) *externalschema.Runtime {
 	ret := _m.Called(in)
 
-	var r0 *graphql.Runtime
-	if rf, ok := ret.Get(0).(func(*model.Runtime) *graphql.Runtime); ok {
+	var r0 *externalschema.Runtime
+	if rf, ok := ret.Get(0).(func(*model.Runtime) *externalschema.Runtime); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.Runtime)
+			r0 = ret.Get(0).(*externalschema.Runtime)
 		}
 	}
 

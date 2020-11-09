@@ -3,10 +3,11 @@ package integrationsystem
 import (
 	"context"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 )
 
@@ -21,9 +22,9 @@ type IntegrationSystemService interface {
 
 //go:generate mockery -name=IntegrationSystemConverter -output=automock -outpkg=automock -case=underscore
 type IntegrationSystemConverter interface {
-	ToGraphQL(in *model.IntegrationSystem) *graphql.IntegrationSystem
-	MultipleToGraphQL(in []*model.IntegrationSystem) []*graphql.IntegrationSystem
-	InputFromGraphQL(in graphql.IntegrationSystemInput) model.IntegrationSystemInput
+	ToGraphQL(in *model.IntegrationSystem) *externalschema.IntegrationSystem
+	MultipleToGraphQL(in []*model.IntegrationSystem) []*externalschema.IntegrationSystem
+	InputFromGraphQL(in externalschema.IntegrationSystemInput) model.IntegrationSystemInput
 }
 
 //go:generate mockery -name=SystemAuthService -output=automock -outpkg=automock -case=underscore
@@ -33,7 +34,7 @@ type SystemAuthService interface {
 
 //go:generate mockery -name=SystemAuthConverter -output=automock -outpkg=automock -case=underscore
 type SystemAuthConverter interface {
-	ToGraphQL(in *model.SystemAuth) (*graphql.SystemAuth, error)
+	ToGraphQL(in *model.SystemAuth) (*externalschema.SystemAuth, error)
 }
 
 //go:generate mockery -name=OAuth20Service -output=automock -outpkg=automock -case=underscore
@@ -61,7 +62,7 @@ func NewResolver(transact persistence.Transactioner, intSysSvc IntegrationSystem
 	}
 }
 
-func (r *Resolver) IntegrationSystem(ctx context.Context, id string) (*graphql.IntegrationSystem, error) {
+func (r *Resolver) IntegrationSystem(ctx context.Context, id string) (*externalschema.IntegrationSystem, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -86,7 +87,7 @@ func (r *Resolver) IntegrationSystem(ctx context.Context, id string) (*graphql.I
 	return r.intSysConverter.ToGraphQL(is), nil
 }
 
-func (r *Resolver) IntegrationSystems(ctx context.Context, first *int, after *graphql.PageCursor) (*graphql.IntegrationSystemPage, error) {
+func (r *Resolver) IntegrationSystems(ctx context.Context, first *int, after *externalschema.PageCursor) (*externalschema.IntegrationSystemPage, error) {
 	var cursor string
 	if after != nil {
 		cursor = string(*after)
@@ -115,18 +116,18 @@ func (r *Resolver) IntegrationSystems(ctx context.Context, first *int, after *gr
 
 	gqlIntSys := r.intSysConverter.MultipleToGraphQL(intSysPage.Data)
 
-	return &graphql.IntegrationSystemPage{
+	return &externalschema.IntegrationSystemPage{
 		Data:       gqlIntSys,
 		TotalCount: intSysPage.TotalCount,
-		PageInfo: &graphql.PageInfo{
-			StartCursor: graphql.PageCursor(intSysPage.PageInfo.StartCursor),
-			EndCursor:   graphql.PageCursor(intSysPage.PageInfo.EndCursor),
+		PageInfo: &externalschema.PageInfo{
+			StartCursor: externalschema.PageCursor(intSysPage.PageInfo.StartCursor),
+			EndCursor:   externalschema.PageCursor(intSysPage.PageInfo.EndCursor),
 			HasNextPage: intSysPage.PageInfo.HasNextPage,
 		},
 	}, nil
 }
 
-func (r *Resolver) RegisterIntegrationSystem(ctx context.Context, in graphql.IntegrationSystemInput) (*graphql.IntegrationSystem, error) {
+func (r *Resolver) RegisterIntegrationSystem(ctx context.Context, in externalschema.IntegrationSystemInput) (*externalschema.IntegrationSystem, error) {
 	convertedIn := r.intSysConverter.InputFromGraphQL(in)
 
 	tx, err := r.transact.Begin()
@@ -157,7 +158,7 @@ func (r *Resolver) RegisterIntegrationSystem(ctx context.Context, in graphql.Int
 	return gqlIntSys, nil
 }
 
-func (r *Resolver) UpdateIntegrationSystem(ctx context.Context, id string, in graphql.IntegrationSystemInput) (*graphql.IntegrationSystem, error) {
+func (r *Resolver) UpdateIntegrationSystem(ctx context.Context, id string, in externalschema.IntegrationSystemInput) (*externalschema.IntegrationSystem, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -187,7 +188,7 @@ func (r *Resolver) UpdateIntegrationSystem(ctx context.Context, id string, in gr
 	return gqlIntSys, nil
 }
 
-func (r *Resolver) UnregisterIntegrationSystem(ctx context.Context, id string) (*graphql.IntegrationSystem, error) {
+func (r *Resolver) UnregisterIntegrationSystem(ctx context.Context, id string) (*externalschema.IntegrationSystem, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -226,7 +227,7 @@ func (r *Resolver) UnregisterIntegrationSystem(ctx context.Context, id string) (
 	return deletedIntSys, nil
 }
 
-func (r *Resolver) Auths(ctx context.Context, obj *graphql.IntegrationSystem) ([]*graphql.SystemAuth, error) {
+func (r *Resolver) Auths(ctx context.Context, obj *externalschema.IntegrationSystem) ([]*externalschema.SystemAuth, error) {
 	if obj == nil {
 		return nil, apperrors.NewInternalError("Integration System cannot be empty")
 	}
@@ -249,7 +250,7 @@ func (r *Resolver) Auths(ctx context.Context, obj *graphql.IntegrationSystem) ([
 		return nil, err
 	}
 
-	var out []*graphql.SystemAuth
+	var out []*externalschema.SystemAuth
 	for _, sa := range sysAuths {
 		c, err := r.sysAuthConverter.ToGraphQL(&sa)
 		if err != nil {

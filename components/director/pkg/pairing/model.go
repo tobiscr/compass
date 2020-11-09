@@ -1,9 +1,11 @@
 package pairing
 
-import "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 
 type RequestData struct {
-	Application graphql.Application
+	Application externalschema.Application
 	Tenant      string
 }
 

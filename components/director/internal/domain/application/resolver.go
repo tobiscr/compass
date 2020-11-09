@@ -4,6 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/inputvalidation"
@@ -19,7 +21,6 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/internal/labelfilter"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/pkg/errors"
 )
 
@@ -39,11 +40,11 @@ type ApplicationService interface {
 
 //go:generate mockery -name=ApplicationConverter -output=automock -outpkg=automock -case=underscore
 type ApplicationConverter interface {
-	ToGraphQL(in *model.Application) *graphql.Application
-	MultipleToGraphQL(in []*model.Application) []*graphql.Application
-	CreateInputFromGraphQL(in graphql.ApplicationRegisterInput) (model.ApplicationRegisterInput, error)
-	UpdateInputFromGraphQL(in graphql.ApplicationUpdateInput) model.ApplicationUpdateInput
-	GraphQLToModel(obj *graphql.Application, tenantID string) *model.Application
+	ToGraphQL(in *model.Application) *externalschema.Application
+	MultipleToGraphQL(in []*model.Application) []*externalschema.Application
+	CreateInputFromGraphQL(in externalschema.ApplicationRegisterInput) (model.ApplicationRegisterInput, error)
+	UpdateInputFromGraphQL(in externalschema.ApplicationUpdateInput) model.ApplicationUpdateInput
+	GraphQLToModel(obj *externalschema.Application, tenantID string) *model.Application
 }
 
 //go:generate mockery -name=EventingService -output=automock -outpkg=automock -case=underscore
@@ -68,15 +69,15 @@ type SystemAuthService interface {
 
 //go:generate mockery -name=WebhookConverter -output=automock -outpkg=automock -case=underscore
 type WebhookConverter interface {
-	ToGraphQL(in *model.Webhook) (*graphql.Webhook, error)
-	MultipleToGraphQL(in []*model.Webhook) ([]*graphql.Webhook, error)
-	InputFromGraphQL(in *graphql.WebhookInput) (*model.WebhookInput, error)
-	MultipleInputFromGraphQL(in []*graphql.WebhookInput) ([]*model.WebhookInput, error)
+	ToGraphQL(in *model.Webhook) (*externalschema.Webhook, error)
+	MultipleToGraphQL(in []*model.Webhook) ([]*externalschema.Webhook, error)
+	InputFromGraphQL(in *externalschema.WebhookInput) (*model.WebhookInput, error)
+	MultipleInputFromGraphQL(in []*externalschema.WebhookInput) ([]*model.WebhookInput, error)
 }
 
 //go:generate mockery -name=SystemAuthConverter -output=automock -outpkg=automock -case=underscore
 type SystemAuthConverter interface {
-	ToGraphQL(in *model.SystemAuth) (*graphql.SystemAuth, error)
+	ToGraphQL(in *model.SystemAuth) (*externalschema.SystemAuth, error)
 }
 
 //go:generate mockery -name=OAuth20Service -output=automock -outpkg=automock -case=underscore
@@ -99,9 +100,9 @@ type PackageService interface {
 
 //go:generate mockery -name=PackageConverter -output=automock -outpkg=automock -case=underscore
 type PackageConverter interface {
-	ToGraphQL(in *model.Package) (*graphql.Package, error)
-	MultipleToGraphQL(in []*model.Package) ([]*graphql.Package, error)
-	MultipleCreateInputFromGraphQL(in []*graphql.PackageCreateInput) ([]*model.PackageCreateInput, error)
+	ToGraphQL(in *model.Package) (*externalschema.Package, error)
+	MultipleToGraphQL(in []*model.Package) ([]*externalschema.Package, error)
+	MultipleCreateInputFromGraphQL(in []*externalschema.PackageCreateInput) ([]*model.PackageCreateInput, error)
 }
 
 type Resolver struct {
@@ -147,7 +148,7 @@ func NewResolver(transact persistence.Transactioner,
 	}
 }
 
-func (r *Resolver) Applications(ctx context.Context, filter []*graphql.LabelFilter, first *int, after *graphql.PageCursor) (*graphql.ApplicationPage, error) {
+func (r *Resolver) Applications(ctx context.Context, filter []*externalschema.LabelFilter, first *int, after *externalschema.PageCursor) (*externalschema.ApplicationPage, error) {
 	labelFilter := labelfilter.MultipleFromGraphQL(filter)
 
 	var cursor string
@@ -178,18 +179,18 @@ func (r *Resolver) Applications(ctx context.Context, filter []*graphql.LabelFilt
 
 	gqlApps := r.appConverter.MultipleToGraphQL(appPage.Data)
 
-	return &graphql.ApplicationPage{
+	return &externalschema.ApplicationPage{
 		Data:       gqlApps,
 		TotalCount: appPage.TotalCount,
-		PageInfo: &graphql.PageInfo{
-			StartCursor: graphql.PageCursor(appPage.PageInfo.StartCursor),
-			EndCursor:   graphql.PageCursor(appPage.PageInfo.EndCursor),
+		PageInfo: &externalschema.PageInfo{
+			StartCursor: externalschema.PageCursor(appPage.PageInfo.StartCursor),
+			EndCursor:   externalschema.PageCursor(appPage.PageInfo.EndCursor),
 			HasNextPage: appPage.PageInfo.HasNextPage,
 		},
 	}, nil
 }
 
-func (r *Resolver) Application(ctx context.Context, id string) (*graphql.Application, error) {
+func (r *Resolver) Application(ctx context.Context, id string) (*externalschema.Application, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -214,7 +215,7 @@ func (r *Resolver) Application(ctx context.Context, id string) (*graphql.Applica
 	return r.appConverter.ToGraphQL(app), nil
 }
 
-func (r *Resolver) ApplicationsForRuntime(ctx context.Context, runtimeID string, first *int, after *graphql.PageCursor) (*graphql.ApplicationPage, error) {
+func (r *Resolver) ApplicationsForRuntime(ctx context.Context, runtimeID string, first *int, after *externalschema.PageCursor) (*externalschema.ApplicationPage, error) {
 	var cursor string
 	if after != nil {
 		cursor = string(*after)
@@ -249,18 +250,18 @@ func (r *Resolver) ApplicationsForRuntime(ctx context.Context, runtimeID string,
 
 	gqlApps := r.appConverter.MultipleToGraphQL(appPage.Data)
 
-	return &graphql.ApplicationPage{
+	return &externalschema.ApplicationPage{
 		Data:       gqlApps,
 		TotalCount: appPage.TotalCount,
-		PageInfo: &graphql.PageInfo{
-			StartCursor: graphql.PageCursor(appPage.PageInfo.StartCursor),
-			EndCursor:   graphql.PageCursor(appPage.PageInfo.EndCursor),
+		PageInfo: &externalschema.PageInfo{
+			StartCursor: externalschema.PageCursor(appPage.PageInfo.StartCursor),
+			EndCursor:   externalschema.PageCursor(appPage.PageInfo.EndCursor),
 			HasNextPage: appPage.PageInfo.HasNextPage,
 		},
 	}, nil
 }
 
-func (r *Resolver) RegisterApplication(ctx context.Context, in graphql.ApplicationRegisterInput) (*graphql.Application, error) {
+func (r *Resolver) RegisterApplication(ctx context.Context, in externalschema.ApplicationRegisterInput) (*externalschema.Application, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -295,7 +296,7 @@ func (r *Resolver) RegisterApplication(ctx context.Context, in graphql.Applicati
 	log.Infof("Application with name %s and id %s successfully registered", in.Name, id)
 	return gqlApp, nil
 }
-func (r *Resolver) UpdateApplication(ctx context.Context, id string, in graphql.ApplicationUpdateInput) (*graphql.Application, error) {
+func (r *Resolver) UpdateApplication(ctx context.Context, id string, in externalschema.ApplicationUpdateInput) (*externalschema.Application, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -328,7 +329,7 @@ func (r *Resolver) UpdateApplication(ctx context.Context, id string, in graphql.
 
 	return gqlApp, nil
 }
-func (r *Resolver) UnregisterApplication(ctx context.Context, id string) (*graphql.Application, error) {
+func (r *Resolver) UnregisterApplication(ctx context.Context, id string) (*externalschema.Application, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -377,9 +378,9 @@ func (r *Resolver) UnregisterApplication(ctx context.Context, id string) (*graph
 	log.Infof("Successfully unregistered Application with id %s", id)
 	return deletedApp, nil
 }
-func (r *Resolver) SetApplicationLabel(ctx context.Context, applicationID string, key string, value interface{}) (*graphql.Label, error) {
+func (r *Resolver) SetApplicationLabel(ctx context.Context, applicationID string, key string, value interface{}) (*externalschema.Label, error) {
 	// TODO: Use @validation directive on input type instead, after resolving https://github.com/kyma-incubator/compass/issues/515
-	gqlLabel := graphql.LabelInput{Key: key, Value: value}
+	gqlLabel := externalschema.LabelInput{Key: key, Value: value}
 	if err := inputvalidation.Validate(&gqlLabel); err != nil {
 		return nil, errors.Wrap(err, "validation error for type LabelInput")
 	}
@@ -407,13 +408,13 @@ func (r *Resolver) SetApplicationLabel(ctx context.Context, applicationID string
 		return nil, err
 	}
 
-	return &graphql.Label{
+	return &externalschema.Label{
 		Key:   key,
 		Value: value,
 	}, nil
 }
 
-func (r *Resolver) DeleteApplicationLabel(ctx context.Context, applicationID string, key string) (*graphql.Label, error) {
+func (r *Resolver) DeleteApplicationLabel(ctx context.Context, applicationID string, key string) (*externalschema.Label, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -437,14 +438,14 @@ func (r *Resolver) DeleteApplicationLabel(ctx context.Context, applicationID str
 		return nil, err
 	}
 
-	return &graphql.Label{
+	return &externalschema.Label{
 		Key:   key,
 		Value: label.Value,
 	}, nil
 }
 
 // TODO: Proper error handling
-func (r *Resolver) Webhooks(ctx context.Context, obj *graphql.Application) ([]*graphql.Webhook, error) {
+func (r *Resolver) Webhooks(ctx context.Context, obj *externalschema.Application) ([]*externalschema.Webhook, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -465,7 +466,7 @@ func (r *Resolver) Webhooks(ctx context.Context, obj *graphql.Application) ([]*g
 	return r.webhookConverter.MultipleToGraphQL(webhooks)
 }
 
-func (r *Resolver) Labels(ctx context.Context, obj *graphql.Application, key *string) (*graphql.Labels, error) {
+func (r *Resolver) Labels(ctx context.Context, obj *externalschema.Application, key *string) (*externalschema.Labels, error) {
 	if obj == nil {
 		return nil, apperrors.NewInternalError("Application cannot be empty")
 	}
@@ -498,12 +499,12 @@ func (r *Resolver) Labels(ctx context.Context, obj *graphql.Application, key *st
 		resultLabels[label.Key] = label.Value
 	}
 
-	var gqlLabels graphql.Labels = resultLabels
+	var gqlLabels externalschema.Labels = resultLabels
 
 	return &gqlLabels, nil
 }
 
-func (r *Resolver) Auths(ctx context.Context, obj *graphql.Application) ([]*graphql.SystemAuth, error) {
+func (r *Resolver) Auths(ctx context.Context, obj *externalschema.Application) ([]*externalschema.SystemAuth, error) {
 	if obj == nil {
 		return nil, apperrors.NewInternalError("Application cannot be empty")
 	}
@@ -525,7 +526,7 @@ func (r *Resolver) Auths(ctx context.Context, obj *graphql.Application) ([]*grap
 		return nil, err
 	}
 
-	var out []*graphql.SystemAuth
+	var out []*externalschema.SystemAuth
 	for _, sa := range sysAuths {
 		c, err := r.sysAuthConv.ToGraphQL(&sa)
 		if err != nil {
@@ -538,7 +539,7 @@ func (r *Resolver) Auths(ctx context.Context, obj *graphql.Application) ([]*grap
 	return out, nil
 }
 
-func (r *Resolver) EventingConfiguration(ctx context.Context, obj *graphql.Application) (*graphql.ApplicationEventingConfiguration, error) {
+func (r *Resolver) EventingConfiguration(ctx context.Context, obj *externalschema.Application) (*externalschema.ApplicationEventingConfiguration, error) {
 	if obj == nil {
 		return nil, apperrors.NewInternalError("Application cannot be empty")
 	}
@@ -572,7 +573,7 @@ func (r *Resolver) EventingConfiguration(ctx context.Context, obj *graphql.Appli
 	return eventing.ApplicationEventingConfigurationToGraphQL(eventingCfg), nil
 }
 
-func (r *Resolver) Packages(ctx context.Context, obj *graphql.Application, first *int, after *graphql.PageCursor) (*graphql.PackagePage, error) {
+func (r *Resolver) Packages(ctx context.Context, obj *externalschema.Application, first *int, after *externalschema.PageCursor) (*externalschema.PackagePage, error) {
 	if obj == nil {
 		return nil, apperrors.NewInternalError("Application cannot be empty")
 	}
@@ -609,18 +610,18 @@ func (r *Resolver) Packages(ctx context.Context, obj *graphql.Application, first
 		return nil, err
 	}
 
-	return &graphql.PackagePage{
+	return &externalschema.PackagePage{
 		Data:       gqlPkgs,
 		TotalCount: pkgsPage.TotalCount,
-		PageInfo: &graphql.PageInfo{
-			StartCursor: graphql.PageCursor(pkgsPage.PageInfo.StartCursor),
-			EndCursor:   graphql.PageCursor(pkgsPage.PageInfo.EndCursor),
+		PageInfo: &externalschema.PageInfo{
+			StartCursor: externalschema.PageCursor(pkgsPage.PageInfo.StartCursor),
+			EndCursor:   externalschema.PageCursor(pkgsPage.PageInfo.EndCursor),
 			HasNextPage: pkgsPage.PageInfo.HasNextPage,
 		},
 	}, nil
 }
 
-func (r *Resolver) Package(ctx context.Context, obj *graphql.Application, id string) (*graphql.Package, error) {
+func (r *Resolver) Package(ctx context.Context, obj *externalschema.Application, id string) (*externalschema.Package, error) {
 	if obj == nil {
 		return nil, apperrors.NewInternalError("Application cannot be empty")
 	}

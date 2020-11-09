@@ -2,7 +2,7 @@ package scenarioassignment
 
 import (
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 )
 
 func NewConverter() *converter {
@@ -11,7 +11,7 @@ func NewConverter() *converter {
 
 type converter struct{}
 
-func (c *converter) FromInputGraphQL(in graphql.AutomaticScenarioAssignmentSetInput) model.AutomaticScenarioAssignment {
+func (c *converter) FromInputGraphQL(in externalschema.AutomaticScenarioAssignmentSetInput) model.AutomaticScenarioAssignment {
 	out := model.AutomaticScenarioAssignment{
 		ScenarioName: in.ScenarioName,
 	}
@@ -22,17 +22,17 @@ func (c *converter) FromInputGraphQL(in graphql.AutomaticScenarioAssignmentSetIn
 	return out
 }
 
-func (c *converter) LabelSelectorFromInput(in graphql.LabelSelectorInput) model.LabelSelector {
+func (c *converter) LabelSelectorFromInput(in externalschema.LabelSelectorInput) model.LabelSelector {
 	return model.LabelSelector{
 		Key:   in.Key,
 		Value: in.Value,
 	}
 }
 
-func (c *converter) ToGraphQL(in model.AutomaticScenarioAssignment) graphql.AutomaticScenarioAssignment {
-	return graphql.AutomaticScenarioAssignment{
+func (c *converter) ToGraphQL(in model.AutomaticScenarioAssignment) externalschema.AutomaticScenarioAssignment {
+	return externalschema.AutomaticScenarioAssignment{
 		ScenarioName: in.ScenarioName,
-		Selector: &graphql.Label{
+		Selector: &externalschema.Label{
 			Key:   in.Selector.Key,
 			Value: in.Selector.Value,
 		},
@@ -59,8 +59,8 @@ func (c *converter) FromEntity(in Entity) model.AutomaticScenarioAssignment {
 	}
 }
 
-func (c *converter) MultipleToGraphQL(assignments []*model.AutomaticScenarioAssignment) []*graphql.AutomaticScenarioAssignment {
-	var gqlAssignments []*graphql.AutomaticScenarioAssignment
+func (c *converter) MultipleToGraphQL(assignments []*model.AutomaticScenarioAssignment) []*externalschema.AutomaticScenarioAssignment {
+	var gqlAssignments []*externalschema.AutomaticScenarioAssignment
 
 	for _, v := range assignments {
 		assignment := c.ToGraphQL(*v)

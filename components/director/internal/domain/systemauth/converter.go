@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 	"github.com/kyma-incubator/compass/components/director/internal/repo"
@@ -14,7 +14,7 @@ import (
 
 //go:generate mockery -name=AuthConverter -output=automock -outpkg=automock -case=underscore
 type AuthConverter interface {
-	ToGraphQL(in *model.Auth) (*graphql.Auth, error)
+	ToGraphQL(in *model.Auth) (*externalschema.Auth, error)
 }
 
 type converter struct {
@@ -27,7 +27,7 @@ func NewConverter(authConverter AuthConverter) *converter {
 	}
 }
 
-func (c *converter) ToGraphQL(in *model.SystemAuth) (*graphql.SystemAuth, error) {
+func (c *converter) ToGraphQL(in *model.SystemAuth) (*externalschema.SystemAuth, error) {
 	if in == nil {
 		return nil, nil
 	}
@@ -37,7 +37,7 @@ func (c *converter) ToGraphQL(in *model.SystemAuth) (*graphql.SystemAuth, error)
 		return nil, errors.Wrap(err, "while converting Auth")
 	}
 
-	return &graphql.SystemAuth{
+	return &externalschema.SystemAuth{
 		ID:   in.ID,
 		Auth: auth,
 	}, nil

@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 	"github.com/kyma-incubator/compass/components/director/internal/repo"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/pkg/errors"
 )
 
@@ -66,12 +67,12 @@ func (c *converter) FromEntity(entity *Entity) *model.Application {
 	}
 }
 
-func (c *converter) ToGraphQL(in *model.Application) *graphql.Application {
+func (c *converter) ToGraphQL(in *model.Application) *externalschema.Application {
 	if in == nil {
 		return nil
 	}
 
-	return &graphql.Application{
+	return &externalschema.Application{
 		ID:                  in.ID,
 		Status:              c.statusToGraphQL(in.Status),
 		Name:                in.Name,
@@ -82,8 +83,8 @@ func (c *converter) ToGraphQL(in *model.Application) *graphql.Application {
 	}
 }
 
-func (c *converter) MultipleToGraphQL(in []*model.Application) []*graphql.Application {
-	var runtimes []*graphql.Application
+func (c *converter) MultipleToGraphQL(in []*model.Application) []*externalschema.Application {
+	var runtimes []*externalschema.Application
 	for _, r := range in {
 		if r == nil {
 			continue
@@ -95,7 +96,7 @@ func (c *converter) MultipleToGraphQL(in []*model.Application) []*graphql.Applic
 	return runtimes
 }
 
-func (c *converter) CreateInputFromGraphQL(in graphql.ApplicationRegisterInput) (model.ApplicationRegisterInput, error) {
+func (c *converter) CreateInputFromGraphQL(in externalschema.ApplicationRegisterInput) (model.ApplicationRegisterInput, error) {
 	var labels map[string]interface{}
 	if in.Labels != nil {
 		labels = *in.Labels
@@ -126,7 +127,7 @@ func (c *converter) CreateInputFromGraphQL(in graphql.ApplicationRegisterInput) 
 	}, nil
 }
 
-func (c *converter) UpdateInputFromGraphQL(in graphql.ApplicationUpdateInput) model.ApplicationUpdateInput {
+func (c *converter) UpdateInputFromGraphQL(in externalschema.ApplicationUpdateInput) model.ApplicationUpdateInput {
 	return model.ApplicationUpdateInput{
 		Description:         in.Description,
 		HealthCheckURL:      in.HealthCheckURL,
@@ -136,17 +137,17 @@ func (c *converter) UpdateInputFromGraphQL(in graphql.ApplicationUpdateInput) mo
 	}
 }
 
-func (c *converter) CreateInputJSONToGQL(in string) (graphql.ApplicationRegisterInput, error) {
-	var appInput graphql.ApplicationRegisterInput
+func (c *converter) CreateInputJSONToGQL(in string) (externalschema.ApplicationRegisterInput, error) {
+	var appInput externalschema.ApplicationRegisterInput
 	err := json.Unmarshal([]byte(in), &appInput)
 	if err != nil {
-		return graphql.ApplicationRegisterInput{}, errors.Wrap(err, "while unmarshalling string to ApplicationRegisterInput")
+		return externalschema.ApplicationRegisterInput{}, errors.Wrap(err, "while unmarshalling string to ApplicationRegisterInput")
 	}
 
 	return appInput, nil
 }
 
-func (c *converter) CreateInputGQLToJSON(in *graphql.ApplicationRegisterInput) (string, error) {
+func (c *converter) CreateInputGQLToJSON(in *externalschema.ApplicationRegisterInput) (string, error) {
 	appInput, err := json.Marshal(in)
 	if err != nil {
 		return "", errors.Wrap(err, "while marshaling application input")
@@ -155,7 +156,7 @@ func (c *converter) CreateInputGQLToJSON(in *graphql.ApplicationRegisterInput) (
 	return string(appInput), nil
 }
 
-func (c *converter) GraphQLToModel(obj *graphql.Application, tenantID string) *model.Application {
+func (c *converter) GraphQLToModel(obj *externalschema.Application, tenantID string) *model.Application {
 	if obj == nil {
 		return nil
 	}
@@ -172,31 +173,31 @@ func (c *converter) GraphQLToModel(obj *graphql.Application, tenantID string) *m
 	}
 }
 
-func (c *converter) statusToGraphQL(in *model.ApplicationStatus) *graphql.ApplicationStatus {
+func (c *converter) statusToGraphQL(in *model.ApplicationStatus) *externalschema.ApplicationStatus {
 	if in == nil {
-		return &graphql.ApplicationStatus{Condition: graphql.ApplicationStatusConditionInitial}
+		return &externalschema.ApplicationStatus{Condition: externalschema.ApplicationStatusConditionInitial}
 	}
 
-	var condition graphql.ApplicationStatusCondition
+	var condition externalschema.ApplicationStatusCondition
 
 	switch in.Condition {
 	case model.ApplicationStatusConditionInitial:
-		condition = graphql.ApplicationStatusConditionInitial
+		condition = externalschema.ApplicationStatusConditionInitial
 	case model.ApplicationStatusConditionFailed:
-		condition = graphql.ApplicationStatusConditionFailed
+		condition = externalschema.ApplicationStatusConditionFailed
 	case model.ApplicationStatusConditionConnected:
-		condition = graphql.ApplicationStatusConditionConnected
+		condition = externalschema.ApplicationStatusConditionConnected
 	default:
-		condition = graphql.ApplicationStatusConditionInitial
+		condition = externalschema.ApplicationStatusConditionInitial
 	}
 
-	return &graphql.ApplicationStatus{
+	return &externalschema.ApplicationStatus{
 		Condition: condition,
-		Timestamp: graphql.Timestamp(in.Timestamp),
+		Timestamp: externalschema.Timestamp(in.Timestamp),
 	}
 }
 
-func (c *converter) statusToModel(in *graphql.ApplicationStatus) *model.ApplicationStatus {
+func (c *converter) statusToModel(in *externalschema.ApplicationStatus) *model.ApplicationStatus {
 	if in == nil {
 		return &model.ApplicationStatus{Condition: model.ApplicationStatusConditionInitial}
 	}
@@ -204,11 +205,11 @@ func (c *converter) statusToModel(in *graphql.ApplicationStatus) *model.Applicat
 	var condition model.ApplicationStatusCondition
 
 	switch in.Condition {
-	case graphql.ApplicationStatusConditionInitial:
+	case externalschema.ApplicationStatusConditionInitial:
 		condition = model.ApplicationStatusConditionInitial
-	case graphql.ApplicationStatusConditionFailed:
+	case externalschema.ApplicationStatusConditionFailed:
 		condition = model.ApplicationStatusConditionFailed
-	case graphql.ApplicationStatusConditionConnected:
+	case externalschema.ApplicationStatusConditionConnected:
 		condition = model.ApplicationStatusConditionConnected
 	default:
 		condition = model.ApplicationStatusConditionInitial
@@ -219,18 +220,18 @@ func (c *converter) statusToModel(in *graphql.ApplicationStatus) *model.Applicat
 	}
 }
 
-func (c *converter) statusConditionToModel(in *graphql.ApplicationStatusCondition) *model.ApplicationStatusCondition {
+func (c *converter) statusConditionToModel(in *externalschema.ApplicationStatusCondition) *model.ApplicationStatusCondition {
 	if in == nil {
 		return nil
 	}
 
 	var condition model.ApplicationStatusCondition
 	switch *in {
-	case graphql.ApplicationStatusConditionConnected:
+	case externalschema.ApplicationStatusConditionConnected:
 		condition = model.ApplicationStatusConditionConnected
-	case graphql.ApplicationStatusConditionFailed:
+	case externalschema.ApplicationStatusConditionFailed:
 		condition = model.ApplicationStatusConditionFailed
-	case graphql.ApplicationStatusConditionInitial:
+	case externalschema.ApplicationStatusConditionInitial:
 		fallthrough
 	default:
 		condition = model.ApplicationStatusConditionInitial

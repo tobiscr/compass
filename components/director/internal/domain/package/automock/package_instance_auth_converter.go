@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
 
@@ -12,15 +14,15 @@ type PackageInstanceAuthConverter struct {
 }
 
 // MultipleToGraphQL provides a mock function with given fields: in
-func (_m *PackageInstanceAuthConverter) MultipleToGraphQL(in []*model.PackageInstanceAuth) ([]*graphql.PackageInstanceAuth, error) {
+func (_m *PackageInstanceAuthConverter) MultipleToGraphQL(in []*model.PackageInstanceAuth) ([]*externalschema.PackageInstanceAuth, error) {
 	ret := _m.Called(in)
 
-	var r0 []*graphql.PackageInstanceAuth
-	if rf, ok := ret.Get(0).(func([]*model.PackageInstanceAuth) []*graphql.PackageInstanceAuth); ok {
+	var r0 []*externalschema.PackageInstanceAuth
+	if rf, ok := ret.Get(0).(func([]*model.PackageInstanceAuth) []*externalschema.PackageInstanceAuth); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*graphql.PackageInstanceAuth)
+			r0 = ret.Get(0).([]*externalschema.PackageInstanceAuth)
 		}
 	}
 
@@ -35,15 +37,15 @@ func (_m *PackageInstanceAuthConverter) MultipleToGraphQL(in []*model.PackageIns
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *PackageInstanceAuthConverter) ToGraphQL(in *model.PackageInstanceAuth) (*graphql.PackageInstanceAuth, error) {
+func (_m *PackageInstanceAuthConverter) ToGraphQL(in *model.PackageInstanceAuth) (*externalschema.PackageInstanceAuth, error) {
 	ret := _m.Called(in)
 
-	var r0 *graphql.PackageInstanceAuth
-	if rf, ok := ret.Get(0).(func(*model.PackageInstanceAuth) *graphql.PackageInstanceAuth); ok {
+	var r0 *externalschema.PackageInstanceAuth
+	if rf, ok := ret.Get(0).(func(*model.PackageInstanceAuth) *externalschema.PackageInstanceAuth); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.PackageInstanceAuth)
+			r0 = ret.Get(0).(*externalschema.PackageInstanceAuth)
 		}
 	}
 

@@ -4,6 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/label"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/inputvalidation"
@@ -20,8 +22,6 @@ import (
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 
 	"github.com/kyma-incubator/compass/components/director/internal/labelfilter"
-
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 )
 
 //go:generate mockery -name=EventingService -output=automock -outpkg=automock -case=underscore
@@ -55,14 +55,14 @@ type ScenarioAssignmentService interface {
 
 //go:generate mockery -name=RuntimeConverter -output=automock -outpkg=automock -case=underscore
 type RuntimeConverter interface {
-	ToGraphQL(in *model.Runtime) *graphql.Runtime
-	MultipleToGraphQL(in []*model.Runtime) []*graphql.Runtime
-	InputFromGraphQL(in graphql.RuntimeInput) model.RuntimeInput
+	ToGraphQL(in *model.Runtime) *externalschema.Runtime
+	MultipleToGraphQL(in []*model.Runtime) []*externalschema.Runtime
+	InputFromGraphQL(in externalschema.RuntimeInput) model.RuntimeInput
 }
 
 //go:generate mockery -name=SystemAuthConverter -output=automock -outpkg=automock -case=underscore
 type SystemAuthConverter interface {
-	ToGraphQL(in *model.SystemAuth) (*graphql.SystemAuth, error)
+	ToGraphQL(in *model.SystemAuth) (*externalschema.SystemAuth, error)
 }
 
 //go:generate mockery -name=SystemAuthService -output=automock -outpkg=automock -case=underscore
@@ -95,7 +95,7 @@ func NewResolver(transact persistence.Transactioner, runtimeService RuntimeServi
 }
 
 // TODO: Proper error handling
-func (r *Resolver) Runtimes(ctx context.Context, filter []*graphql.LabelFilter, first *int, after *graphql.PageCursor) (*graphql.RuntimePage, error) {
+func (r *Resolver) Runtimes(ctx context.Context, filter []*externalschema.LabelFilter, first *int, after *externalschema.PageCursor) (*externalschema.RuntimePage, error) {
 	labelFilter := labelfilter.MultipleFromGraphQL(filter)
 
 	var cursor string
@@ -127,18 +127,18 @@ func (r *Resolver) Runtimes(ctx context.Context, filter []*graphql.LabelFilter, 
 
 	gqlRuntimes := r.converter.MultipleToGraphQL(runtimesPage.Data)
 
-	return &graphql.RuntimePage{
+	return &externalschema.RuntimePage{
 		Data:       gqlRuntimes,
 		TotalCount: runtimesPage.TotalCount,
-		PageInfo: &graphql.PageInfo{
-			StartCursor: graphql.PageCursor(runtimesPage.PageInfo.StartCursor),
-			EndCursor:   graphql.PageCursor(runtimesPage.PageInfo.EndCursor),
+		PageInfo: &externalschema.PageInfo{
+			StartCursor: externalschema.PageCursor(runtimesPage.PageInfo.StartCursor),
+			EndCursor:   externalschema.PageCursor(runtimesPage.PageInfo.EndCursor),
 			HasNextPage: runtimesPage.PageInfo.HasNextPage,
 		},
 	}, nil
 }
 
-func (r *Resolver) Runtime(ctx context.Context, id string) (*graphql.Runtime, error) {
+func (r *Resolver) Runtime(ctx context.Context, id string) (*externalschema.Runtime, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -163,7 +163,7 @@ func (r *Resolver) Runtime(ctx context.Context, id string) (*graphql.Runtime, er
 	return r.converter.ToGraphQL(runtime), nil
 }
 
-func (r *Resolver) RegisterRuntime(ctx context.Context, in graphql.RuntimeInput) (*graphql.Runtime, error) {
+func (r *Resolver) RegisterRuntime(ctx context.Context, in externalschema.RuntimeInput) (*externalschema.Runtime, error) {
 	convertedIn := r.converter.InputFromGraphQL(in)
 
 	tx, err := r.transact.Begin()
@@ -193,7 +193,7 @@ func (r *Resolver) RegisterRuntime(ctx context.Context, in graphql.RuntimeInput)
 
 	return gqlRuntime, nil
 }
-func (r *Resolver) UpdateRuntime(ctx context.Context, id string, in graphql.RuntimeInput) (*graphql.Runtime, error) {
+func (r *Resolver) UpdateRuntime(ctx context.Context, id string, in externalschema.RuntimeInput) (*externalschema.Runtime, error) {
 	convertedIn := r.converter.InputFromGraphQL(in)
 
 	tx, err := r.transact.Begin()
@@ -224,7 +224,7 @@ func (r *Resolver) UpdateRuntime(ctx context.Context, id string, in graphql.Runt
 	return gqlRuntime, nil
 }
 
-func (r *Resolver) DeleteRuntime(ctx context.Context, id string) (*graphql.Runtime, error) {
+func (r *Resolver) DeleteRuntime(ctx context.Context, id string) (*externalschema.Runtime, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -268,9 +268,9 @@ func (r *Resolver) DeleteRuntime(ctx context.Context, id string) (*graphql.Runti
 	return deletedRuntime, nil
 }
 
-func (r *Resolver) SetRuntimeLabel(ctx context.Context, runtimeID string, key string, value interface{}) (*graphql.Label, error) {
+func (r *Resolver) SetRuntimeLabel(ctx context.Context, runtimeID string, key string, value interface{}) (*externalschema.Label, error) {
 	// TODO: Use @validation directive on input type instead, after resolving https://github.com/kyma-incubator/compass/issues/515
-	gqlLabel := graphql.LabelInput{Key: key, Value: value}
+	gqlLabel := externalschema.LabelInput{Key: key, Value: value}
 	if err := inputvalidation.Validate(&gqlLabel); err != nil {
 		return nil, errors.Wrap(err, "validation error for type LabelInput")
 	}
@@ -303,13 +303,13 @@ func (r *Resolver) SetRuntimeLabel(ctx context.Context, runtimeID string, key st
 		return nil, err
 	}
 
-	return &graphql.Label{
+	return &externalschema.Label{
 		Key:   label.Key,
 		Value: label.Value,
 	}, nil
 }
 
-func (r *Resolver) DeleteRuntimeLabel(ctx context.Context, runtimeID string, key string) (*graphql.Label, error) {
+func (r *Resolver) DeleteRuntimeLabel(ctx context.Context, runtimeID string, key string) (*externalschema.Label, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -333,13 +333,13 @@ func (r *Resolver) DeleteRuntimeLabel(ctx context.Context, runtimeID string, key
 		return nil, err
 	}
 
-	return &graphql.Label{
+	return &externalschema.Label{
 		Key:   key,
 		Value: label.Value,
 	}, nil
 }
 
-func (r *Resolver) Labels(ctx context.Context, obj *graphql.Runtime, key *string) (*graphql.Labels, error) {
+func (r *Resolver) Labels(ctx context.Context, obj *externalschema.Runtime, key *string) (*externalschema.Labels, error) {
 	if obj == nil {
 		return nil, apperrors.NewInternalError("Runtime cannot be empty")
 	}
@@ -371,11 +371,11 @@ func (r *Resolver) Labels(ctx context.Context, obj *graphql.Runtime, key *string
 		resultLabels[label.Key] = label.Value
 	}
 
-	var gqlLabels graphql.Labels = resultLabels
+	var gqlLabels externalschema.Labels = resultLabels
 	return &gqlLabels, nil
 }
 
-func (r *Resolver) Auths(ctx context.Context, obj *graphql.Runtime) ([]*graphql.SystemAuth, error) {
+func (r *Resolver) Auths(ctx context.Context, obj *externalschema.Runtime) ([]*externalschema.SystemAuth, error) {
 	if obj == nil {
 		return nil, apperrors.NewInternalError("Runtime cannot be empty")
 	}
@@ -398,7 +398,7 @@ func (r *Resolver) Auths(ctx context.Context, obj *graphql.Runtime) ([]*graphql.
 		return nil, err
 	}
 
-	var out []*graphql.SystemAuth
+	var out []*externalschema.SystemAuth
 	for _, sa := range sysAuths {
 		c, err := r.sysAuthConv.ToGraphQL(&sa)
 		if err != nil {
@@ -410,7 +410,7 @@ func (r *Resolver) Auths(ctx context.Context, obj *graphql.Runtime) ([]*graphql.
 	return out, nil
 }
 
-func (r *Resolver) EventingConfiguration(ctx context.Context, obj *graphql.Runtime) (*graphql.RuntimeEventingConfiguration, error) {
+func (r *Resolver) EventingConfiguration(ctx context.Context, obj *externalschema.Runtime) (*externalschema.RuntimeEventingConfiguration, error) {
 	if obj == nil {
 		return nil, apperrors.NewInternalError("Runtime cannot be empty")
 	}

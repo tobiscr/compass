@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/packageinstanceauth"
@@ -47,9 +47,9 @@ func fixModelPackageInstanceAuthWithoutContextAndInputParams(id, packageID, tena
 	}
 }
 
-func fixGQLPackageInstanceAuth(id string, auth *graphql.Auth, status *graphql.PackageInstanceAuthStatus) *graphql.PackageInstanceAuth {
-	context := graphql.JSON(testContext)
-	inputParams := graphql.JSON(testInputParams)
+func fixGQLPackageInstanceAuth(id string, auth *externalschema.Auth, status *externalschema.PackageInstanceAuthStatus) *externalschema.PackageInstanceAuth {
+	context := externalschema.JSON(testContext)
+	inputParams := externalschema.JSON(testInputParams)
 
 	out := fixGQLPackageInstanceAuthWithoutContextAndInputParams(id, auth, status)
 	out.Context = &context
@@ -58,8 +58,8 @@ func fixGQLPackageInstanceAuth(id string, auth *graphql.Auth, status *graphql.Pa
 	return out
 }
 
-func fixGQLPackageInstanceAuthWithoutContextAndInputParams(id string, auth *graphql.Auth, status *graphql.PackageInstanceAuthStatus) *graphql.PackageInstanceAuth {
-	return &graphql.PackageInstanceAuth{
+func fixGQLPackageInstanceAuthWithoutContextAndInputParams(id string, auth *externalschema.Auth, status *externalschema.PackageInstanceAuthStatus) *externalschema.PackageInstanceAuth {
+	return &externalschema.PackageInstanceAuth{
 		ID:     id,
 		Auth:   auth,
 		Status: status,
@@ -84,19 +84,19 @@ func fixModelStatusPending() *model.PackageInstanceAuthStatus {
 	}
 }
 
-func fixGQLStatusSucceeded() *graphql.PackageInstanceAuthStatus {
-	return &graphql.PackageInstanceAuthStatus{
-		Condition: graphql.PackageInstanceAuthStatusConditionSucceeded,
-		Timestamp: graphql.Timestamp(testTime),
+func fixGQLStatusSucceeded() *externalschema.PackageInstanceAuthStatus {
+	return &externalschema.PackageInstanceAuthStatus{
+		Condition: externalschema.PackageInstanceAuthStatusConditionSucceeded,
+		Timestamp: externalschema.Timestamp(testTime),
 		Message:   "Credentials were provided.",
 		Reason:    "CredentialsProvided",
 	}
 }
 
-func fixGQLStatusPending() *graphql.PackageInstanceAuthStatus {
-	return &graphql.PackageInstanceAuthStatus{
-		Condition: graphql.PackageInstanceAuthStatusConditionPending,
-		Timestamp: graphql.Timestamp(testTime),
+func fixGQLStatusPending() *externalschema.PackageInstanceAuthStatus {
+	return &externalschema.PackageInstanceAuthStatus{
+		Condition: externalschema.PackageInstanceAuthStatusConditionPending,
+		Timestamp: externalschema.Timestamp(testTime),
 		Message:   "Credentials were not yet provided.",
 		Reason:    "CredentialsNotProvided",
 	}
@@ -110,8 +110,8 @@ func fixModelStatusInput(condition model.PackageInstanceAuthSetStatusConditionIn
 	}
 }
 
-func fixGQLStatusInput(condition graphql.PackageInstanceAuthSetStatusConditionInput, message, reason string) *graphql.PackageInstanceAuthStatusInput {
-	return &graphql.PackageInstanceAuthStatusInput{
+func fixGQLStatusInput(condition externalschema.PackageInstanceAuthSetStatusConditionInput, message, reason string) *externalschema.PackageInstanceAuthStatusInput {
+	return &externalschema.PackageInstanceAuthStatusInput{
 		Condition: condition,
 		Message:   message,
 		Reason:    reason,
@@ -125,11 +125,11 @@ func fixModelRequestInput() *model.PackageInstanceAuthRequestInput {
 	}
 }
 
-func fixGQLRequestInput() *graphql.PackageInstanceAuthRequestInput {
-	context := graphql.JSON(testContext)
-	inputParams := graphql.JSON(testInputParams)
+func fixGQLRequestInput() *externalschema.PackageInstanceAuthRequestInput {
+	context := externalschema.JSON(testContext)
+	inputParams := externalschema.JSON(testInputParams)
 
-	return &graphql.PackageInstanceAuthRequestInput{
+	return &externalschema.PackageInstanceAuthRequestInput{
 		Context:     &context,
 		InputParams: &inputParams,
 	}
@@ -142,10 +142,10 @@ func fixModelSetInput() *model.PackageInstanceAuthSetInput {
 	}
 }
 
-func fixGQLSetInput() *graphql.PackageInstanceAuthSetInput {
-	return &graphql.PackageInstanceAuthSetInput{
+func fixGQLSetInput() *externalschema.PackageInstanceAuthSetInput {
+	return &externalschema.PackageInstanceAuthSetInput{
 		Auth:   fixGQLAuthInput(),
-		Status: fixGQLStatusInput(graphql.PackageInstanceAuthSetStatusConditionInputSucceeded, "foo", "bar"),
+		Status: fixGQLStatusInput(externalschema.PackageInstanceAuthSetStatusConditionInputSucceeded, "foo", "bar"),
 	}
 }
 
@@ -194,9 +194,9 @@ func fixModelAuth() *model.Auth {
 	}
 }
 
-func fixGQLAuth() *graphql.Auth {
-	return &graphql.Auth{
-		Credential: &graphql.BasicCredentialData{
+func fixGQLAuth() *externalschema.Auth {
+	return &externalschema.Auth{
+		Credential: &externalschema.BasicCredentialData{
 			Username: "foo",
 			Password: "bar",
 		},
@@ -214,10 +214,10 @@ func fixModelAuthInput() *model.AuthInput {
 	}
 }
 
-func fixGQLAuthInput() *graphql.AuthInput {
-	return &graphql.AuthInput{
-		Credential: &graphql.CredentialDataInput{
-			Basic: &graphql.BasicCredentialDataInput{
+func fixGQLAuthInput() *externalschema.AuthInput {
+	return &externalschema.AuthInput{
+		Credential: &externalschema.CredentialDataInput{
+			Basic: &externalschema.BasicCredentialDataInput{
 				Username: "foo",
 				Password: "bar",
 			},
@@ -271,8 +271,8 @@ func fixSimpleModelPackageInstanceAuth(id string) *model.PackageInstanceAuth {
 	}
 }
 
-func fixSimpleGQLPackageInstanceAuth(id string) *graphql.PackageInstanceAuth {
-	return &graphql.PackageInstanceAuth{
+func fixSimpleGQLPackageInstanceAuth(id string) *externalschema.PackageInstanceAuth {
+	return &externalschema.PackageInstanceAuth{
 		ID: id,
 	}
 }

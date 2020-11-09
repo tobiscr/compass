@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
 
@@ -12,11 +14,11 @@ type EventAPIConverter struct {
 }
 
 // InputFromGraphQL provides a mock function with given fields: in
-func (_m *EventAPIConverter) InputFromGraphQL(in *graphql.EventDefinitionInput) *model.EventDefinitionInput {
+func (_m *EventAPIConverter) InputFromGraphQL(in *externalschema.EventDefinitionInput) *model.EventDefinitionInput {
 	ret := _m.Called(in)
 
 	var r0 *model.EventDefinitionInput
-	if rf, ok := ret.Get(0).(func(*graphql.EventDefinitionInput) *model.EventDefinitionInput); ok {
+	if rf, ok := ret.Get(0).(func(*externalschema.EventDefinitionInput) *model.EventDefinitionInput); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
@@ -28,11 +30,11 @@ func (_m *EventAPIConverter) InputFromGraphQL(in *graphql.EventDefinitionInput) 
 }
 
 // MultipleInputFromGraphQL provides a mock function with given fields: in
-func (_m *EventAPIConverter) MultipleInputFromGraphQL(in []*graphql.EventDefinitionInput) []*model.EventDefinitionInput {
+func (_m *EventAPIConverter) MultipleInputFromGraphQL(in []*externalschema.EventDefinitionInput) []*model.EventDefinitionInput {
 	ret := _m.Called(in)
 
 	var r0 []*model.EventDefinitionInput
-	if rf, ok := ret.Get(0).(func([]*graphql.EventDefinitionInput) []*model.EventDefinitionInput); ok {
+	if rf, ok := ret.Get(0).(func([]*externalschema.EventDefinitionInput) []*model.EventDefinitionInput); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
@@ -44,15 +46,15 @@ func (_m *EventAPIConverter) MultipleInputFromGraphQL(in []*graphql.EventDefinit
 }
 
 // MultipleToGraphQL provides a mock function with given fields: in
-func (_m *EventAPIConverter) MultipleToGraphQL(in []*model.EventDefinition) []*graphql.EventDefinition {
+func (_m *EventAPIConverter) MultipleToGraphQL(in []*model.EventDefinition) []*externalschema.EventDefinition {
 	ret := _m.Called(in)
 
-	var r0 []*graphql.EventDefinition
-	if rf, ok := ret.Get(0).(func([]*model.EventDefinition) []*graphql.EventDefinition); ok {
+	var r0 []*externalschema.EventDefinition
+	if rf, ok := ret.Get(0).(func([]*model.EventDefinition) []*externalschema.EventDefinition); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*graphql.EventDefinition)
+			r0 = ret.Get(0).([]*externalschema.EventDefinition)
 		}
 	}
 
@@ -60,15 +62,15 @@ func (_m *EventAPIConverter) MultipleToGraphQL(in []*model.EventDefinition) []*g
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *EventAPIConverter) ToGraphQL(in *model.EventDefinition) *graphql.EventDefinition {
+func (_m *EventAPIConverter) ToGraphQL(in *model.EventDefinition) *externalschema.EventDefinition {
 	ret := _m.Called(in)
 
-	var r0 *graphql.EventDefinition
-	if rf, ok := ret.Get(0).(func(*model.EventDefinition) *graphql.EventDefinition); ok {
+	var r0 *externalschema.EventDefinition
+	if rf, ok := ret.Get(0).(func(*model.EventDefinition) *externalschema.EventDefinition); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.EventDefinition)
+			r0 = ret.Get(0).(*externalschema.EventDefinition)
 		}
 	}
 

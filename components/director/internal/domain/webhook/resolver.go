@@ -3,6 +3,8 @@ package webhook
 import (
 	"context"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
@@ -10,7 +12,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 )
 
 //go:generate mockery -name=WebhookService -output=automock -outpkg=automock -case=underscore
@@ -29,10 +30,10 @@ type ApplicationService interface {
 
 //go:generate mockery -name=WebhookConverter -output=automock -outpkg=automock -case=underscore
 type WebhookConverter interface {
-	ToGraphQL(in *model.Webhook) (*graphql.Webhook, error)
-	MultipleToGraphQL(in []*model.Webhook) ([]*graphql.Webhook, error)
-	InputFromGraphQL(in *graphql.WebhookInput) (*model.WebhookInput, error)
-	MultipleInputFromGraphQL(in []*graphql.WebhookInput) ([]*model.WebhookInput, error)
+	ToGraphQL(in *model.Webhook) (*externalschema.Webhook, error)
+	MultipleToGraphQL(in []*model.Webhook) ([]*externalschema.Webhook, error)
+	InputFromGraphQL(in *externalschema.WebhookInput) (*model.WebhookInput, error)
+	MultipleInputFromGraphQL(in []*externalschema.WebhookInput) ([]*model.WebhookInput, error)
 }
 
 type Resolver struct {
@@ -51,7 +52,7 @@ func NewResolver(transact persistence.Transactioner, webhookSvc WebhookService, 
 	}
 }
 
-func (r *Resolver) AddApplicationWebhook(ctx context.Context, applicationID string, in graphql.WebhookInput) (*graphql.Webhook, error) {
+func (r *Resolver) AddApplicationWebhook(ctx context.Context, applicationID string, in externalschema.WebhookInput) (*externalschema.Webhook, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -90,7 +91,7 @@ func (r *Resolver) AddApplicationWebhook(ctx context.Context, applicationID stri
 	return r.webhookConverter.ToGraphQL(webhook)
 }
 
-func (r *Resolver) UpdateApplicationWebhook(ctx context.Context, webhookID string, in graphql.WebhookInput) (*graphql.Webhook, error) {
+func (r *Resolver) UpdateApplicationWebhook(ctx context.Context, webhookID string, in externalschema.WebhookInput) (*externalschema.Webhook, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -120,7 +121,7 @@ func (r *Resolver) UpdateApplicationWebhook(ctx context.Context, webhookID strin
 	return r.webhookConverter.ToGraphQL(webhook)
 }
 
-func (r *Resolver) DeleteApplicationWebhook(ctx context.Context, webhookID string) (*graphql.Webhook, error) {
+func (r *Resolver) DeleteApplicationWebhook(ctx context.Context, webhookID string) (*externalschema.Webhook, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err

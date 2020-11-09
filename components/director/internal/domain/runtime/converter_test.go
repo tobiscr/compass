@@ -3,9 +3,10 @@ package runtime_test
 import (
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/runtime"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -18,7 +19,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 	testCases := []struct {
 		Name     string
 		Input    *model.Runtime
-		Expected *graphql.Runtime
+		Expected *externalschema.Runtime
 	}{
 		{
 			Name:     "All properties given",
@@ -28,12 +29,12 @@ func TestConverter_ToGraphQL(t *testing.T) {
 		{
 			Name:  "Empty",
 			Input: &model.Runtime{},
-			Expected: &graphql.Runtime{
-				Status: &graphql.RuntimeStatus{
-					Condition: graphql.RuntimeStatusConditionInitial,
+			Expected: &externalschema.Runtime{
+				Status: &externalschema.RuntimeStatus{
+					Condition: externalschema.RuntimeStatusConditionInitial,
 				},
-				Metadata: &graphql.RuntimeMetadata{
-					CreationTimestamp: graphql.Timestamp{},
+				Metadata: &externalschema.RuntimeMetadata{
+					CreationTimestamp: externalschema.Timestamp{},
 				},
 			},
 		},
@@ -64,15 +65,15 @@ func TestConverter_MultipleToGraphQL(t *testing.T) {
 		{},
 		nil,
 	}
-	expected := []*graphql.Runtime{
+	expected := []*externalschema.Runtime{
 		fixGQLRuntime(t, "foo", "Foo", "Lorem ipsum"),
 		fixGQLRuntime(t, "bar", "Bar", "Dolor sit amet"),
 		{
-			Status: &graphql.RuntimeStatus{
-				Condition: graphql.RuntimeStatusConditionInitial,
+			Status: &externalschema.RuntimeStatus{
+				Condition: externalschema.RuntimeStatusConditionInitial,
 			},
-			Metadata: &graphql.RuntimeMetadata{
-				CreationTimestamp: graphql.Timestamp{},
+			Metadata: &externalschema.RuntimeMetadata{
+				CreationTimestamp: externalschema.Timestamp{},
 			},
 		},
 	}
@@ -89,7 +90,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 	// given
 	testCases := []struct {
 		Name     string
-		Input    graphql.RuntimeInput
+		Input    externalschema.RuntimeInput
 		Expected model.RuntimeInput
 	}{
 		{
@@ -99,7 +100,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 		},
 		{
 			Name:     "Empty",
-			Input:    graphql.RuntimeInput{},
+			Input:    externalschema.RuntimeInput{},
 			Expected: model.RuntimeInput{},
 		},
 	}
@@ -119,34 +120,34 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 func TestConverter_InputFromGraphQL_StatusCondition(t *testing.T) {
 	testCases := []struct {
 		Name           string
-		CondtionGQL    graphql.RuntimeStatusCondition
+		CondtionGQL    externalschema.RuntimeStatusCondition
 		ConditionModel model.RuntimeStatusCondition
 	}{
 		{
 			Name:           "When status condition is FAILED",
-			CondtionGQL:    graphql.RuntimeStatusConditionFailed,
+			CondtionGQL:    externalschema.RuntimeStatusConditionFailed,
 			ConditionModel: model.RuntimeStatusConditionFailed,
 		},
 		{
 			Name:           "When status condition is CONNECTED",
-			CondtionGQL:    graphql.RuntimeStatusConditionConnected,
+			CondtionGQL:    externalschema.RuntimeStatusConditionConnected,
 			ConditionModel: model.RuntimeStatusConditionConnected,
 		},
 		{
 			Name:           "When status condition is INITIAL",
-			CondtionGQL:    graphql.RuntimeStatusConditionInitial,
+			CondtionGQL:    externalschema.RuntimeStatusConditionInitial,
 			ConditionModel: model.RuntimeStatusConditionInitial,
 		},
 		{
 			Name:           "When status condition is PROVISIONING",
-			CondtionGQL:    graphql.RuntimeStatusConditionProvisioning,
+			CondtionGQL:    externalschema.RuntimeStatusConditionProvisioning,
 			ConditionModel: model.RuntimeStatusConditionProvisioning,
 		},
 	}
 
 	for _, testCase := range testCases {
 		t.Run(testCase.Name, func(t *testing.T) {
-			gqlApp := graphql.RuntimeInput{StatusCondition: &testCase.CondtionGQL}
+			gqlApp := externalschema.RuntimeInput{StatusCondition: &testCase.CondtionGQL}
 
 			converter := runtime.NewConverter()
 			modelApp := converter.InputFromGraphQL(gqlApp)

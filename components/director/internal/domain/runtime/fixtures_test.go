@@ -5,8 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/pagination"
 	"github.com/stretchr/testify/require"
 )
@@ -23,10 +24,10 @@ func fixRuntimePage(runtimes []*model.Runtime) *model.RuntimePage {
 	}
 }
 
-func fixGQLRuntimePage(runtimes []*graphql.Runtime) *graphql.RuntimePage {
-	return &graphql.RuntimePage{
+func fixGQLRuntimePage(runtimes []*externalschema.Runtime) *externalschema.RuntimePage {
+	return &externalschema.RuntimePage{
 		Data: runtimes,
-		PageInfo: &graphql.PageInfo{
+		PageInfo: &externalschema.PageInfo{
 			StartCursor: "start",
 			EndCursor:   "end",
 			HasNextPage: false,
@@ -51,19 +52,19 @@ func fixModelRuntime(t *testing.T, id, tenant, name, description string) *model.
 	}
 }
 
-func fixGQLRuntime(t *testing.T, id, name, description string) *graphql.Runtime {
+func fixGQLRuntime(t *testing.T, id, name, description string) *externalschema.Runtime {
 	time, err := time.Parse(time.RFC3339, "2002-10-02T10:00:00-05:00")
 	require.NoError(t, err)
 
-	return &graphql.Runtime{
+	return &externalschema.Runtime{
 		ID: id,
-		Status: &graphql.RuntimeStatus{
-			Condition: graphql.RuntimeStatusConditionInitial,
+		Status: &externalschema.RuntimeStatus{
+			Condition: externalschema.RuntimeStatusConditionInitial,
 		},
 		Name:        name,
 		Description: &description,
-		Metadata: &graphql.RuntimeMetadata{
-			CreationTimestamp: graphql.Timestamp(time),
+		Metadata: &externalschema.RuntimeMetadata{
+			CreationTimestamp: externalschema.Timestamp(time),
 		},
 	}
 }
@@ -85,20 +86,20 @@ func fixDetailedModelRuntime(t *testing.T, id, name, description string) *model.
 	}
 }
 
-func fixDetailedGQLRuntime(t *testing.T, id, name, description string) *graphql.Runtime {
+func fixDetailedGQLRuntime(t *testing.T, id, name, description string) *externalschema.Runtime {
 	time, err := time.Parse(time.RFC3339, "2002-10-02T10:00:00-05:00")
 	require.NoError(t, err)
 
-	return &graphql.Runtime{
+	return &externalschema.Runtime{
 		ID: id,
-		Status: &graphql.RuntimeStatus{
-			Condition: graphql.RuntimeStatusConditionInitial,
-			Timestamp: graphql.Timestamp(time),
+		Status: &externalschema.RuntimeStatus{
+			Condition: externalschema.RuntimeStatusConditionInitial,
+			Timestamp: externalschema.Timestamp(time),
 		},
 		Name:        name,
 		Description: &description,
-		Metadata: &graphql.RuntimeMetadata{
-			CreationTimestamp: graphql.Timestamp(time),
+		Metadata: &externalschema.RuntimeMetadata{
+			CreationTimestamp: externalschema.Timestamp(time),
 		},
 	}
 }
@@ -113,12 +114,12 @@ func fixModelRuntimeInput(name, description string) model.RuntimeInput {
 	}
 }
 
-func fixGQLRuntimeInput(name, description string) graphql.RuntimeInput {
-	labels := graphql.Labels{
+func fixGQLRuntimeInput(name, description string) externalschema.RuntimeInput {
+	labels := externalschema.Labels{
 		"test": []string{"val", "val2"},
 	}
 
-	return graphql.RuntimeInput{
+	return externalschema.RuntimeInput{
 		Name:        name,
 		Description: &description,
 		Labels:      &labels,
@@ -137,10 +138,10 @@ func fixApplicationPage(applications []*model.Application) *model.ApplicationPag
 	}
 }
 
-func fixGQLApplicationPage(applications []*graphql.Application) *graphql.ApplicationPage {
-	return &graphql.ApplicationPage{
+func fixGQLApplicationPage(applications []*externalschema.Application) *externalschema.ApplicationPage {
+	return &externalschema.ApplicationPage{
 		Data: applications,
-		PageInfo: &graphql.PageInfo{
+		PageInfo: &externalschema.PageInfo{
 			StartCursor: "start",
 			EndCursor:   "end",
 			HasNextPage: false,
@@ -160,11 +161,11 @@ func fixModelApplication(id, name, description string) *model.Application {
 	}
 }
 
-func fixGQLApplication(id, name, description string) *graphql.Application {
-	return &graphql.Application{
+func fixGQLApplication(id, name, description string) *externalschema.Application {
+	return &externalschema.Application{
 		ID: id,
-		Status: &graphql.ApplicationStatus{
-			Condition: graphql.ApplicationStatusConditionInitial,
+		Status: &externalschema.ApplicationStatus{
+			Condition: externalschema.ApplicationStatusConditionInitial,
 		},
 		Name:        name,
 		Description: &description,
@@ -197,23 +198,23 @@ func fixModelAuth() *model.Auth {
 	}
 }
 
-func fixGQLAuth() *graphql.Auth {
-	return &graphql.Auth{
-		Credential: &graphql.BasicCredentialData{
+func fixGQLAuth() *externalschema.Auth {
+	return &externalschema.Auth{
+		Credential: &externalschema.BasicCredentialData{
 			Username: "foo",
 			Password: "bar",
 		},
-		AdditionalHeaders:     &graphql.HttpHeaders{"test": {"foo", "bar"}},
-		AdditionalQueryParams: &graphql.QueryParams{"test": {"foo", "bar"}},
-		RequestAuth: &graphql.CredentialRequestAuth{
-			Csrf: &graphql.CSRFTokenCredentialRequestAuth{
+		AdditionalHeaders:     &externalschema.HttpHeaders{"test": {"foo", "bar"}},
+		AdditionalQueryParams: &externalschema.QueryParams{"test": {"foo", "bar"}},
+		RequestAuth: &externalschema.CredentialRequestAuth{
+			Csrf: &externalschema.CSRFTokenCredentialRequestAuth{
 				TokenEndpointURL: "foo.url",
-				Credential: &graphql.BasicCredentialData{
+				Credential: &externalschema.BasicCredentialData{
 					Username: "boo",
 					Password: "far",
 				},
-				AdditionalHeaders:     &graphql.HttpHeaders{"test": {"foo", "bar"}},
-				AdditionalQueryParams: &graphql.QueryParams{"test": {"foo", "bar"}},
+				AdditionalHeaders:     &externalschema.HttpHeaders{"test": {"foo", "bar"}},
+				AdditionalQueryParams: &externalschema.QueryParams{"test": {"foo", "bar"}},
 			},
 		},
 	}
@@ -228,8 +229,8 @@ func fixModelSystemAuth(id, tenant, runtimeID string, auth *model.Auth) model.Sy
 	}
 }
 
-func fixGQLSystemAuth(id string, auth *graphql.Auth) *graphql.SystemAuth {
-	return &graphql.SystemAuth{
+func fixGQLSystemAuth(id string, auth *externalschema.Auth) *externalschema.SystemAuth {
+	return &externalschema.SystemAuth{
 		ID:   id,
 		Auth: auth,
 	}
@@ -244,8 +245,8 @@ func fixModelRuntimeEventingConfiguration(t *testing.T, rawURL string) *model.Ru
 	}
 }
 
-func fixGQLRuntimeEventingConfiguration(url string) *graphql.RuntimeEventingConfiguration {
-	return &graphql.RuntimeEventingConfiguration{
+func fixGQLRuntimeEventingConfiguration(url string) *externalschema.RuntimeEventingConfiguration {
+	return &externalschema.RuntimeEventingConfiguration{
 		DefaultURL: url,
 	}
 }

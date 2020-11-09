@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/resource"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
@@ -13,7 +15,6 @@ import (
 	"github.com/kyma-incubator/compass/components/director/internal/domain/integrationsystem"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/integrationsystem/automock"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
 
@@ -35,7 +36,7 @@ func TestResolver_IntegrationSystem(t *testing.T) {
 		TxFn           func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		IntSysSvcFn    func() *automock.IntegrationSystemService
 		IntSysConvFn   func() *automock.IntegrationSystemConverter
-		ExpectedOutput *graphql.IntegrationSystem
+		ExpectedOutput *externalschema.IntegrationSystem
 		ExpectedError  error
 	}{
 		{
@@ -147,21 +148,21 @@ func TestResolver_IntegrationSystems(t *testing.T) {
 		fixModelIntegrationSystem("i2", "n2"),
 	}
 	modelPage := fixModelIntegrationSystemPage(modelIntSys)
-	gqlIntSys := []*graphql.IntegrationSystem{
+	gqlIntSys := []*externalschema.IntegrationSystem{
 		fixGQLIntegrationSystem("i1", "n1"),
 		fixGQLIntegrationSystem("i2", "n2"),
 	}
 	gqlPage := fixGQLIntegrationSystemPage(gqlIntSys)
 	first := 2
 	after := "test"
-	gqlAfter := graphql.PageCursor(after)
+	gqlAfter := externalschema.PageCursor(after)
 
 	testCases := []struct {
 		Name           string
 		TxFn           func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		IntSysSvcFn    func() *automock.IntegrationSystemService
 		IntSysConvFn   func() *automock.IntegrationSystemConverter
-		ExpectedOutput *graphql.IntegrationSystemPage
+		ExpectedOutput *externalschema.IntegrationSystemPage
 		ExpectedError  error
 	}{
 		{
@@ -266,7 +267,7 @@ func TestResolver_CreateIntegrationSystem(t *testing.T) {
 		TxFn           func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		IntSysSvcFn    func() *automock.IntegrationSystemService
 		IntSysConvFn   func() *automock.IntegrationSystemConverter
-		ExpectedOutput *graphql.IntegrationSystem
+		ExpectedOutput *externalschema.IntegrationSystem
 		ExpectedError  error
 	}{
 		{
@@ -393,7 +394,7 @@ func TestResolver_UpdateIntegrationSystem(t *testing.T) {
 		TxFn           func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		IntSysSvcFn    func() *automock.IntegrationSystemService
 		IntSysConvFn   func() *automock.IntegrationSystemConverter
-		ExpectedOutput *graphql.IntegrationSystem
+		ExpectedOutput *externalschema.IntegrationSystem
 		ExpectedError  error
 	}{
 		{
@@ -520,7 +521,7 @@ func TestResolver_UnregisterIntegrationSystem(t *testing.T) {
 		IntSysConvFn   func() *automock.IntegrationSystemConverter
 		SysAuthSvcFn   func() *automock.SystemAuthService
 		OAuth20SvcFn   func() *automock.OAuth20Service
-		ExpectedOutput *graphql.IntegrationSystem
+		ExpectedOutput *externalschema.IntegrationSystem
 		ExpectedError  error
 	}{
 		{
@@ -737,7 +738,7 @@ func TestResolver_Auths(t *testing.T) {
 		fixModelSystemAuth("faz", parentIntegrationSystem.ID, fixModelAuth()),
 	}
 
-	gqlSysAuths := []*graphql.SystemAuth{
+	gqlSysAuths := []*externalschema.SystemAuth{
 		fixGQLSystemAuth("bar", fixGQLAuth()),
 		fixGQLSystemAuth("baz", fixGQLAuth()),
 		fixGQLSystemAuth("faz", fixGQLAuth()),
@@ -750,7 +751,7 @@ func TestResolver_Auths(t *testing.T) {
 		TransactionerFn func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		SysAuthSvcFn    func() *automock.SystemAuthService
 		SysAuthConvFn   func() *automock.SystemAuthConverter
-		ExpectedOutput  []*graphql.SystemAuth
+		ExpectedOutput  []*externalschema.SystemAuth
 		ExpectedError   error
 	}{
 		{

@@ -3,19 +3,19 @@ package viewer
 import (
 	"github.com/kyma-incubator/compass/components/director/internal/consumer"
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 )
 
-func ToViewer(cons consumer.Consumer) (*graphql.Viewer, error) {
+func ToViewer(cons consumer.Consumer) (*externalschema.Viewer, error) {
 	switch cons.ConsumerType {
 	case consumer.Runtime:
-		return &graphql.Viewer{ID: cons.ConsumerID, Type: graphql.ViewerTypeRuntime}, nil
+		return &externalschema.Viewer{ID: cons.ConsumerID, Type: externalschema.ViewerTypeRuntime}, nil
 	case consumer.Application:
-		return &graphql.Viewer{ID: cons.ConsumerID, Type: graphql.ViewerTypeApplication}, nil
+		return &externalschema.Viewer{ID: cons.ConsumerID, Type: externalschema.ViewerTypeApplication}, nil
 	case consumer.IntegrationSystem:
-		return &graphql.Viewer{ID: cons.ConsumerID, Type: graphql.ViewerTypeIntegrationSystem}, nil
+		return &externalschema.Viewer{ID: cons.ConsumerID, Type: externalschema.ViewerTypeIntegrationSystem}, nil
 	case consumer.User:
-		return &graphql.Viewer{ID: cons.ConsumerID, Type: graphql.ViewerTypeUser}, nil
+		return &externalschema.Viewer{ID: cons.ConsumerID, Type: externalschema.ViewerTypeUser}, nil
 	}
 
 	return nil, apperrors.NewInternalError("viewer does not exist")

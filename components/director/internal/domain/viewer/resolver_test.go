@@ -4,12 +4,13 @@ import (
 	"context"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/google/uuid"
 	"github.com/kyma-incubator/compass/components/director/internal/consumer"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/viewer"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -19,9 +20,9 @@ func TestResolver_Viewer(t *testing.T) {
 		ConsumerID:   uuid.New().String(),
 		ConsumerType: consumer.Application,
 	}
-	expectedViewer := graphql.Viewer{
+	expectedViewer := externalschema.Viewer{
 		ID:   cons.ConsumerID,
-		Type: graphql.ViewerTypeApplication,
+		Type: externalschema.ViewerTypeApplication,
 	}
 
 	t.Run("Success", func(t *testing.T) {

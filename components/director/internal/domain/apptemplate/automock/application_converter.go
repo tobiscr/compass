@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
 
@@ -12,18 +14,18 @@ type ApplicationConverter struct {
 }
 
 // CreateInputFromGraphQL provides a mock function with given fields: in
-func (_m *ApplicationConverter) CreateInputFromGraphQL(in graphql.ApplicationRegisterInput) (model.ApplicationRegisterInput, error) {
+func (_m *ApplicationConverter) CreateInputFromGraphQL(in externalschema.ApplicationRegisterInput) (model.ApplicationRegisterInput, error) {
 	ret := _m.Called(in)
 
 	var r0 model.ApplicationRegisterInput
-	if rf, ok := ret.Get(0).(func(graphql.ApplicationRegisterInput) model.ApplicationRegisterInput); ok {
+	if rf, ok := ret.Get(0).(func(externalschema.ApplicationRegisterInput) model.ApplicationRegisterInput); ok {
 		r0 = rf(in)
 	} else {
 		r0 = ret.Get(0).(model.ApplicationRegisterInput)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(graphql.ApplicationRegisterInput) error); ok {
+	if rf, ok := ret.Get(1).(func(externalschema.ApplicationRegisterInput) error); ok {
 		r1 = rf(in)
 	} else {
 		r1 = ret.Error(1)
@@ -33,14 +35,14 @@ func (_m *ApplicationConverter) CreateInputFromGraphQL(in graphql.ApplicationReg
 }
 
 // CreateInputJSONToGQL provides a mock function with given fields: in
-func (_m *ApplicationConverter) CreateInputJSONToGQL(in string) (graphql.ApplicationRegisterInput, error) {
+func (_m *ApplicationConverter) CreateInputJSONToGQL(in string) (externalschema.ApplicationRegisterInput, error) {
 	ret := _m.Called(in)
 
-	var r0 graphql.ApplicationRegisterInput
-	if rf, ok := ret.Get(0).(func(string) graphql.ApplicationRegisterInput); ok {
+	var r0 externalschema.ApplicationRegisterInput
+	if rf, ok := ret.Get(0).(func(string) externalschema.ApplicationRegisterInput); ok {
 		r0 = rf(in)
 	} else {
-		r0 = ret.Get(0).(graphql.ApplicationRegisterInput)
+		r0 = ret.Get(0).(externalschema.ApplicationRegisterInput)
 	}
 
 	var r1 error
@@ -54,15 +56,15 @@ func (_m *ApplicationConverter) CreateInputJSONToGQL(in string) (graphql.Applica
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *ApplicationConverter) ToGraphQL(in *model.Application) *graphql.Application {
+func (_m *ApplicationConverter) ToGraphQL(in *model.Application) *externalschema.Application {
 	ret := _m.Called(in)
 
-	var r0 *graphql.Application
-	if rf, ok := ret.Get(0).(func(*model.Application) *graphql.Application); ok {
+	var r0 *externalschema.Application
+	if rf, ok := ret.Get(0).(func(*model.Application) *externalschema.Application); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.Application)
+			r0 = ret.Get(0).(*externalschema.Application)
 		}
 	}
 

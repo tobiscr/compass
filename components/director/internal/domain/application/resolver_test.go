@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/resource"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/str"
@@ -18,7 +20,6 @@ import (
 	"github.com/kyma-incubator/compass/components/director/internal/domain/application/automock"
 	"github.com/kyma-incubator/compass/components/director/internal/labelfilter"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -35,7 +36,7 @@ func TestResolver_RegisterApplication(t *testing.T) {
 	testErr := errors.New("Test error")
 
 	desc := "Lorem ipsum"
-	gqlInput := graphql.ApplicationRegisterInput{
+	gqlInput := externalschema.ApplicationRegisterInput{
 		Name:        "Foo",
 		Description: &desc,
 	}
@@ -50,8 +51,8 @@ func TestResolver_RegisterApplication(t *testing.T) {
 		TransactionerFn     func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		ServiceFn           func() *automock.ApplicationService
 		ConverterFn         func() *automock.ApplicationConverter
-		Input               graphql.ApplicationRegisterInput
-		ExpectedApplication *graphql.Application
+		Input               externalschema.ApplicationRegisterInput
+		ExpectedApplication *externalschema.Application
 		ExpectedErr         error
 	}{
 		{
@@ -158,7 +159,7 @@ func TestResolver_UpdateApplication(t *testing.T) {
 	testErr := errors.New("Test error")
 
 	desc := "Lorem ipsum"
-	gqlInput := graphql.ApplicationUpdateInput{
+	gqlInput := externalschema.ApplicationUpdateInput{
 		Description: &desc,
 	}
 	modelInput := model.ApplicationUpdateInput{
@@ -174,8 +175,8 @@ func TestResolver_UpdateApplication(t *testing.T) {
 		ServiceFn           func() *automock.ApplicationService
 		ConverterFn         func() *automock.ApplicationConverter
 		ApplicationID       string
-		Input               graphql.ApplicationUpdateInput
-		ExpectedApplication *graphql.Application
+		Input               externalschema.ApplicationUpdateInput
+		ExpectedApplication *externalschema.Application
 		ExpectedErr         error
 	}{
 		{
@@ -314,7 +315,7 @@ func TestResolver_UnregisterApplication(t *testing.T) {
 		SysAuthServiceFn    func() *automock.SystemAuthService
 		OAuth20ServiceFn    func() *automock.OAuth20Service
 		InputID             string
-		ExpectedApplication *graphql.Application
+		ExpectedApplication *externalschema.Application
 		ExpectedErr         error
 	}{
 		{
@@ -602,7 +603,7 @@ func TestResolver_Application(t *testing.T) {
 		ServiceFn           func() *automock.ApplicationService
 		ConverterFn         func() *automock.ApplicationConverter
 		InputID             string
-		ExpectedApplication *graphql.Application
+		ExpectedApplication *externalschema.Application
 		ExpectedErr         error
 	}{
 		{
@@ -692,19 +693,19 @@ func TestResolver_Applications(t *testing.T) {
 		fixModelApplication("bar", "tenant-bar", "Bar", "Lorem Ipsum"),
 	}
 
-	gqlApplications := []*graphql.Application{
+	gqlApplications := []*externalschema.Application{
 		fixGQLApplication("foo", "Foo", "Lorem Ipsum"),
 		fixGQLApplication("bar", "Bar", "Lorem Ipsum"),
 	}
 
 	first := 2
-	gqlAfter := graphql.PageCursor("test")
+	gqlAfter := externalschema.PageCursor("test")
 	after := "test"
 	query := "foo"
 	filter := []*labelfilter.LabelFilter{
 		{Key: "", Query: &query},
 	}
-	gqlFilter := []*graphql.LabelFilter{
+	gqlFilter := []*externalschema.LabelFilter{
 		{Key: "", Query: &query},
 	}
 	testErr := errors.New("Test error")
@@ -715,8 +716,8 @@ func TestResolver_Applications(t *testing.T) {
 		TransactionerFn   func(persistTx *persistenceautomock.PersistenceTx) *persistenceautomock.Transactioner
 		ServiceFn         func() *automock.ApplicationService
 		ConverterFn       func() *automock.ApplicationConverter
-		InputLabelFilters []*graphql.LabelFilter
-		ExpectedResult    *graphql.ApplicationPage
+		InputLabelFilters []*externalschema.LabelFilter
+		ExpectedResult    *externalschema.ApplicationPage
 		ExpectedErr       error
 	}{
 		{
@@ -787,14 +788,14 @@ func TestResolver_ApplicationsForRuntime(t *testing.T) {
 		fixModelApplication("id2", "tenant-bar", "name", "desc"),
 	}
 
-	applicationGraphQL := []*graphql.Application{
+	applicationGraphQL := []*externalschema.Application{
 		fixGQLApplication("id1", "name", "desc"),
 		fixGQLApplication("id2", "name", "desc"),
 	}
 
 	first := 10
 	after := "test"
-	gqlAfter := graphql.PageCursor(after)
+	gqlAfter := externalschema.PageCursor(after)
 
 	txGen := txtest.NewTransactionContextGenerator(testError)
 
@@ -806,7 +807,7 @@ func TestResolver_ApplicationsForRuntime(t *testing.T) {
 		AppServiceFn    func() *automock.ApplicationService
 		TransactionerFn func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		InputRuntimeID  string
-		ExpectedResult  *graphql.ApplicationPage
+		ExpectedResult  *externalschema.ApplicationPage
 		ExpectedError   error
 	}{
 		{
@@ -923,7 +924,7 @@ func TestResolver_SetApplicationLabel(t *testing.T) {
 	testErr := errors.New("Test error")
 
 	applicationID := "foo"
-	gqlLabel := &graphql.Label{
+	gqlLabel := &externalschema.Label{
 		Key:   "key",
 		Value: []string{"foo", "bar"},
 	}
@@ -943,7 +944,7 @@ func TestResolver_SetApplicationLabel(t *testing.T) {
 		InputApplicationID string
 		InputKey           string
 		InputValue         interface{}
-		ExpectedLabel      *graphql.Label
+		ExpectedLabel      *externalschema.Label
 		ExpectedErr        error
 	}{
 		{
@@ -1032,7 +1033,7 @@ func TestResolver_DeleteApplicationLabel(t *testing.T) {
 
 	labelKey := "key"
 
-	gqlLabel := &graphql.Label{
+	gqlLabel := &externalschema.Label{
 		Key:   labelKey,
 		Value: []string{"foo", "bar"},
 	}
@@ -1054,7 +1055,7 @@ func TestResolver_DeleteApplicationLabel(t *testing.T) {
 		ConverterFn        func() *automock.ApplicationConverter
 		InputApplicationID string
 		InputKey           string
-		ExpectedLabel      *graphql.Label
+		ExpectedLabel      *externalschema.Label
 		ExpectedErr        error
 	}{
 		{
@@ -1147,7 +1148,7 @@ func TestResolver_Webhooks(t *testing.T) {
 		fixModelWebhook(applicationID, "foo"),
 		fixModelWebhook(applicationID, "bar"),
 	}
-	gqlWebhooks := []*graphql.Webhook{
+	gqlWebhooks := []*externalschema.Webhook{
 		fixGQLWebhook("foo"),
 		fixGQLWebhook("bar"),
 	}
@@ -1160,7 +1161,7 @@ func TestResolver_Webhooks(t *testing.T) {
 		TransactionerFn func(persistTx *persistenceautomock.PersistenceTx) *persistenceautomock.Transactioner
 		ServiceFn       func() *automock.WebhookService
 		ConverterFn     func() *automock.WebhookConverter
-		ExpectedResult  []*graphql.Webhook
+		ExpectedResult  []*externalschema.Webhook
 		ExpectedErr     error
 	}{
 		{
@@ -1285,7 +1286,7 @@ func TestResolver_Labels(t *testing.T) {
 		},
 	}
 
-	gqlLabels := &graphql.Labels{
+	gqlLabels := &externalschema.Labels{
 		labelKey: labelValue,
 		labelKey: labelValue,
 	}
@@ -1297,9 +1298,9 @@ func TestResolver_Labels(t *testing.T) {
 		PersistenceFn   func() *persistenceautomock.PersistenceTx
 		TransactionerFn func(persistTx *persistenceautomock.PersistenceTx) *persistenceautomock.Transactioner
 		ServiceFn       func() *automock.ApplicationService
-		InputApp        *graphql.Application
+		InputApp        *externalschema.Application
 		InputKey        string
-		ExpectedResult  *graphql.Labels
+		ExpectedResult  *externalschema.Labels
 		ExpectedErr     error
 	}{
 		{
@@ -1360,15 +1361,15 @@ func TestResolver_Auths(t *testing.T) {
 	txGen := txtest.NewTransactionContextGenerator(testError)
 
 	sysAuthModels := []model.SystemAuth{{ID: "id1", AppID: &id}, {ID: "id2", AppID: &id}}
-	sysAuthGQL := []*graphql.SystemAuth{{ID: "id1"}, {ID: "id2"}}
+	sysAuthGQL := []*externalschema.SystemAuth{{ID: "id1"}, {ID: "id2"}}
 
 	testCases := []struct {
 		Name            string
 		TransactionerFn func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		ServiceFn       func() *automock.SystemAuthService
 		SysAuthConvFn   func() *automock.SystemAuthConverter
-		InputApp        *graphql.Application
-		ExpectedResult  []*graphql.SystemAuth
+		InputApp        *externalschema.Application
+		ExpectedResult  []*externalschema.SystemAuth
 		ExpectedErr     error
 	}{
 		{
@@ -1499,7 +1500,7 @@ func TestResolver_EventingConfiguration(t *testing.T) {
 		TransactionerFn func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		EventingSvcFn   func() *automock.EventingService
 		ConverterFn     func() *automock.ApplicationConverter
-		ExpectedOutput  *graphql.ApplicationEventingConfiguration
+		ExpectedOutput  *externalschema.ApplicationEventingConfiguration
 		ExpectedError   error
 	}{
 		{
@@ -1578,7 +1579,7 @@ func TestResolver_EventingConfiguration(t *testing.T) {
 		resolver := application.NewResolver(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 
 		//WHEN
-		_, err := resolver.EventingConfiguration(context.TODO(), &graphql.Application{})
+		_, err := resolver.EventingConfiguration(context.TODO(), &externalschema.Application{})
 
 		//THEN
 		require.Error(t, err)
@@ -1612,7 +1613,7 @@ func TestResolver_Packages(t *testing.T) {
 		fixModelPackage("bar", tenantID, applicationID, "Bar", "Lorem Ipsum"),
 	}
 
-	gqlPackages := []*graphql.Package{
+	gqlPackages := []*externalschema.Package{
 		fixGQLPackage("foo", applicationID, "Foo", "Lorem Ipsum"),
 		fixGQLPackage("bar", applicationID, "Bar", "Lorem Ipsum"),
 	}
@@ -1620,7 +1621,7 @@ func TestResolver_Packages(t *testing.T) {
 	txGen := txtest.NewTransactionContextGenerator(testErr)
 
 	first := 2
-	gqlAfter := graphql.PageCursor("test")
+	gqlAfter := externalschema.PageCursor("test")
 	after := "test"
 
 	testCases := []struct {
@@ -1628,7 +1629,7 @@ func TestResolver_Packages(t *testing.T) {
 		TransactionerFn func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		ServiceFn       func() *automock.PackageService
 		ConverterFn     func() *automock.PackageConverter
-		ExpectedResult  *graphql.PackagePage
+		ExpectedResult  *externalschema.PackagePage
 		ExpectedErr     error
 	}{
 		{
@@ -1758,8 +1759,8 @@ func TestResolver_Package(t *testing.T) {
 		ServiceFn       func() *automock.PackageService
 		ConverterFn     func() *automock.PackageConverter
 		InputID         string
-		Application     *graphql.Application
-		ExpectedPackage *graphql.Package
+		Application     *externalschema.Application
+		ExpectedPackage *externalschema.Package
 		ExpectedErr     error
 	}{
 		{

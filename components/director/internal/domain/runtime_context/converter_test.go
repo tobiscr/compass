@@ -3,10 +3,11 @@ package runtime_context_test
 import (
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/runtime_context"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,7 +21,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 	testCases := []struct {
 		Name     string
 		Input    *model.RuntimeContext
-		Expected *graphql.RuntimeContext
+		Expected *externalschema.RuntimeContext
 	}{
 		{
 			Name: "All properties given",
@@ -31,7 +32,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 				Key:       key,
 				Value:     val,
 			},
-			Expected: &graphql.RuntimeContext{
+			Expected: &externalschema.RuntimeContext{
 				ID:    id,
 				Key:   key,
 				Value: val,
@@ -40,7 +41,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 		{
 			Name:     "Empty",
 			Input:    &model.RuntimeContext{},
-			Expected: &graphql.RuntimeContext{},
+			Expected: &externalschema.RuntimeContext{},
 		},
 		{
 			Name:     "Nil",
@@ -86,7 +87,7 @@ func TestConverter_MultipleToGraphQL(t *testing.T) {
 		},
 		nil,
 	}
-	expected := []*graphql.RuntimeContext{
+	expected := []*externalschema.RuntimeContext{
 		{
 			ID:    id,
 			Key:   key,
@@ -110,7 +111,7 @@ func TestConverter_MultipleToGraphQL(t *testing.T) {
 func TestConverter_InputFromGraphQL(t *testing.T) {
 	key := "key"
 	val := "val"
-	labels := graphql.Labels(map[string]interface{}{
+	labels := externalschema.Labels(map[string]interface{}{
 		"test": "test",
 	})
 	runtimeID := "runtime_id"
@@ -118,12 +119,12 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 	// given
 	testCases := []struct {
 		Name     string
-		Input    graphql.RuntimeContextInput
+		Input    externalschema.RuntimeContextInput
 		Expected model.RuntimeContextInput
 	}{
 		{
 			Name: "All properties given",
-			Input: graphql.RuntimeContextInput{
+			Input: externalschema.RuntimeContextInput{
 				Key:    key,
 				Value:  val,
 				Labels: &labels,
@@ -137,7 +138,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 		},
 		{
 			Name:  "Empty",
-			Input: graphql.RuntimeContextInput{},
+			Input: externalschema.RuntimeContextInput{},
 			Expected: model.RuntimeContextInput{
 				RuntimeID: runtimeID,
 			},

@@ -4,17 +4,18 @@ import (
 	"database/sql"
 	"encoding/json"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/repo"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/pkg/errors"
 )
 
 //go:generate mockery -name=AuthConverter -output=automock -outpkg=automock -case=underscore
 type AuthConverter interface {
-	ToGraphQL(in *model.Auth) (*graphql.Auth, error)
-	InputFromGraphQL(in *graphql.AuthInput) (*model.AuthInput, error)
+	ToGraphQL(in *model.Auth) (*externalschema.Auth, error)
+	InputFromGraphQL(in *externalschema.AuthInput) (*model.AuthInput, error)
 }
 
 type converter struct {
@@ -27,7 +28,7 @@ func NewConverter(authConverter AuthConverter) *converter {
 	}
 }
 
-func (c *converter) ToGraphQL(in *model.PackageInstanceAuth) (*graphql.PackageInstanceAuth, error) {
+func (c *converter) ToGraphQL(in *model.PackageInstanceAuth) (*externalschema.PackageInstanceAuth, error) {
 	if in == nil {
 		return nil, nil
 	}
@@ -37,7 +38,7 @@ func (c *converter) ToGraphQL(in *model.PackageInstanceAuth) (*graphql.PackageIn
 		return nil, errors.Wrap(err, "while converting Auth to GraphQL")
 	}
 
-	return &graphql.PackageInstanceAuth{
+	return &externalschema.PackageInstanceAuth{
 		ID:          in.ID,
 		Context:     c.strPtrToJSONPtr(in.Context),
 		InputParams: c.strPtrToJSONPtr(in.InputParams),
@@ -46,8 +47,8 @@ func (c *converter) ToGraphQL(in *model.PackageInstanceAuth) (*graphql.PackageIn
 	}, nil
 }
 
-func (c *converter) MultipleToGraphQL(in []*model.PackageInstanceAuth) ([]*graphql.PackageInstanceAuth, error) {
-	var packageInstanceAuths []*graphql.PackageInstanceAuth
+func (c *converter) MultipleToGraphQL(in []*model.PackageInstanceAuth) ([]*externalschema.PackageInstanceAuth, error) {
+	var packageInstanceAuths []*externalschema.PackageInstanceAuth
 	for _, r := range in {
 		if r == nil {
 			continue
@@ -62,14 +63,14 @@ func (c *converter) MultipleToGraphQL(in []*model.PackageInstanceAuth) ([]*graph
 	return packageInstanceAuths, nil
 }
 
-func (c *converter) RequestInputFromGraphQL(in graphql.PackageInstanceAuthRequestInput) model.PackageInstanceAuthRequestInput {
+func (c *converter) RequestInputFromGraphQL(in externalschema.PackageInstanceAuthRequestInput) model.PackageInstanceAuthRequestInput {
 	return model.PackageInstanceAuthRequestInput{
 		Context:     c.jsonPtrToStrPtr(in.Context),
 		InputParams: c.jsonPtrToStrPtr(in.InputParams),
 	}
 }
 
-func (c *converter) SetInputFromGraphQL(in graphql.PackageInstanceAuthSetInput) (model.PackageInstanceAuthSetInput, error) {
+func (c *converter) SetInputFromGraphQL(in externalschema.PackageInstanceAuthSetInput) (model.PackageInstanceAuthSetInput, error) {
 	auth, err := c.authConverter.InputFromGraphQL(in.Auth)
 	if err != nil {
 		return model.PackageInstanceAuthSetInput{}, errors.Wrap(err, "while converting Auth")
@@ -136,28 +137,28 @@ func (c *converter) FromEntity(in Entity) (model.PackageInstanceAuth, error) {
 	}, nil
 }
 
-func (c *converter) statusToGraphQL(in *model.PackageInstanceAuthStatus) *graphql.PackageInstanceAuthStatus {
+func (c *converter) statusToGraphQL(in *model.PackageInstanceAuthStatus) *externalschema.PackageInstanceAuthStatus {
 	if in == nil {
 		return nil
 	}
 
-	return &graphql.PackageInstanceAuthStatus{
-		Condition: graphql.PackageInstanceAuthStatusCondition(in.Condition),
-		Timestamp: graphql.Timestamp(in.Timestamp),
+	return &externalschema.PackageInstanceAuthStatus{
+		Condition: externalschema.PackageInstanceAuthStatusCondition(in.Condition),
+		Timestamp: externalschema.Timestamp(in.Timestamp),
 		Message:   in.Message,
 		Reason:    in.Reason,
 	}
 }
 
-func (c *converter) strPtrToJSONPtr(in *string) *graphql.JSON {
+func (c *converter) strPtrToJSONPtr(in *string) *externalschema.JSON {
 	if in == nil {
 		return nil
 	}
-	out := graphql.JSON(*in)
+	out := externalschema.JSON(*in)
 	return &out
 }
 
-func (c *converter) jsonPtrToStrPtr(in *graphql.JSON) *string {
+func (c *converter) jsonPtrToStrPtr(in *externalschema.JSON) *string {
 	if in == nil {
 		return nil
 	}

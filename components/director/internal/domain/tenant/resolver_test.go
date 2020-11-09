@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
@@ -11,7 +13,6 @@ import (
 	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant/automock"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -26,7 +27,7 @@ func TestResolver_Tenants(t *testing.T) {
 		newModelBusinessTenantMapping("test1", "name1"),
 	}
 
-	graphqlTenants := []*graphql.Tenant{
+	graphqlTenants := []*externalschema.Tenant{
 		newGraphQLTenant(testID, "", testName),
 		newGraphQLTenant("test1", "", "name1"),
 	}
@@ -36,7 +37,7 @@ func TestResolver_Tenants(t *testing.T) {
 		TxFn           func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		TenantSvcFn    func() *automock.BusinessTenantMappingService
 		TenantConvFn   func() *automock.BusinessTenantMappingConverter
-		ExpectedOutput []*graphql.Tenant
+		ExpectedOutput []*externalschema.Tenant
 		ExpectedError  error
 	}{
 		{

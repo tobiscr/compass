@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
 
@@ -12,11 +14,11 @@ type FetchRequestConverter struct {
 }
 
 // InputFromGraphQL provides a mock function with given fields: in
-func (_m *FetchRequestConverter) InputFromGraphQL(in *graphql.FetchRequestInput) (*model.FetchRequestInput, error) {
+func (_m *FetchRequestConverter) InputFromGraphQL(in *externalschema.FetchRequestInput) (*model.FetchRequestInput, error) {
 	ret := _m.Called(in)
 
 	var r0 *model.FetchRequestInput
-	if rf, ok := ret.Get(0).(func(*graphql.FetchRequestInput) *model.FetchRequestInput); ok {
+	if rf, ok := ret.Get(0).(func(*externalschema.FetchRequestInput) *model.FetchRequestInput); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
@@ -25,7 +27,7 @@ func (_m *FetchRequestConverter) InputFromGraphQL(in *graphql.FetchRequestInput)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*graphql.FetchRequestInput) error); ok {
+	if rf, ok := ret.Get(1).(func(*externalschema.FetchRequestInput) error); ok {
 		r1 = rf(in)
 	} else {
 		r1 = ret.Error(1)
@@ -35,15 +37,15 @@ func (_m *FetchRequestConverter) InputFromGraphQL(in *graphql.FetchRequestInput)
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *FetchRequestConverter) ToGraphQL(in *model.FetchRequest) (*graphql.FetchRequest, error) {
+func (_m *FetchRequestConverter) ToGraphQL(in *model.FetchRequest) (*externalschema.FetchRequest, error) {
 	ret := _m.Called(in)
 
-	var r0 *graphql.FetchRequest
-	if rf, ok := ret.Get(0).(func(*model.FetchRequest) *graphql.FetchRequest); ok {
+	var r0 *externalschema.FetchRequest
+	if rf, ok := ret.Get(0).(func(*model.FetchRequest) *externalschema.FetchRequest); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.FetchRequest)
+			r0 = ret.Get(0).(*externalschema.FetchRequest)
 		}
 	}
 

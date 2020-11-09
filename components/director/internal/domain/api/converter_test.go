@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/version"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -13,7 +15,6 @@ import (
 	"github.com/kyma-incubator/compass/components/director/internal/domain/api"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/api/automock"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,12 +24,12 @@ func TestConverter_ToGraphQL(t *testing.T) {
 	modelAPIDefinition := fixFullAPIDefinitionModel(placeholder)
 	gqlAPIDefinition := fixFullGQLAPIDefinition(placeholder)
 	emptyModelAPIDefinition := &model.APIDefinition{}
-	emptyGraphQLAPIDefinition := &graphql.APIDefinition{}
+	emptyGraphQLAPIDefinition := &externalschema.APIDefinition{}
 
 	testCases := []struct {
 		Name                  string
 		Input                 *model.APIDefinition
-		Expected              *graphql.APIDefinition
+		Expected              *externalschema.APIDefinition
 		FetchRequestConverter func() *automock.FetchRequestConverter
 		VersionConverter      func() *automock.VersionConverter
 	}{
@@ -102,7 +103,7 @@ func TestConverter_MultipleToGraphQL(t *testing.T) {
 		nil,
 	}
 
-	expected := []*graphql.APIDefinition{
+	expected := []*externalschema.APIDefinition{
 		fixGQLAPIDefinition("foo", "1", "Foo", "Lorem ipsum"),
 		fixGQLAPIDefinition("bar", "1", "Bar", "Dolor sit amet"),
 		{},
@@ -131,10 +132,10 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 	// given
 	gqlAPIDefinitionInput := fixGQLAPIDefinitionInput("foo", "Lorem ipsum", "group")
 	modelAPIDefinitionInput := fixModelAPIDefinitionInput("foo", "Lorem ipsum", "group")
-	emptyGQLAPIDefinition := &graphql.APIDefinitionInput{}
+	emptyGQLAPIDefinition := &externalschema.APIDefinitionInput{}
 	testCases := []struct {
 		Name                  string
-		Input                 *graphql.APIDefinitionInput
+		Input                 *externalschema.APIDefinitionInput
 		Expected              *model.APIDefinitionInput
 		FetchRequestConverter func() *automock.FetchRequestConverter
 		VersionConverter      func() *automock.VersionConverter
@@ -156,7 +157,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 		},
 		{
 			Name:     "Empty",
-			Input:    &graphql.APIDefinitionInput{},
+			Input:    &externalschema.APIDefinitionInput{},
 			Expected: &model.APIDefinitionInput{},
 			FetchRequestConverter: func() *automock.FetchRequestConverter {
 				return &automock.FetchRequestConverter{}
@@ -207,11 +208,11 @@ func TestConverter_MultipleInputFromGraphQL(t *testing.T) {
 	modelAPI1 := fixModelAPIDefinitionInput("foo", "lorem", "group")
 	modelAPI2 := fixModelAPIDefinitionInput("bar", "ipsum", "group2")
 
-	gqlAPIDefinitionInputs := []*graphql.APIDefinitionInput{gqlAPI1, gqlAPI2}
+	gqlAPIDefinitionInputs := []*externalschema.APIDefinitionInput{gqlAPI1, gqlAPI2}
 	modelAPIDefinitionInputs := []*model.APIDefinitionInput{modelAPI1, modelAPI2}
 	testCases := []struct {
 		Name                  string
-		Input                 []*graphql.APIDefinitionInput
+		Input                 []*externalschema.APIDefinitionInput
 		Expected              []*model.APIDefinitionInput
 		FetchRequestConverter func() *automock.FetchRequestConverter
 		VersionConverter      func() *automock.VersionConverter
@@ -238,7 +239,7 @@ func TestConverter_MultipleInputFromGraphQL(t *testing.T) {
 		},
 		{
 			Name:     "Empty",
-			Input:    []*graphql.APIDefinitionInput{},
+			Input:    []*externalschema.APIDefinitionInput{},
 			Expected: nil,
 			FetchRequestConverter: func() *automock.FetchRequestConverter {
 				return &automock.FetchRequestConverter{}
@@ -293,7 +294,7 @@ func TestApiSpecDataConversionNilStaysNil(t *testing.T) {
 
 	converter := api.NewConverter(mockFrConv, mockVersionConv)
 	// WHEN & THEN
-	convertedInputModel, err := converter.InputFromGraphQL(&graphql.APIDefinitionInput{Spec: &graphql.APISpecInput{}})
+	convertedInputModel, err := converter.InputFromGraphQL(&externalschema.APIDefinitionInput{Spec: &externalschema.APISpecInput{}})
 	require.NoError(t, err)
 	require.NotNil(t, convertedInputModel)
 	require.NotNil(t, convertedInputModel.Spec)

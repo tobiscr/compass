@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
 
@@ -12,11 +14,11 @@ type APIConverter struct {
 }
 
 // InputFromGraphQL provides a mock function with given fields: in
-func (_m *APIConverter) InputFromGraphQL(in *graphql.APIDefinitionInput) *model.APIDefinitionInput {
+func (_m *APIConverter) InputFromGraphQL(in *externalschema.APIDefinitionInput) *model.APIDefinitionInput {
 	ret := _m.Called(in)
 
 	var r0 *model.APIDefinitionInput
-	if rf, ok := ret.Get(0).(func(*graphql.APIDefinitionInput) *model.APIDefinitionInput); ok {
+	if rf, ok := ret.Get(0).(func(*externalschema.APIDefinitionInput) *model.APIDefinitionInput); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
@@ -28,11 +30,11 @@ func (_m *APIConverter) InputFromGraphQL(in *graphql.APIDefinitionInput) *model.
 }
 
 // MultipleInputFromGraphQL provides a mock function with given fields: in
-func (_m *APIConverter) MultipleInputFromGraphQL(in []*graphql.APIDefinitionInput) []*model.APIDefinitionInput {
+func (_m *APIConverter) MultipleInputFromGraphQL(in []*externalschema.APIDefinitionInput) []*model.APIDefinitionInput {
 	ret := _m.Called(in)
 
 	var r0 []*model.APIDefinitionInput
-	if rf, ok := ret.Get(0).(func([]*graphql.APIDefinitionInput) []*model.APIDefinitionInput); ok {
+	if rf, ok := ret.Get(0).(func([]*externalschema.APIDefinitionInput) []*model.APIDefinitionInput); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
@@ -44,15 +46,15 @@ func (_m *APIConverter) MultipleInputFromGraphQL(in []*graphql.APIDefinitionInpu
 }
 
 // MultipleToGraphQL provides a mock function with given fields: in
-func (_m *APIConverter) MultipleToGraphQL(in []*model.APIDefinition) []*graphql.APIDefinition {
+func (_m *APIConverter) MultipleToGraphQL(in []*model.APIDefinition) []*externalschema.APIDefinition {
 	ret := _m.Called(in)
 
-	var r0 []*graphql.APIDefinition
-	if rf, ok := ret.Get(0).(func([]*model.APIDefinition) []*graphql.APIDefinition); ok {
+	var r0 []*externalschema.APIDefinition
+	if rf, ok := ret.Get(0).(func([]*model.APIDefinition) []*externalschema.APIDefinition); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*graphql.APIDefinition)
+			r0 = ret.Get(0).([]*externalschema.APIDefinition)
 		}
 	}
 
@@ -60,15 +62,15 @@ func (_m *APIConverter) MultipleToGraphQL(in []*model.APIDefinition) []*graphql.
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *APIConverter) ToGraphQL(in *model.APIDefinition) *graphql.APIDefinition {
+func (_m *APIConverter) ToGraphQL(in *model.APIDefinition) *externalschema.APIDefinition {
 	ret := _m.Called(in)
 
-	var r0 *graphql.APIDefinition
-	if rf, ok := ret.Get(0).(func(*model.APIDefinition) *graphql.APIDefinition); ok {
+	var r0 *externalschema.APIDefinition
+	if rf, ok := ret.Get(0).(func(*model.APIDefinition) *externalschema.APIDefinition); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.APIDefinition)
+			r0 = ret.Get(0).(*externalschema.APIDefinition)
 		}
 	}
 

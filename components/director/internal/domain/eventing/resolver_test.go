@@ -4,9 +4,10 @@ import (
 	"context"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/eventing/automock"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
 	"github.com/pkg/errors"
@@ -34,7 +35,7 @@ func TestResolver_SetDefaultEventingForApplication(t *testing.T) {
 		TransactionerFn func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		EventingSvcFn   func() *automock.EventingService
 		AppSvcFn        func() *automock.ApplicationService
-		ExpectedOutput  *graphql.ApplicationEventingConfiguration
+		ExpectedOutput  *externalschema.ApplicationEventingConfiguration
 		ExpectedError   error
 	}{
 		{
@@ -186,7 +187,7 @@ func TestResolver_UnsetDefaultEventingForApplication(t *testing.T) {
 		TransactionerFn func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		EventingSvcFn   func() *automock.EventingService
 		AppSvcFn        func() *automock.ApplicationService
-		ExpectedOutput  *graphql.ApplicationEventingConfiguration
+		ExpectedOutput  *externalschema.ApplicationEventingConfiguration
 		ExpectedError   error
 	}{
 		{

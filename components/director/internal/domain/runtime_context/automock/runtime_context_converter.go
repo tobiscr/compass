@@ -3,7 +3,7 @@
 package automock
 
 import (
-	graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	mock "github.com/stretchr/testify/mock"
 
 	model "github.com/kyma-incubator/compass/components/director/internal/model"
@@ -15,11 +15,11 @@ type RuntimeContextConverter struct {
 }
 
 // InputFromGraphQL provides a mock function with given fields: in, runtimeID
-func (_m *RuntimeContextConverter) InputFromGraphQL(in graphql.RuntimeContextInput, runtimeID string) model.RuntimeContextInput {
+func (_m *RuntimeContextConverter) InputFromGraphQL(in externalschema.RuntimeContextInput, runtimeID string) model.RuntimeContextInput {
 	ret := _m.Called(in, runtimeID)
 
 	var r0 model.RuntimeContextInput
-	if rf, ok := ret.Get(0).(func(graphql.RuntimeContextInput, string) model.RuntimeContextInput); ok {
+	if rf, ok := ret.Get(0).(func(externalschema.RuntimeContextInput, string) model.RuntimeContextInput); ok {
 		r0 = rf(in, runtimeID)
 	} else {
 		r0 = ret.Get(0).(model.RuntimeContextInput)
@@ -29,15 +29,15 @@ func (_m *RuntimeContextConverter) InputFromGraphQL(in graphql.RuntimeContextInp
 }
 
 // MultipleToGraphQL provides a mock function with given fields: in
-func (_m *RuntimeContextConverter) MultipleToGraphQL(in []*model.RuntimeContext) []*graphql.RuntimeContext {
+func (_m *RuntimeContextConverter) MultipleToGraphQL(in []*model.RuntimeContext) []*externalschema.RuntimeContext {
 	ret := _m.Called(in)
 
-	var r0 []*graphql.RuntimeContext
-	if rf, ok := ret.Get(0).(func([]*model.RuntimeContext) []*graphql.RuntimeContext); ok {
+	var r0 []*externalschema.RuntimeContext
+	if rf, ok := ret.Get(0).(func([]*model.RuntimeContext) []*externalschema.RuntimeContext); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*graphql.RuntimeContext)
+			r0 = ret.Get(0).([]*externalschema.RuntimeContext)
 		}
 	}
 
@@ -45,15 +45,15 @@ func (_m *RuntimeContextConverter) MultipleToGraphQL(in []*model.RuntimeContext)
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *RuntimeContextConverter) ToGraphQL(in *model.RuntimeContext) *graphql.RuntimeContext {
+func (_m *RuntimeContextConverter) ToGraphQL(in *model.RuntimeContext) *externalschema.RuntimeContext {
 	ret := _m.Called(in)
 
-	var r0 *graphql.RuntimeContext
-	if rf, ok := ret.Get(0).(func(*model.RuntimeContext) *graphql.RuntimeContext); ok {
+	var r0 *externalschema.RuntimeContext
+	if rf, ok := ret.Get(0).(func(*model.RuntimeContext) *externalschema.RuntimeContext); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.RuntimeContext)
+			r0 = ret.Get(0).(*externalschema.RuntimeContext)
 		}
 	}
 

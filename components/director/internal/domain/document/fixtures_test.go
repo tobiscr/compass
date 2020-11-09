@@ -3,11 +3,12 @@ package document_test
 import (
 	"time"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/document"
 	"github.com/kyma-incubator/compass/components/director/internal/repo"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 )
 
 var (
@@ -17,7 +18,7 @@ var (
 	docData        = "foodata"
 	docDisplayName = "foodisplay"
 	docDescription = "foodesc"
-	docCLOB        = graphql.CLOB(docData)
+	docCLOB        = externalschema.CLOB(docData)
 )
 
 func fixModelDocument(id, packageID string) *model.Document {
@@ -48,14 +49,14 @@ func fixEntityDocument(id, packageID string) *document.Entity {
 	}
 }
 
-func fixGQLDocument(id, packageID string) *graphql.Document {
-	return &graphql.Document{
+func fixGQLDocument(id, packageID string) *externalschema.Document {
+	return &externalschema.Document{
 		ID:          id,
 		PackageID:   packageID,
 		Title:       docTitle,
 		DisplayName: docDisplayName,
 		Description: docDescription,
-		Format:      graphql.DocumentFormatMarkdown,
+		Format:      externalschema.DocumentFormatMarkdown,
 		Kind:        &docKind,
 		Data:        &docCLOB,
 	}
@@ -103,25 +104,25 @@ func fixModelFetchRequest(id, url string, timestamp time.Time) *model.FetchReque
 	}
 }
 
-func fixGQLFetchRequest(url string, timestamp time.Time) *graphql.FetchRequest {
-	return &graphql.FetchRequest{
+func fixGQLFetchRequest(url string, timestamp time.Time) *externalschema.FetchRequest {
+	return &externalschema.FetchRequest{
 		Filter: nil,
-		Mode:   graphql.FetchModeSingle,
+		Mode:   externalschema.FetchModeSingle,
 		Auth:   nil,
 		URL:    url,
-		Status: &graphql.FetchRequestStatus{
-			Timestamp: graphql.Timestamp(timestamp),
-			Condition: graphql.FetchRequestStatusConditionInitial,
+		Status: &externalschema.FetchRequestStatus{
+			Timestamp: externalschema.Timestamp(timestamp),
+			Condition: externalschema.FetchRequestStatusConditionInitial,
 		},
 	}
 }
 
-func fixGQLDocumentInput(id string) *graphql.DocumentInput {
-	return &graphql.DocumentInput{
+func fixGQLDocumentInput(id string) *externalschema.DocumentInput {
+	return &externalschema.DocumentInput{
 		Title:       docTitle,
 		DisplayName: docDisplayName,
 		Description: docDescription,
-		Format:      graphql.DocumentFormatMarkdown,
+		Format:      externalschema.DocumentFormatMarkdown,
 		Kind:        &docKind,
 		Data:        &docCLOB,
 	}

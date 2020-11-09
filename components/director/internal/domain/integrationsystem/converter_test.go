@@ -3,10 +3,10 @@ package integrationsystem_test
 import (
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/integrationsystem"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +17,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 	testCases := []struct {
 		Name     string
 		Input    *model.IntegrationSystem
-		Expected *graphql.IntegrationSystem
+		Expected *externalschema.IntegrationSystem
 	}{
 		{
 			Name:     "All properties given",
@@ -27,7 +27,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 		{
 			Name:     "Empty",
 			Input:    &model.IntegrationSystem{},
-			Expected: &graphql.IntegrationSystem{},
+			Expected: &externalschema.IntegrationSystem{},
 		},
 		{
 			Name:     "Nil",
@@ -55,7 +55,7 @@ func TestConverter_MultipleToGraphQL(t *testing.T) {
 		{},
 		nil,
 	}
-	expected := []*graphql.IntegrationSystem{
+	expected := []*externalschema.IntegrationSystem{
 		fixGQLIntegrationSystem("id1", "name1"),
 		fixGQLIntegrationSystem("id2", "name2"),
 		{},
@@ -75,7 +75,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 
 	testCases := []struct {
 		Name     string
-		Input    graphql.IntegrationSystemInput
+		Input    externalschema.IntegrationSystemInput
 		Expected model.IntegrationSystemInput
 	}{
 		{
@@ -85,7 +85,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 		},
 		{
 			Name:     "Empty",
-			Input:    graphql.IntegrationSystemInput{},
+			Input:    externalschema.IntegrationSystemInput{},
 			Expected: model.IntegrationSystemInput{},
 		},
 	}

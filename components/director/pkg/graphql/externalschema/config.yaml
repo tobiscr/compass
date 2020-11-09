@@ -1,0 +1,157 @@
+schema: schema.graphql
+
+# Let gqlgen know where to put the generated server
+exec:
+  filename: schema_gen.go
+  package: externalschema
+
+# Let gqlgen know where to the generated models (if any)
+model:
+  filename: models_gen.go
+  package: externalschema
+
+# Optional turns on binding to field names by tag provided
+struct_tag: json
+
+# Uncomment to turn on resolver stub generation
+#resolver:
+#  filename: resolver.go # where to write them
+#  type: Resolver  # what's the resolver root implementation type called?
+
+# Tell gqlgen about any existing models you want to reuse for
+# graphql. These normally come from the db or a remote api.
+models:
+  Labels:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.Labels"
+  Timestamp:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.Timestamp"
+  HttpHeaders:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.HttpHeaders"
+  HttpHeadersSerialized:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.HttpHeadersSerialized"
+  QueryParams:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.QueryParams"
+  QueryParamsSerialized:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.QueryParamsSerialized"
+  CLOB:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.CLOB"
+  JSONSchema:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.JSONSchema"
+  JSON:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.JSON"
+  PageCursor:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.PageCursor"
+  Application:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.Application"
+    fields:
+      documents:
+        resolver: true
+      eventDefinitions:
+        resolver: true
+      apiDefinitions:
+        resolver: true
+      apiDefinition:
+        resolver: true
+      eventDefinition:
+        resolver: true
+      webhooks:
+        resolver: true
+      labels:
+        resolver: true
+      auths:
+        resolver: true
+      eventingConfiguration:
+        resolver: true
+      packages:
+        resolver: true
+      package:
+        resolver: true
+  Package:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.Package"
+    fields:
+      apiDefinitions:
+        resolver: true
+      apiDefinition:
+        resolver: true
+      documents:
+        resolver: true
+      document:
+        resolver: true
+      eventDefinitions:
+        resolver: true
+      eventDefinition:
+        resolver: true
+      instanceAuth:
+        resolver: true
+      instanceAuths:
+        resolver: true
+
+  APISpec:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.APISpec"
+    fields:
+      fetchRequest:
+        resolver: true
+
+  EventSpec:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.EventSpec"
+    fields:
+      fetchRequest:
+        resolver: true
+
+  EventDefinition:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.EventDefinition"
+    fields:
+      eventSpec:
+        resolver: true
+
+  Document:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.Document"
+    fields:
+      fetchRequest:
+        resolver: true
+
+  Runtime:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.Runtime"
+    fields:
+      labels:
+        resolver: true
+      auths:
+        resolver: true
+      eventingConfiguration:
+        resolver: true
+
+  RuntimeContext:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.RuntimeContext"
+    fields:
+      labels:
+        resolver: true
+
+  IntegrationSystem:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.IntegrationSystem"
+    fields:
+      auths:
+        resolver: true
+
+  APIDefinition:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.APIDefinition"
+    fields:
+      auth:
+        resolver: true
+      auths:
+        resolver: true
+
+  OneTimeTokenForApplication:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.OneTimeTokenForApplication"
+    fields:
+      raw:
+        resolver: true
+      rawEncoded:
+        resolver: true
+
+  OneTimeTokenForRuntime:
+    model: "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema.OneTimeTokenForRuntime"
+    fields:
+      raw:
+        resolver: true
+      rawEncoded:
+        resolver: true

@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/str"
 
 	"github.com/stretchr/testify/require"
@@ -11,7 +13,6 @@ import (
 	"github.com/kyma-incubator/compass/components/director/internal/domain/document"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/document/automock"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,7 +21,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 	testCases := []struct {
 		Name     string
 		Input    *model.Document
-		Expected *graphql.Document
+		Expected *externalschema.Document
 	}{
 		{
 			Name:     "All properties given",
@@ -30,7 +31,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 		{
 			Name:     "Empty",
 			Input:    &model.Document{},
-			Expected: &graphql.Document{},
+			Expected: &externalschema.Document{},
 		},
 		{
 			Name:     "Nil",
@@ -62,7 +63,7 @@ func TestConverter_MultipleToGraphQL(t *testing.T) {
 		{},
 		nil,
 	}
-	expected := []*graphql.Document{
+	expected := []*externalschema.Document{
 		fixGQLDocument("1", "foo"),
 		fixGQLDocument("2", "bar"),
 		{},
@@ -82,7 +83,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 	// given
 	testCases := []struct {
 		Name     string
-		Input    *graphql.DocumentInput
+		Input    *externalschema.DocumentInput
 		Expected *model.DocumentInput
 	}{
 		{
@@ -92,7 +93,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 		},
 		{
 			Name:     "Empty",
-			Input:    &graphql.DocumentInput{},
+			Input:    &externalschema.DocumentInput{},
 			Expected: &model.DocumentInput{},
 		},
 		{
@@ -123,7 +124,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 
 func TestConverter_MultipleInputFromGraphQL(t *testing.T) {
 	// given
-	input := []*graphql.DocumentInput{
+	input := []*externalschema.DocumentInput{
 		fixGQLDocumentInput("foo"),
 		fixGQLDocumentInput("bar"),
 		{},
@@ -136,7 +137,7 @@ func TestConverter_MultipleInputFromGraphQL(t *testing.T) {
 	}
 	frConv := &automock.FetchRequestConverter{}
 	frConv.On("InputFromGraphQL", input[0].FetchRequest).Return(expected[0].FetchRequest, nil)
-	frConv.On("InputFromGraphQL", (*graphql.FetchRequestInput)(nil)).Return(nil, nil)
+	frConv.On("InputFromGraphQL", (*externalschema.FetchRequestInput)(nil)).Return(nil, nil)
 	converter := document.NewConverter(frConv)
 
 	// when

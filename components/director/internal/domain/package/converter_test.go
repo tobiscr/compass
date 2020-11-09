@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/auth"
@@ -18,7 +20,6 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/package/automock"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -125,12 +126,12 @@ func TestConverter_ToGraphQL(t *testing.T) {
 	modelPackage := fixPackageModel(t, name, desc)
 	gqlPackage := fixGQLPackage(id, name, desc)
 	emptyModelPackage := &model.Package{}
-	emptyGraphQLPackage := &graphql.Package{}
+	emptyGraphQLPackage := &externalschema.Package{}
 
 	testCases := []struct {
 		Name            string
 		Input           *model.Package
-		Expected        *graphql.Package
+		Expected        *externalschema.Package
 		AuthConverterFn func() *automock.AuthConverter
 		ExpectedErr     error
 	}{
@@ -200,7 +201,7 @@ func TestConverter_MultipleToGraphQL(t *testing.T) {
 		nil,
 	}
 
-	expected := []*graphql.Package{
+	expected := []*externalschema.Package{
 		fixGQLPackage(packageID, name1, desc),
 		fixGQLPackage(packageID, name2, desc),
 		{},
@@ -232,11 +233,11 @@ func TestConverter_CreateInputFromGraphQL(t *testing.T) {
 	desc := "Lorem ipsum"
 	gqlPackageCreateInput := fixGQLPackageCreateInput(name, desc)
 	modelPackageCreateInput := fixModelPackageCreateInput(name, desc)
-	emptyGQLPackageCreateInput := &graphql.PackageCreateInput{}
+	emptyGQLPackageCreateInput := &externalschema.PackageCreateInput{}
 	emptyModelPackageCreateInput := &model.PackageCreateInput{}
 	testCases := []struct {
 		Name                string
-		Input               graphql.PackageCreateInput
+		Input               externalschema.PackageCreateInput
 		Expected            model.PackageCreateInput
 		APIConverterFn      func() *automock.APIConverter
 		EventAPIConverterFn func() *automock.EventConverter
@@ -270,7 +271,7 @@ func TestConverter_CreateInputFromGraphQL(t *testing.T) {
 		},
 		{
 			Name:     "Empty",
-			Input:    graphql.PackageCreateInput{},
+			Input:    externalschema.PackageCreateInput{},
 			Expected: model.PackageCreateInput{},
 			APIConverterFn: func() *automock.APIConverter {
 				conv := &automock.APIConverter{}
@@ -319,7 +320,7 @@ func TestConverter_MultipleCreateInputFromGraphQL(t *testing.T) {
 	// given
 	gqlPkg1 := fixGQLPackageCreateInput("foo", "bar")
 	gqlPkg2 := fixGQLPackageCreateInput("bar", "baz")
-	input := []*graphql.PackageCreateInput{
+	input := []*externalschema.PackageCreateInput{
 		&gqlPkg1,
 		&gqlPkg2,
 	}
@@ -363,11 +364,11 @@ func TestConverter_UpdateInputFromGraphQL(t *testing.T) {
 	desc := "Lorem ipsum"
 	gqlPackageCreateInput := fixGQLPackageUpdateInput(name, desc)
 	modelPackageCreateInput := fixModelPackageUpdateInput(t, name, desc)
-	emptyGQLPackageCreateInput := &graphql.PackageCreateInput{}
+	emptyGQLPackageCreateInput := &externalschema.PackageCreateInput{}
 	emptyModelPackageCreateInput := &model.PackageCreateInput{}
 	testCases := []struct {
 		Name            string
-		Input           *graphql.PackageUpdateInput
+		Input           *externalschema.PackageUpdateInput
 		Expected        *model.PackageUpdateInput
 		AuthConverterFn func() *automock.AuthConverter
 	}{
@@ -383,7 +384,7 @@ func TestConverter_UpdateInputFromGraphQL(t *testing.T) {
 		},
 		{
 			Name:     "Empty",
-			Input:    &graphql.PackageUpdateInput{},
+			Input:    &externalschema.PackageUpdateInput{},
 			Expected: &model.PackageUpdateInput{},
 			AuthConverterFn: func() *automock.AuthConverter {
 				conv := &automock.AuthConverter{}

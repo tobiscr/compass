@@ -3,6 +3,8 @@ package document
 import (
 	"context"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
@@ -10,7 +12,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 )
 
 //go:generate mockery -name=DocumentService -output=automock -outpkg=automock -case=underscore
@@ -23,16 +24,16 @@ type DocumentService interface {
 
 //go:generate mockery -name=DocumentConverter -output=automock -outpkg=automock -case=underscore
 type DocumentConverter interface {
-	ToGraphQL(in *model.Document) *graphql.Document
-	InputFromGraphQL(in *graphql.DocumentInput) (*model.DocumentInput, error)
+	ToGraphQL(in *model.Document) *externalschema.Document
+	InputFromGraphQL(in *externalschema.DocumentInput) (*model.DocumentInput, error)
 	ToEntity(in model.Document) (Entity, error)
 	FromEntity(in Entity) (model.Document, error)
 }
 
 //go:generate mockery -name=FetchRequestConverter -output=automock -outpkg=automock -case=underscore
 type FetchRequestConverter interface {
-	ToGraphQL(in *model.FetchRequest) (*graphql.FetchRequest, error)
-	InputFromGraphQL(in *graphql.FetchRequestInput) (*model.FetchRequestInput, error)
+	ToGraphQL(in *model.FetchRequest) (*externalschema.FetchRequest, error)
+	InputFromGraphQL(in *externalschema.FetchRequestInput) (*model.FetchRequestInput, error)
 }
 
 //go:generate mockery -name=ApplicationService -output=automock -outpkg=automock -case=underscore
@@ -64,7 +65,7 @@ func NewResolver(transact persistence.Transactioner, svc DocumentService, appSvc
 	}
 }
 
-func (r *Resolver) AddDocumentToPackage(ctx context.Context, packageID string, in graphql.DocumentInput) (*graphql.Document, error) {
+func (r *Resolver) AddDocumentToPackage(ctx context.Context, packageID string, in externalschema.DocumentInput) (*externalschema.Document, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -107,7 +108,7 @@ func (r *Resolver) AddDocumentToPackage(ctx context.Context, packageID string, i
 	return gqlDocument, nil
 }
 
-func (r *Resolver) DeleteDocument(ctx context.Context, id string) (*graphql.Document, error) {
+func (r *Resolver) DeleteDocument(ctx context.Context, id string) (*externalschema.Document, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -136,7 +137,7 @@ func (r *Resolver) DeleteDocument(ctx context.Context, id string) (*graphql.Docu
 	return deletedDocument, nil
 }
 
-func (r *Resolver) FetchRequest(ctx context.Context, obj *graphql.Document) (*graphql.FetchRequest, error) {
+func (r *Resolver) FetchRequest(ctx context.Context, obj *externalschema.Document) (*externalschema.FetchRequest, error) {
 	if obj == nil {
 		return nil, apperrors.NewInternalError("Document cannot be empty")
 	}

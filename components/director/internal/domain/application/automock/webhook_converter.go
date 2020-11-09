@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
 
@@ -12,11 +14,11 @@ type WebhookConverter struct {
 }
 
 // InputFromGraphQL provides a mock function with given fields: in
-func (_m *WebhookConverter) InputFromGraphQL(in *graphql.WebhookInput) (*model.WebhookInput, error) {
+func (_m *WebhookConverter) InputFromGraphQL(in *externalschema.WebhookInput) (*model.WebhookInput, error) {
 	ret := _m.Called(in)
 
 	var r0 *model.WebhookInput
-	if rf, ok := ret.Get(0).(func(*graphql.WebhookInput) *model.WebhookInput); ok {
+	if rf, ok := ret.Get(0).(func(*externalschema.WebhookInput) *model.WebhookInput); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
@@ -25,7 +27,7 @@ func (_m *WebhookConverter) InputFromGraphQL(in *graphql.WebhookInput) (*model.W
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*graphql.WebhookInput) error); ok {
+	if rf, ok := ret.Get(1).(func(*externalschema.WebhookInput) error); ok {
 		r1 = rf(in)
 	} else {
 		r1 = ret.Error(1)
@@ -35,11 +37,11 @@ func (_m *WebhookConverter) InputFromGraphQL(in *graphql.WebhookInput) (*model.W
 }
 
 // MultipleInputFromGraphQL provides a mock function with given fields: in
-func (_m *WebhookConverter) MultipleInputFromGraphQL(in []*graphql.WebhookInput) ([]*model.WebhookInput, error) {
+func (_m *WebhookConverter) MultipleInputFromGraphQL(in []*externalschema.WebhookInput) ([]*model.WebhookInput, error) {
 	ret := _m.Called(in)
 
 	var r0 []*model.WebhookInput
-	if rf, ok := ret.Get(0).(func([]*graphql.WebhookInput) []*model.WebhookInput); ok {
+	if rf, ok := ret.Get(0).(func([]*externalschema.WebhookInput) []*model.WebhookInput); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
@@ -48,7 +50,7 @@ func (_m *WebhookConverter) MultipleInputFromGraphQL(in []*graphql.WebhookInput)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]*graphql.WebhookInput) error); ok {
+	if rf, ok := ret.Get(1).(func([]*externalschema.WebhookInput) error); ok {
 		r1 = rf(in)
 	} else {
 		r1 = ret.Error(1)
@@ -58,15 +60,15 @@ func (_m *WebhookConverter) MultipleInputFromGraphQL(in []*graphql.WebhookInput)
 }
 
 // MultipleToGraphQL provides a mock function with given fields: in
-func (_m *WebhookConverter) MultipleToGraphQL(in []*model.Webhook) ([]*graphql.Webhook, error) {
+func (_m *WebhookConverter) MultipleToGraphQL(in []*model.Webhook) ([]*externalschema.Webhook, error) {
 	ret := _m.Called(in)
 
-	var r0 []*graphql.Webhook
-	if rf, ok := ret.Get(0).(func([]*model.Webhook) []*graphql.Webhook); ok {
+	var r0 []*externalschema.Webhook
+	if rf, ok := ret.Get(0).(func([]*model.Webhook) []*externalschema.Webhook); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*graphql.Webhook)
+			r0 = ret.Get(0).([]*externalschema.Webhook)
 		}
 	}
 
@@ -81,15 +83,15 @@ func (_m *WebhookConverter) MultipleToGraphQL(in []*model.Webhook) ([]*graphql.W
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *WebhookConverter) ToGraphQL(in *model.Webhook) (*graphql.Webhook, error) {
+func (_m *WebhookConverter) ToGraphQL(in *model.Webhook) (*externalschema.Webhook, error) {
 	ret := _m.Called(in)
 
-	var r0 *graphql.Webhook
-	if rf, ok := ret.Get(0).(func(*model.Webhook) *graphql.Webhook); ok {
+	var r0 *externalschema.Webhook
+	if rf, ok := ret.Get(0).(func(*model.Webhook) *externalschema.Webhook); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.Webhook)
+			r0 = ret.Get(0).(*externalschema.Webhook)
 		}
 	}
 

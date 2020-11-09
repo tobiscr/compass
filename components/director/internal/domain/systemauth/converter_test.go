@@ -3,12 +3,12 @@ package systemauth_test
 import (
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/systemauth/automock"
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/systemauth"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -29,7 +29,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 		Name           string
 		AuthConvFn     func() *automock.AuthConverter
 		Input          *model.SystemAuth
-		ExpectedOutput *graphql.SystemAuth
+		ExpectedOutput *externalschema.SystemAuth
 	}{
 		{
 			Name: "Success when converting auth for Runtime",

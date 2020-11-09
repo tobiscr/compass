@@ -2,25 +2,25 @@ package eventing
 
 import (
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 )
 
-func RuntimeEventingConfigurationToGraphQL(in *model.RuntimeEventingConfiguration) *graphql.RuntimeEventingConfiguration {
+func RuntimeEventingConfigurationToGraphQL(in *model.RuntimeEventingConfiguration) *externalschema.RuntimeEventingConfiguration {
 	if in == nil {
 		return nil
 	}
 
-	return &graphql.RuntimeEventingConfiguration{
+	return &externalschema.RuntimeEventingConfiguration{
 		DefaultURL: in.DefaultURL.String(),
 	}
 }
 
-func ApplicationEventingConfigurationToGraphQL(in *model.ApplicationEventingConfiguration) *graphql.ApplicationEventingConfiguration {
+func ApplicationEventingConfigurationToGraphQL(in *model.ApplicationEventingConfiguration) *externalschema.ApplicationEventingConfiguration {
 	if in == nil {
 		return nil
 	}
 
-	return &graphql.ApplicationEventingConfiguration{
+	return &externalschema.ApplicationEventingConfiguration{
 		DefaultURL: in.DefaultURL.String(),
 	}
 }

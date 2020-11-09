@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/stretchr/testify/require"
 
 	"github.com/kyma-incubator/compass/components/director/internal/labelfilter"
@@ -13,7 +15,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/pagination"
 )
 
@@ -150,8 +151,8 @@ func fixModelApplicationEventingConfiguration(t *testing.T, rawURL string) *mode
 	}
 }
 
-func fixGQLApplicationEventingConfiguration(url string) *graphql.ApplicationEventingConfiguration {
-	return &graphql.ApplicationEventingConfiguration{
+func fixGQLApplicationEventingConfiguration(url string) *externalschema.ApplicationEventingConfiguration {
+	return &externalschema.ApplicationEventingConfiguration{
 		DefaultURL: url,
 	}
 }

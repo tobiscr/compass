@@ -3,8 +3,9 @@ package systemauth
 import (
 	"context"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 	"github.com/pkg/errors"
 )
@@ -23,7 +24,7 @@ type OAuth20Service interface {
 
 //go:generate mockery -name=SystemAuthConverter -output=automock -outpkg=automock -case=underscore
 type SystemAuthConverter interface {
-	ToGraphQL(model *model.SystemAuth) (*graphql.SystemAuth, error)
+	ToGraphQL(model *model.SystemAuth) (*externalschema.SystemAuth, error)
 }
 
 type Resolver struct {
@@ -37,8 +38,8 @@ func NewResolver(transact persistence.Transactioner, svc SystemAuthService, oAut
 	return &Resolver{transact: transact, svc: svc, oAuth20Svc: oAuth20Svc, conv: conv}
 }
 
-func (r *Resolver) GenericDeleteSystemAuth(objectType model.SystemAuthReferenceObjectType) func(ctx context.Context, id string) (*graphql.SystemAuth, error) {
-	return func(ctx context.Context, id string) (*graphql.SystemAuth, error) {
+func (r *Resolver) GenericDeleteSystemAuth(objectType model.SystemAuthReferenceObjectType) func(ctx context.Context, id string) (*externalschema.SystemAuth, error) {
+	return func(ctx context.Context, id string) (*externalschema.SystemAuth, error) {
 		tx, err := r.transact.Begin()
 		if err != nil {
 			return nil, err

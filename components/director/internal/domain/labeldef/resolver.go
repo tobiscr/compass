@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/resource"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 	"github.com/pkg/errors"
 )
@@ -33,8 +34,8 @@ func NewResolver(transactioner persistence.Transactioner, srv Service, conv Mode
 //go:generate mockery -name=ModelConverter -output=automock -outpkg=automock -case=underscore
 type ModelConverter interface {
 	// TODO: Use model.LabelDefinitionInput
-	FromGraphQL(input graphql.LabelDefinitionInput, tenant string) (model.LabelDefinition, error)
-	ToGraphQL(definition model.LabelDefinition) (graphql.LabelDefinition, error)
+	FromGraphQL(input externalschema.LabelDefinitionInput, tenant string) (model.LabelDefinition, error)
+	ToGraphQL(definition model.LabelDefinition) (externalschema.LabelDefinition, error)
 }
 
 //go:generate mockery -name=Service -output=automock -outpkg=automock -case=underscore
@@ -46,7 +47,7 @@ type Service interface {
 	Update(ctx context.Context, ld model.LabelDefinition) error
 }
 
-func (r *Resolver) CreateLabelDefinition(ctx context.Context, in graphql.LabelDefinitionInput) (*graphql.LabelDefinition, error) {
+func (r *Resolver) CreateLabelDefinition(ctx context.Context, in externalschema.LabelDefinitionInput) (*externalschema.LabelDefinition, error) {
 	tnt, err := tenant.LoadFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -82,7 +83,7 @@ func (r *Resolver) CreateLabelDefinition(ctx context.Context, in graphql.LabelDe
 	return &out, nil
 }
 
-func (r *Resolver) LabelDefinitions(ctx context.Context) ([]*graphql.LabelDefinition, error) {
+func (r *Resolver) LabelDefinitions(ctx context.Context) ([]*externalschema.LabelDefinition, error) {
 	tnt, err := tenant.LoadFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -104,7 +105,7 @@ func (r *Resolver) LabelDefinitions(ctx context.Context) ([]*graphql.LabelDefini
 		return nil, errors.Wrap(err, "while committing transaction")
 	}
 
-	var out []*graphql.LabelDefinition
+	var out []*externalschema.LabelDefinition
 	for _, def := range defs {
 		c, err := r.conv.ToGraphQL(def)
 		if err != nil {
@@ -116,7 +117,7 @@ func (r *Resolver) LabelDefinitions(ctx context.Context) ([]*graphql.LabelDefini
 	return out, nil
 }
 
-func (r *Resolver) LabelDefinition(ctx context.Context, key string) (*graphql.LabelDefinition, error) {
+func (r *Resolver) LabelDefinition(ctx context.Context, key string) (*externalschema.LabelDefinition, error) {
 	tnt, err := tenant.LoadFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -149,7 +150,7 @@ func (r *Resolver) LabelDefinition(ctx context.Context, key string) (*graphql.La
 	return &c, nil
 }
 
-func (r *Resolver) UpdateLabelDefinition(ctx context.Context, in graphql.LabelDefinitionInput) (*graphql.LabelDefinition, error) {
+func (r *Resolver) UpdateLabelDefinition(ctx context.Context, in externalschema.LabelDefinitionInput) (*externalschema.LabelDefinition, error) {
 	tnt, err := tenant.LoadFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -190,7 +191,7 @@ func (r *Resolver) UpdateLabelDefinition(ctx context.Context, in graphql.LabelDe
 	return &out, nil
 }
 
-func (r *Resolver) DeleteLabelDefinition(ctx context.Context, key string, deleteRelatedLabels *bool) (*graphql.LabelDefinition, error) {
+func (r *Resolver) DeleteLabelDefinition(ctx context.Context, key string, deleteRelatedLabels *bool) (*externalschema.LabelDefinition, error) {
 	tnt, err := tenant.LoadFromContext(ctx)
 	if err != nil {
 		return nil, err

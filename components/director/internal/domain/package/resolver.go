@@ -3,6 +3,8 @@ package mp_package
 import (
 	"context"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
@@ -11,8 +13,6 @@ import (
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 )
 
 //go:generate mockery -name=PackageService -output=automock -outpkg=automock -case=underscore
@@ -25,9 +25,9 @@ type PackageService interface {
 
 //go:generate mockery -name=PackageConverter -output=automock -outpkg=automock -case=underscore
 type PackageConverter interface {
-	ToGraphQL(in *model.Package) (*graphql.Package, error)
-	CreateInputFromGraphQL(in graphql.PackageCreateInput) (model.PackageCreateInput, error)
-	UpdateInputFromGraphQL(in graphql.PackageUpdateInput) (*model.PackageUpdateInput, error)
+	ToGraphQL(in *model.Package) (*externalschema.Package, error)
+	CreateInputFromGraphQL(in externalschema.PackageCreateInput) (model.PackageCreateInput, error)
+	UpdateInputFromGraphQL(in externalschema.PackageUpdateInput) (*model.PackageUpdateInput, error)
 }
 
 //go:generate mockery -name=PackageInstanceAuthService -output=automock -outpkg=automock -case=underscore
@@ -38,8 +38,8 @@ type PackageInstanceAuthService interface {
 
 //go:generate mockery -name=PackageInstanceAuthConverter -output=automock -outpkg=automock -case=underscore
 type PackageInstanceAuthConverter interface {
-	ToGraphQL(in *model.PackageInstanceAuth) (*graphql.PackageInstanceAuth, error)
-	MultipleToGraphQL(in []*model.PackageInstanceAuth) ([]*graphql.PackageInstanceAuth, error)
+	ToGraphQL(in *model.PackageInstanceAuth) (*externalschema.PackageInstanceAuth, error)
+	MultipleToGraphQL(in []*model.PackageInstanceAuth) ([]*externalschema.PackageInstanceAuth, error)
 }
 
 //go:generate mockery -name=APIService -output=automock -outpkg=automock -case=underscore
@@ -50,9 +50,9 @@ type APIService interface {
 
 //go:generate mockery -name=APIConverter -output=automock -outpkg=automock -case=underscore
 type APIConverter interface {
-	ToGraphQL(in *model.APIDefinition) *graphql.APIDefinition
-	MultipleToGraphQL(in []*model.APIDefinition) []*graphql.APIDefinition
-	MultipleInputFromGraphQL(in []*graphql.APIDefinitionInput) ([]*model.APIDefinitionInput, error)
+	ToGraphQL(in *model.APIDefinition) *externalschema.APIDefinition
+	MultipleToGraphQL(in []*model.APIDefinition) []*externalschema.APIDefinition
+	MultipleInputFromGraphQL(in []*externalschema.APIDefinitionInput) ([]*model.APIDefinitionInput, error)
 }
 
 //go:generate mockery -name=EventService -output=automock -outpkg=automock -case=underscore
@@ -63,9 +63,9 @@ type EventService interface {
 
 //go:generate mockery -name=EventConverter -output=automock -outpkg=automock -case=underscore
 type EventConverter interface {
-	ToGraphQL(in *model.EventDefinition) *graphql.EventDefinition
-	MultipleToGraphQL(in []*model.EventDefinition) []*graphql.EventDefinition
-	MultipleInputFromGraphQL(in []*graphql.EventDefinitionInput) ([]*model.EventDefinitionInput, error)
+	ToGraphQL(in *model.EventDefinition) *externalschema.EventDefinition
+	MultipleToGraphQL(in []*model.EventDefinition) []*externalschema.EventDefinition
+	MultipleInputFromGraphQL(in []*externalschema.EventDefinitionInput) ([]*model.EventDefinitionInput, error)
 }
 
 //go:generate mockery -name=DocumentService -output=automock -outpkg=automock -case=underscore
@@ -76,9 +76,9 @@ type DocumentService interface {
 
 //go:generate mockery -name=DocumentConverter -output=automock -outpkg=automock -case=underscore
 type DocumentConverter interface {
-	ToGraphQL(in *model.Document) *graphql.Document
-	MultipleToGraphQL(in []*model.Document) []*graphql.Document
-	MultipleInputFromGraphQL(in []*graphql.DocumentInput) ([]*model.DocumentInput, error)
+	ToGraphQL(in *model.Document) *externalschema.Document
+	MultipleToGraphQL(in []*model.Document) []*externalschema.Document
+	MultipleInputFromGraphQL(in []*externalschema.DocumentInput) ([]*model.DocumentInput, error)
 }
 
 type Resolver struct {
@@ -124,7 +124,7 @@ func NewResolver(
 	}
 }
 
-func (r *Resolver) AddPackage(ctx context.Context, applicationID string, in graphql.PackageCreateInput) (*graphql.Package, error) {
+func (r *Resolver) AddPackage(ctx context.Context, applicationID string, in externalschema.PackageCreateInput) (*externalschema.Package, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -164,7 +164,7 @@ func (r *Resolver) AddPackage(ctx context.Context, applicationID string, in grap
 	return gqlPackage, nil
 }
 
-func (r *Resolver) UpdatePackage(ctx context.Context, id string, in graphql.PackageUpdateInput) (*graphql.Package, error) {
+func (r *Resolver) UpdatePackage(ctx context.Context, id string, in externalschema.PackageUpdateInput) (*externalschema.Package, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -204,7 +204,7 @@ func (r *Resolver) UpdatePackage(ctx context.Context, id string, in graphql.Pack
 	return gqlPkg, nil
 }
 
-func (r *Resolver) DeletePackage(ctx context.Context, id string) (*graphql.Package, error) {
+func (r *Resolver) DeletePackage(ctx context.Context, id string) (*externalschema.Package, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -239,7 +239,7 @@ func (r *Resolver) DeletePackage(ctx context.Context, id string) (*graphql.Packa
 	return deletedPkg, nil
 }
 
-func (r *Resolver) InstanceAuth(ctx context.Context, obj *graphql.Package, id string) (*graphql.PackageInstanceAuth, error) {
+func (r *Resolver) InstanceAuth(ctx context.Context, obj *externalschema.Package, id string) (*externalschema.PackageInstanceAuth, error) {
 	if obj == nil {
 		return nil, apperrors.NewInternalError("Package cannot be empty")
 	}
@@ -269,7 +269,7 @@ func (r *Resolver) InstanceAuth(ctx context.Context, obj *graphql.Package, id st
 
 }
 
-func (r *Resolver) InstanceAuths(ctx context.Context, obj *graphql.Package) ([]*graphql.PackageInstanceAuth, error) {
+func (r *Resolver) InstanceAuths(ctx context.Context, obj *externalschema.Package) ([]*externalschema.PackageInstanceAuth, error) {
 	if obj == nil {
 		return nil, apperrors.NewInternalError("Package cannot be empty")
 	}
@@ -294,7 +294,7 @@ func (r *Resolver) InstanceAuths(ctx context.Context, obj *graphql.Package) ([]*
 	return r.packageInstanceAuthConverter.MultipleToGraphQL(pkgInstanceAuths)
 }
 
-func (r *Resolver) APIDefinition(ctx context.Context, obj *graphql.Package, id string) (*graphql.APIDefinition, error) {
+func (r *Resolver) APIDefinition(ctx context.Context, obj *externalschema.Package, id string) (*externalschema.APIDefinition, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -319,7 +319,7 @@ func (r *Resolver) APIDefinition(ctx context.Context, obj *graphql.Package, id s
 	return r.apiConverter.ToGraphQL(api), nil
 }
 
-func (r *Resolver) APIDefinitions(ctx context.Context, obj *graphql.Package, group *string, first *int, after *graphql.PageCursor) (*graphql.APIDefinitionPage, error) {
+func (r *Resolver) APIDefinitions(ctx context.Context, obj *externalschema.Package, group *string, first *int, after *externalschema.PageCursor) (*externalschema.APIDefinitionPage, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -349,18 +349,18 @@ func (r *Resolver) APIDefinitions(ctx context.Context, obj *graphql.Package, gro
 
 	gqlApis := r.apiConverter.MultipleToGraphQL(apisPage.Data)
 
-	return &graphql.APIDefinitionPage{
+	return &externalschema.APIDefinitionPage{
 		Data:       gqlApis,
 		TotalCount: apisPage.TotalCount,
-		PageInfo: &graphql.PageInfo{
-			StartCursor: graphql.PageCursor(apisPage.PageInfo.StartCursor),
-			EndCursor:   graphql.PageCursor(apisPage.PageInfo.EndCursor),
+		PageInfo: &externalschema.PageInfo{
+			StartCursor: externalschema.PageCursor(apisPage.PageInfo.StartCursor),
+			EndCursor:   externalschema.PageCursor(apisPage.PageInfo.EndCursor),
 			HasNextPage: apisPage.PageInfo.HasNextPage,
 		},
 	}, nil
 }
 
-func (r *Resolver) EventDefinition(ctx context.Context, obj *graphql.Package, id string) (*graphql.EventDefinition, error) {
+func (r *Resolver) EventDefinition(ctx context.Context, obj *externalschema.Package, id string) (*externalschema.EventDefinition, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -385,7 +385,7 @@ func (r *Resolver) EventDefinition(ctx context.Context, obj *graphql.Package, id
 	return r.eventConverter.ToGraphQL(eventAPI), nil
 }
 
-func (r *Resolver) EventDefinitions(ctx context.Context, obj *graphql.Package, group *string, first *int, after *graphql.PageCursor) (*graphql.EventDefinitionPage, error) {
+func (r *Resolver) EventDefinitions(ctx context.Context, obj *externalschema.Package, group *string, first *int, after *externalschema.PageCursor) (*externalschema.EventDefinitionPage, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -414,18 +414,18 @@ func (r *Resolver) EventDefinitions(ctx context.Context, obj *graphql.Package, g
 
 	gqlApis := r.eventConverter.MultipleToGraphQL(eventAPIPage.Data)
 
-	return &graphql.EventDefinitionPage{
+	return &externalschema.EventDefinitionPage{
 		Data:       gqlApis,
 		TotalCount: eventAPIPage.TotalCount,
-		PageInfo: &graphql.PageInfo{
-			StartCursor: graphql.PageCursor(eventAPIPage.PageInfo.StartCursor),
-			EndCursor:   graphql.PageCursor(eventAPIPage.PageInfo.EndCursor),
+		PageInfo: &externalschema.PageInfo{
+			StartCursor: externalschema.PageCursor(eventAPIPage.PageInfo.StartCursor),
+			EndCursor:   externalschema.PageCursor(eventAPIPage.PageInfo.EndCursor),
 			HasNextPage: eventAPIPage.PageInfo.HasNextPage,
 		},
 	}, nil
 }
 
-func (r *Resolver) Document(ctx context.Context, obj *graphql.Package, id string) (*graphql.Document, error) {
+func (r *Resolver) Document(ctx context.Context, obj *externalschema.Package, id string) (*externalschema.Document, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -450,7 +450,7 @@ func (r *Resolver) Document(ctx context.Context, obj *graphql.Package, id string
 	return r.documentConverter.ToGraphQL(eventAPI), nil
 }
 
-func (r *Resolver) Documents(ctx context.Context, obj *graphql.Package, first *int, after *graphql.PageCursor) (*graphql.DocumentPage, error) {
+func (r *Resolver) Documents(ctx context.Context, obj *externalschema.Package, first *int, after *externalschema.PageCursor) (*externalschema.DocumentPage, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -480,12 +480,12 @@ func (r *Resolver) Documents(ctx context.Context, obj *graphql.Package, first *i
 
 	gqlDocuments := r.documentConverter.MultipleToGraphQL(documentsPage.Data)
 
-	return &graphql.DocumentPage{
+	return &externalschema.DocumentPage{
 		Data:       gqlDocuments,
 		TotalCount: documentsPage.TotalCount,
-		PageInfo: &graphql.PageInfo{
-			StartCursor: graphql.PageCursor(documentsPage.PageInfo.StartCursor),
-			EndCursor:   graphql.PageCursor(documentsPage.PageInfo.EndCursor),
+		PageInfo: &externalschema.PageInfo{
+			StartCursor: externalschema.PageCursor(documentsPage.PageInfo.StartCursor),
+			EndCursor:   externalschema.PageCursor(documentsPage.PageInfo.EndCursor),
 			HasNextPage: documentsPage.PageInfo.HasNextPage,
 		},
 	}, nil

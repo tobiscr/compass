@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/pairing"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/pairing"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 
@@ -153,7 +153,7 @@ func TestTokenService_GetOneTimeTokenForApp(t *testing.T) {
 		adaptersMapping := map[string]string{integrationSystemID: "https://my-integration-service.url"}
 
 		mockAppConverter := &automock.ApplicationConverter{}
-		givenGraphQLApp := graphql.Application{
+		givenGraphQLApp := externalschema.Application{
 			IntegrationSystemID: &integrationSystemID,
 			ID:                  givenApplication.ID,
 		}
@@ -232,7 +232,7 @@ func TestTokenService_GetOneTimeTokenForApp(t *testing.T) {
 		adaptersMapping := map[string]string{integrationSystemID: "https://my-integration-service.url"}
 
 		mockAppConverter := &automock.ApplicationConverter{}
-		givenGraphQLApp := graphql.Application{
+		givenGraphQLApp := externalschema.Application{
 			IntegrationSystemID: &integrationSystemID,
 			ID:                  givenApplication.ID,
 		}

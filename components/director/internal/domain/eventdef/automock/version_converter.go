@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
 import version "github.com/kyma-incubator/compass/components/director/internal/domain/version"
@@ -29,11 +31,11 @@ func (_m *VersionConverter) FromEntity(_a0 version.Version) *model.Version {
 }
 
 // InputFromGraphQL provides a mock function with given fields: in
-func (_m *VersionConverter) InputFromGraphQL(in *graphql.VersionInput) *model.VersionInput {
+func (_m *VersionConverter) InputFromGraphQL(in *externalschema.VersionInput) *model.VersionInput {
 	ret := _m.Called(in)
 
 	var r0 *model.VersionInput
-	if rf, ok := ret.Get(0).(func(*graphql.VersionInput) *model.VersionInput); ok {
+	if rf, ok := ret.Get(0).(func(*externalschema.VersionInput) *model.VersionInput); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
@@ -59,15 +61,15 @@ func (_m *VersionConverter) ToEntity(_a0 model.Version) version.Version {
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *VersionConverter) ToGraphQL(in *model.Version) *graphql.Version {
+func (_m *VersionConverter) ToGraphQL(in *model.Version) *externalschema.Version {
 	ret := _m.Called(in)
 
-	var r0 *graphql.Version
-	if rf, ok := ret.Get(0).(func(*model.Version) *graphql.Version); ok {
+	var r0 *externalschema.Version
+	if rf, ok := ret.Get(0).(func(*model.Version) *externalschema.Version); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.Version)
+			r0 = ret.Get(0).(*externalschema.Version)
 		}
 	}
 

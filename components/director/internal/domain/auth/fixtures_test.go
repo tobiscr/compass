@@ -2,7 +2,7 @@ package auth_test
 
 import (
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 )
 
 var (
@@ -14,10 +14,10 @@ var (
 		"too": {"tar", "taz"},
 	}
 	authMapSerialized     = "{\"foo\":[\"bar\",\"baz\"],\"too\":[\"tar\",\"taz\"]}"
-	authHeaders           = graphql.HttpHeaders(authMap)
-	authHeadersSerialized = graphql.HttpHeadersSerialized(authMapSerialized)
-	authParams            = graphql.QueryParams(authMap)
-	authParamsSerialized  = graphql.QueryParamsSerialized(authMapSerialized)
+	authHeaders           = externalschema.HttpHeaders(authMap)
+	authHeadersSerialized = externalschema.HttpHeadersSerialized(authMapSerialized)
+	authParams            = externalschema.QueryParams(authMap)
+	authParamsSerialized  = externalschema.QueryParamsSerialized(authMapSerialized)
 )
 
 func fixDetailedAuth() *model.Auth {
@@ -48,9 +48,9 @@ func fixDetailedAuth() *model.Auth {
 	}
 }
 
-func fixDetailedGQLAuth() *graphql.Auth {
-	return &graphql.Auth{
-		Credential: graphql.BasicCredentialData{
+func fixDetailedGQLAuth() *externalschema.Auth {
+	return &externalschema.Auth{
+		Credential: externalschema.BasicCredentialData{
 			Username: authUsername,
 			Password: authPassword,
 		},
@@ -58,10 +58,10 @@ func fixDetailedGQLAuth() *graphql.Auth {
 		AdditionalHeadersSerialized:     &authHeadersSerialized,
 		AdditionalQueryParams:           &authParams,
 		AdditionalQueryParamsSerialized: &authParamsSerialized,
-		RequestAuth: &graphql.CredentialRequestAuth{
-			Csrf: &graphql.CSRFTokenCredentialRequestAuth{
+		RequestAuth: &externalschema.CredentialRequestAuth{
+			Csrf: &externalschema.CSRFTokenCredentialRequestAuth{
 				TokenEndpointURL: authEndpoint,
-				Credential: graphql.BasicCredentialData{
+				Credential: externalschema.BasicCredentialData{
 					Username: authUsername,
 					Password: authPassword,
 				},
@@ -100,10 +100,10 @@ func fixDetailedAuthInput() *model.AuthInput {
 	}
 }
 
-func fixDetailedGQLAuthInput() *graphql.AuthInput {
-	return &graphql.AuthInput{
-		Credential: &graphql.CredentialDataInput{
-			Basic: &graphql.BasicCredentialDataInput{
+func fixDetailedGQLAuthInput() *externalschema.AuthInput {
+	return &externalschema.AuthInput{
+		Credential: &externalschema.CredentialDataInput{
+			Basic: &externalschema.BasicCredentialDataInput{
 				Username: authUsername,
 				Password: authPassword,
 			},
@@ -111,11 +111,11 @@ func fixDetailedGQLAuthInput() *graphql.AuthInput {
 		},
 		AdditionalHeadersSerialized:     &authHeadersSerialized,
 		AdditionalQueryParamsSerialized: &authParamsSerialized,
-		RequestAuth: &graphql.CredentialRequestAuthInput{
-			Csrf: &graphql.CSRFTokenCredentialRequestAuthInput{
+		RequestAuth: &externalschema.CredentialRequestAuthInput{
+			Csrf: &externalschema.CSRFTokenCredentialRequestAuthInput{
 				TokenEndpointURL: authEndpoint,
-				Credential: &graphql.CredentialDataInput{
-					Basic: &graphql.BasicCredentialDataInput{
+				Credential: &externalschema.CredentialDataInput{
+					Basic: &externalschema.BasicCredentialDataInput{
 						Username: authUsername,
 						Password: authPassword,
 					},
@@ -128,10 +128,10 @@ func fixDetailedGQLAuthInput() *graphql.AuthInput {
 	}
 }
 
-func fixDetailedGQLAuthInputDeprecated() *graphql.AuthInput {
-	return &graphql.AuthInput{
-		Credential: &graphql.CredentialDataInput{
-			Basic: &graphql.BasicCredentialDataInput{
+func fixDetailedGQLAuthInputDeprecated() *externalschema.AuthInput {
+	return &externalschema.AuthInput{
+		Credential: &externalschema.CredentialDataInput{
+			Basic: &externalschema.BasicCredentialDataInput{
 				Username: authUsername,
 				Password: authPassword,
 			},
@@ -139,11 +139,11 @@ func fixDetailedGQLAuthInputDeprecated() *graphql.AuthInput {
 		},
 		AdditionalHeaders:     &authHeaders,
 		AdditionalQueryParams: &authParams,
-		RequestAuth: &graphql.CredentialRequestAuthInput{
-			Csrf: &graphql.CSRFTokenCredentialRequestAuthInput{
+		RequestAuth: &externalschema.CredentialRequestAuthInput{
+			Csrf: &externalschema.CSRFTokenCredentialRequestAuthInput{
 				TokenEndpointURL: authEndpoint,
-				Credential: &graphql.CredentialDataInput{
-					Basic: &graphql.BasicCredentialDataInput{
+				Credential: &externalschema.CredentialDataInput{
+					Basic: &externalschema.BasicCredentialDataInput{
 						Username: authUsername,
 						Password: authPassword,
 					},

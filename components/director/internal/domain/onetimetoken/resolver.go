@@ -5,10 +5,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 	"github.com/pkg/errors"
 )
@@ -20,8 +21,8 @@ type TokenService interface {
 
 //go:generate mockery -name=TokenConverter -output=automock -outpkg=automock -case=underscore
 type TokenConverter interface {
-	ToGraphQLForRuntime(model model.OneTimeToken) graphql.OneTimeTokenForRuntime
-	ToGraphQLForApplication(model model.OneTimeToken) (graphql.OneTimeTokenForApplication, error)
+	ToGraphQLForRuntime(model model.OneTimeToken) externalschema.OneTimeTokenForRuntime
+	ToGraphQLForApplication(model model.OneTimeToken) (externalschema.OneTimeTokenForApplication, error)
 }
 
 type Resolver struct {
@@ -34,7 +35,7 @@ func NewTokenResolver(transact persistence.Transactioner, svc TokenService, conv
 	return &Resolver{transact: transact, svc: svc, conv: conv}
 }
 
-func (r *Resolver) RequestOneTimeTokenForRuntime(ctx context.Context, id string) (*graphql.OneTimeTokenForRuntime, error) {
+func (r *Resolver) RequestOneTimeTokenForRuntime(ctx context.Context, id string) (*externalschema.OneTimeTokenForRuntime, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -55,7 +56,7 @@ func (r *Resolver) RequestOneTimeTokenForRuntime(ctx context.Context, id string)
 	return &gqlToken, nil
 }
 
-func (r *Resolver) RequestOneTimeTokenForApplication(ctx context.Context, id string) (*graphql.OneTimeTokenForApplication, error) {
+func (r *Resolver) RequestOneTimeTokenForApplication(ctx context.Context, id string) (*externalschema.OneTimeTokenForApplication, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -79,7 +80,7 @@ func (r *Resolver) RequestOneTimeTokenForApplication(ctx context.Context, id str
 	return &gqlToken, nil
 }
 
-func (r *Resolver) RawEncoded(ctx context.Context, obj *graphql.TokenWithURL) (*string, error) {
+func (r *Resolver) RawEncoded(ctx context.Context, obj *externalschema.TokenWithURL) (*string, error) {
 	if obj == nil {
 		return nil, apperrors.NewInternalError("Token was nil")
 	}
@@ -94,7 +95,7 @@ func (r *Resolver) RawEncoded(ctx context.Context, obj *graphql.TokenWithURL) (*
 	return &rawBaseEncoded, nil
 }
 
-func (r *Resolver) Raw(ctx context.Context, obj *graphql.TokenWithURL) (*string, error) {
+func (r *Resolver) Raw(ctx context.Context, obj *externalschema.TokenWithURL) (*string, error) {
 	if obj == nil {
 		return nil, apperrors.NewInternalError("Token was nil")
 	}

@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
 
@@ -12,15 +14,15 @@ type ApplicationConverter struct {
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *ApplicationConverter) ToGraphQL(in *model.Application) *graphql.Application {
+func (_m *ApplicationConverter) ToGraphQL(in *model.Application) *externalschema.Application {
 	ret := _m.Called(in)
 
-	var r0 *graphql.Application
-	if rf, ok := ret.Get(0).(func(*model.Application) *graphql.Application); ok {
+	var r0 *externalschema.Application
+	if rf, ok := ret.Get(0).(func(*model.Application) *externalschema.Application); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.Application)
+			r0 = ret.Get(0).(*externalschema.Application)
 		}
 	}
 

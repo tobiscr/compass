@@ -3,7 +3,7 @@
 package automock
 
 import (
-	graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	mock "github.com/stretchr/testify/mock"
 
 	model "github.com/kyma-incubator/compass/components/director/internal/model"
@@ -15,15 +15,15 @@ type BusinessTenantMappingConverter struct {
 }
 
 // MultipleToGraphQL provides a mock function with given fields: in
-func (_m *BusinessTenantMappingConverter) MultipleToGraphQL(in []*model.BusinessTenantMapping) []*graphql.Tenant {
+func (_m *BusinessTenantMappingConverter) MultipleToGraphQL(in []*model.BusinessTenantMapping) []*externalschema.Tenant {
 	ret := _m.Called(in)
 
-	var r0 []*graphql.Tenant
-	if rf, ok := ret.Get(0).(func([]*model.BusinessTenantMapping) []*graphql.Tenant); ok {
+	var r0 []*externalschema.Tenant
+	if rf, ok := ret.Get(0).(func([]*model.BusinessTenantMapping) []*externalschema.Tenant); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*graphql.Tenant)
+			r0 = ret.Get(0).([]*externalschema.Tenant)
 		}
 	}
 

@@ -3,10 +3,11 @@ package api
 import (
 	"context"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 
 	"github.com/pkg/errors"
@@ -30,17 +31,17 @@ type RuntimeService interface {
 
 //go:generate mockery -name=APIConverter -output=automock -outpkg=automock -case=underscore
 type APIConverter interface {
-	ToGraphQL(in *model.APIDefinition) *graphql.APIDefinition
-	MultipleToGraphQL(in []*model.APIDefinition) []*graphql.APIDefinition
-	MultipleInputFromGraphQL(in []*graphql.APIDefinitionInput) ([]*model.APIDefinitionInput, error)
-	InputFromGraphQL(in *graphql.APIDefinitionInput) (*model.APIDefinitionInput, error)
-	SpecToGraphQL(definitionID string, in *model.APISpec) *graphql.APISpec
+	ToGraphQL(in *model.APIDefinition) *externalschema.APIDefinition
+	MultipleToGraphQL(in []*model.APIDefinition) []*externalschema.APIDefinition
+	MultipleInputFromGraphQL(in []*externalschema.APIDefinitionInput) ([]*model.APIDefinitionInput, error)
+	InputFromGraphQL(in *externalschema.APIDefinitionInput) (*model.APIDefinitionInput, error)
+	SpecToGraphQL(definitionID string, in *model.APISpec) *externalschema.APISpec
 }
 
 //go:generate mockery -name=FetchRequestConverter -output=automock -outpkg=automock -case=underscore
 type FetchRequestConverter interface {
-	ToGraphQL(in *model.FetchRequest) (*graphql.FetchRequest, error)
-	InputFromGraphQL(in *graphql.FetchRequestInput) (*model.FetchRequestInput, error)
+	ToGraphQL(in *model.FetchRequest) (*externalschema.FetchRequest, error)
+	InputFromGraphQL(in *externalschema.FetchRequestInput) (*model.FetchRequestInput, error)
 }
 
 //go:generate mockery -name=ApplicationService -output=automock -outpkg=automock -case=underscore
@@ -75,7 +76,7 @@ func NewResolver(transact persistence.Transactioner, svc APIService, appSvc Appl
 	}
 }
 
-func (r *Resolver) AddAPIDefinitionToPackage(ctx context.Context, packageID string, in graphql.APIDefinitionInput) (*graphql.APIDefinition, error) {
+func (r *Resolver) AddAPIDefinitionToPackage(ctx context.Context, packageID string, in externalschema.APIDefinitionInput) (*externalschema.APIDefinition, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -121,7 +122,7 @@ func (r *Resolver) AddAPIDefinitionToPackage(ctx context.Context, packageID stri
 	return gqlAPI, nil
 }
 
-func (r *Resolver) UpdateAPIDefinition(ctx context.Context, id string, in graphql.APIDefinitionInput) (*graphql.APIDefinition, error) {
+func (r *Resolver) UpdateAPIDefinition(ctx context.Context, id string, in externalschema.APIDefinitionInput) (*externalschema.APIDefinition, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -157,7 +158,7 @@ func (r *Resolver) UpdateAPIDefinition(ctx context.Context, id string, in graphq
 	log.Infof("APIDefinition with id %s successfully updated.", id)
 	return gqlAPI, nil
 }
-func (r *Resolver) DeleteAPIDefinition(ctx context.Context, id string) (*graphql.APIDefinition, error) {
+func (r *Resolver) DeleteAPIDefinition(ctx context.Context, id string) (*externalschema.APIDefinition, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -186,7 +187,7 @@ func (r *Resolver) DeleteAPIDefinition(ctx context.Context, id string) (*graphql
 	log.Infof("APIDefinition with id %s successfully deleted.", id)
 	return r.converter.ToGraphQL(api), nil
 }
-func (r *Resolver) RefetchAPISpec(ctx context.Context, apiID string) (*graphql.APISpec, error) {
+func (r *Resolver) RefetchAPISpec(ctx context.Context, apiID string) (*externalschema.APISpec, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -212,7 +213,7 @@ func (r *Resolver) RefetchAPISpec(ctx context.Context, apiID string) (*graphql.A
 	return converted, nil
 }
 
-func (r *Resolver) FetchRequest(ctx context.Context, obj *graphql.APISpec) (*graphql.FetchRequest, error) {
+func (r *Resolver) FetchRequest(ctx context.Context, obj *externalschema.APISpec) (*externalschema.FetchRequest, error) {
 	log.Infof("Fetching request for APIDefinition with id %s", obj.DefinitionID)
 
 	if obj == nil {

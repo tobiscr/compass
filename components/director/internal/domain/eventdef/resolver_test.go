@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/pkg/errors"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
@@ -15,7 +17,6 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/eventdef"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/eventdef/automock"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/stretchr/testify/assert"
 )
@@ -42,7 +43,7 @@ func TestResolver_AddEventAPIToPackage(t *testing.T) {
 		ServiceFn        func() *automock.EventDefService
 		PkgServiceFn     func() *automock.PackageService
 		ConverterFn      func() *automock.EventDefConverter
-		ExpectedEventDef *graphql.EventDefinition
+		ExpectedEventDef *externalschema.EventDefinition
 		ExpectedErr      error
 	}{
 		{
@@ -238,7 +239,7 @@ func TestResolver_DeleteEventAPI(t *testing.T) {
 		TransactionerFn  func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		ServiceFn        func() *automock.EventDefService
 		ConverterFn      func() *automock.EventDefConverter
-		ExpectedEventDef *graphql.EventDefinition
+		ExpectedEventDef *externalschema.EventDefinition
 		ExpectedErr      error
 	}{
 		{
@@ -365,8 +366,8 @@ func TestResolver_UpdateEventAPI(t *testing.T) {
 		ServiceFn        func() *automock.EventDefService
 		ConverterFn      func() *automock.EventDefConverter
 		InputWebhookID   string
-		InputDefinition  graphql.EventDefinitionInput
-		ExpectedEventDef *graphql.EventDefinition
+		InputDefinition  externalschema.EventDefinitionInput
+		ExpectedEventDef *externalschema.EventDefinition
 		ExpectedErr      error
 	}{
 		{
@@ -499,12 +500,12 @@ func TestResolver_RefetchAPISpec(t *testing.T) {
 		Spec: modelEventAPISpec,
 	}
 
-	clob := graphql.CLOB(dataBytes)
-	gqlEventSpec := &graphql.EventSpec{
+	clob := externalschema.CLOB(dataBytes)
+	gqlEventSpec := &externalschema.EventSpec{
 		Data: &clob,
 	}
 
-	gqlEventDefinition := &graphql.EventDefinition{
+	gqlEventDefinition := &externalschema.EventDefinition{
 		Spec: gqlEventSpec,
 	}
 
@@ -514,7 +515,7 @@ func TestResolver_RefetchAPISpec(t *testing.T) {
 		TransactionerFn   func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		ServiceFn         func() *automock.EventDefService
 		ConvFn            func() *automock.EventDefConverter
-		ExpectedEventSpec *graphql.EventSpec
+		ExpectedEventSpec *externalschema.EventSpec
 		ExpectedErr       error
 	}{
 		{
@@ -608,7 +609,7 @@ func TestResolver_FetchRequest(t *testing.T) {
 
 	id := "bar"
 	url := "foo.bar"
-	eventAPISpec := &graphql.EventSpec{DefinitionID: id}
+	eventAPISpec := &externalschema.EventSpec{DefinitionID: id}
 
 	txGen := txtest.NewTransactionContextGenerator(testErr)
 
@@ -620,8 +621,8 @@ func TestResolver_FetchRequest(t *testing.T) {
 		TransactionerFn func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		ServiceFn       func() *automock.EventDefService
 		ConverterFn     func() *automock.FetchRequestConverter
-		EventApiSpec    *graphql.EventSpec
-		ExpectedResult  *graphql.FetchRequest
+		EventApiSpec    *externalschema.EventSpec
+		ExpectedResult  *externalschema.FetchRequest
 		ExpectedErr     error
 	}{
 		{

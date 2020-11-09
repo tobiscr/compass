@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
 
@@ -12,14 +14,14 @@ type TokenConverter struct {
 }
 
 // ToGraphQLForApplication provides a mock function with given fields: _a0
-func (_m *TokenConverter) ToGraphQLForApplication(_a0 model.OneTimeToken) (graphql.OneTimeTokenForApplication, error) {
+func (_m *TokenConverter) ToGraphQLForApplication(_a0 model.OneTimeToken) (externalschema.OneTimeTokenForApplication, error) {
 	ret := _m.Called(_a0)
 
-	var r0 graphql.OneTimeTokenForApplication
-	if rf, ok := ret.Get(0).(func(model.OneTimeToken) graphql.OneTimeTokenForApplication); ok {
+	var r0 externalschema.OneTimeTokenForApplication
+	if rf, ok := ret.Get(0).(func(model.OneTimeToken) externalschema.OneTimeTokenForApplication); ok {
 		r0 = rf(_a0)
 	} else {
-		r0 = ret.Get(0).(graphql.OneTimeTokenForApplication)
+		r0 = ret.Get(0).(externalschema.OneTimeTokenForApplication)
 	}
 
 	var r1 error
@@ -33,14 +35,14 @@ func (_m *TokenConverter) ToGraphQLForApplication(_a0 model.OneTimeToken) (graph
 }
 
 // ToGraphQLForRuntime provides a mock function with given fields: _a0
-func (_m *TokenConverter) ToGraphQLForRuntime(_a0 model.OneTimeToken) graphql.OneTimeTokenForRuntime {
+func (_m *TokenConverter) ToGraphQLForRuntime(_a0 model.OneTimeToken) externalschema.OneTimeTokenForRuntime {
 	ret := _m.Called(_a0)
 
-	var r0 graphql.OneTimeTokenForRuntime
-	if rf, ok := ret.Get(0).(func(model.OneTimeToken) graphql.OneTimeTokenForRuntime); ok {
+	var r0 externalschema.OneTimeTokenForRuntime
+	if rf, ok := ret.Get(0).(func(model.OneTimeToken) externalschema.OneTimeTokenForRuntime); ok {
 		r0 = rf(_a0)
 	} else {
-		r0 = ret.Get(0).(graphql.OneTimeTokenForRuntime)
+		r0 = ret.Get(0).(externalschema.OneTimeTokenForRuntime)
 	}
 
 	return r0

@@ -4,7 +4,8 @@ import (
 	"database/sql/driver"
 	"errors"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/str"
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
@@ -102,8 +103,8 @@ func newModelBusinessTenantMappingInput(name string) model.BusinessTenantMapping
 	}
 }
 
-func newGraphQLTenant(id, internalID, name string) *graphql.Tenant {
-	return &graphql.Tenant{
+func newGraphQLTenant(id, internalID, name string) *externalschema.Tenant {
+	return &externalschema.Tenant{
 		ID:         id,
 		InternalID: internalID,
 		Name:       str.Ptr(name),

@@ -2,10 +2,10 @@ package document
 
 import (
 	"github.com/kyma-incubator/compass/components/director/internal/repo"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	"github.com/pkg/errors"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 )
 
 type converter struct {
@@ -16,31 +16,31 @@ func NewConverter(frConverter FetchRequestConverter) *converter {
 	return &converter{frConverter: frConverter}
 }
 
-func (c *converter) ToGraphQL(in *model.Document) *graphql.Document {
+func (c *converter) ToGraphQL(in *model.Document) *externalschema.Document {
 	if in == nil {
 		return nil
 	}
 
-	var clob *graphql.CLOB
+	var clob *externalschema.CLOB
 	if in.Data != nil {
-		tmp := graphql.CLOB([]byte(*in.Data))
+		tmp := externalschema.CLOB([]byte(*in.Data))
 		clob = &tmp
 	}
 
-	return &graphql.Document{
+	return &externalschema.Document{
 		ID:          in.ID,
 		PackageID:   in.PackageID,
 		Title:       in.Title,
 		DisplayName: in.DisplayName,
 		Description: in.Description,
-		Format:      graphql.DocumentFormat(in.Format),
+		Format:      externalschema.DocumentFormat(in.Format),
 		Kind:        in.Kind,
 		Data:        clob,
 	}
 }
 
-func (c *converter) MultipleToGraphQL(in []*model.Document) []*graphql.Document {
-	var documents []*graphql.Document
+func (c *converter) MultipleToGraphQL(in []*model.Document) []*externalschema.Document {
+	var documents []*externalschema.Document
 	for _, r := range in {
 		if r == nil {
 			continue
@@ -52,7 +52,7 @@ func (c *converter) MultipleToGraphQL(in []*model.Document) []*graphql.Document 
 	return documents
 }
 
-func (c *converter) InputFromGraphQL(in *graphql.DocumentInput) (*model.DocumentInput, error) {
+func (c *converter) InputFromGraphQL(in *externalschema.DocumentInput) (*model.DocumentInput, error) {
 	if in == nil {
 		return nil, nil
 	}
@@ -79,7 +79,7 @@ func (c *converter) InputFromGraphQL(in *graphql.DocumentInput) (*model.Document
 	}, nil
 }
 
-func (c *converter) MultipleInputFromGraphQL(in []*graphql.DocumentInput) ([]*model.DocumentInput, error) {
+func (c *converter) MultipleInputFromGraphQL(in []*externalschema.DocumentInput) ([]*model.DocumentInput, error) {
 	var inputs []*model.DocumentInput
 	for _, r := range in {
 		if r == nil {

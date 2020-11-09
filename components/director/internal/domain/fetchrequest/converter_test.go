@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/internal/repo"
@@ -14,7 +16,6 @@ import (
 	"github.com/kyma-incubator/compass/components/director/internal/domain/fetchrequest"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/fetchrequest/automock"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,7 +24,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 	testCases := []struct {
 		Name     string
 		Input    *model.FetchRequest
-		Expected *graphql.FetchRequest
+		Expected *externalschema.FetchRequest
 	}{
 		{
 			Name:     "All properties given",
@@ -33,9 +34,9 @@ func TestConverter_ToGraphQL(t *testing.T) {
 		{
 			Name:  "Empty",
 			Input: &model.FetchRequest{},
-			Expected: &graphql.FetchRequest{
-				Status: &graphql.FetchRequestStatus{
-					Condition: graphql.FetchRequestStatusConditionInitial,
+			Expected: &externalschema.FetchRequest{
+				Status: &externalschema.FetchRequestStatus{
+					Condition: externalschema.FetchRequestStatusConditionInitial,
 				},
 			},
 		},
@@ -69,7 +70,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 	// given
 	testCases := []struct {
 		Name     string
-		Input    *graphql.FetchRequestInput
+		Input    *externalschema.FetchRequestInput
 		Expected *model.FetchRequestInput
 	}{
 		{
@@ -79,7 +80,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 		},
 		{
 			Name:     "Empty",
-			Input:    &graphql.FetchRequestInput{},
+			Input:    &externalschema.FetchRequestInput{},
 			Expected: &model.FetchRequestInput{},
 		},
 		{

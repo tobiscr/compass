@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
@@ -13,11 +15,11 @@ type IntegrationSystemConverter struct {
 }
 
 // InputFromGraphQL provides a mock function with given fields: in
-func (_m *IntegrationSystemConverter) InputFromGraphQL(in graphql.IntegrationSystemInput) model.IntegrationSystemInput {
+func (_m *IntegrationSystemConverter) InputFromGraphQL(in externalschema.IntegrationSystemInput) model.IntegrationSystemInput {
 	ret := _m.Called(in)
 
 	var r0 model.IntegrationSystemInput
-	if rf, ok := ret.Get(0).(func(graphql.IntegrationSystemInput) model.IntegrationSystemInput); ok {
+	if rf, ok := ret.Get(0).(func(externalschema.IntegrationSystemInput) model.IntegrationSystemInput); ok {
 		r0 = rf(in)
 	} else {
 		r0 = ret.Get(0).(model.IntegrationSystemInput)
@@ -27,15 +29,15 @@ func (_m *IntegrationSystemConverter) InputFromGraphQL(in graphql.IntegrationSys
 }
 
 // MultipleToGraphQL provides a mock function with given fields: in
-func (_m *IntegrationSystemConverter) MultipleToGraphQL(in []*model.IntegrationSystem) []*graphql.IntegrationSystem {
+func (_m *IntegrationSystemConverter) MultipleToGraphQL(in []*model.IntegrationSystem) []*externalschema.IntegrationSystem {
 	ret := _m.Called(in)
 
-	var r0 []*graphql.IntegrationSystem
-	if rf, ok := ret.Get(0).(func([]*model.IntegrationSystem) []*graphql.IntegrationSystem); ok {
+	var r0 []*externalschema.IntegrationSystem
+	if rf, ok := ret.Get(0).(func([]*model.IntegrationSystem) []*externalschema.IntegrationSystem); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*graphql.IntegrationSystem)
+			r0 = ret.Get(0).([]*externalschema.IntegrationSystem)
 		}
 	}
 
@@ -43,15 +45,15 @@ func (_m *IntegrationSystemConverter) MultipleToGraphQL(in []*model.IntegrationS
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *IntegrationSystemConverter) ToGraphQL(in *model.IntegrationSystem) *graphql.IntegrationSystem {
+func (_m *IntegrationSystemConverter) ToGraphQL(in *model.IntegrationSystem) *externalschema.IntegrationSystem {
 	ret := _m.Called(in)
 
-	var r0 *graphql.IntegrationSystem
-	if rf, ok := ret.Get(0).(func(*model.IntegrationSystem) *graphql.IntegrationSystem); ok {
+	var r0 *externalschema.IntegrationSystem
+	if rf, ok := ret.Get(0).(func(*model.IntegrationSystem) *externalschema.IntegrationSystem); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.IntegrationSystem)
+			r0 = ret.Get(0).(*externalschema.IntegrationSystem)
 		}
 	}
 

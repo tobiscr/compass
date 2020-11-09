@@ -3,12 +3,13 @@ package packageinstanceauth_test
 import (
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/packageinstanceauth"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/packageinstanceauth/automock"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -25,7 +26,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 		Name            string
 		AuthConverterFn func() *automock.AuthConverter
 		Input           *model.PackageInstanceAuth
-		Expected        *graphql.PackageInstanceAuth
+		Expected        *externalschema.PackageInstanceAuth
 	}{
 		{
 			Name: "Success when nil",
@@ -93,7 +94,7 @@ func TestConverter_MultipleToGraphQL(t *testing.T) {
 		nil,
 	}
 
-	piaGQLs := []*graphql.PackageInstanceAuth{
+	piaGQLs := []*externalschema.PackageInstanceAuth{
 		fixGQLPackageInstanceAuth("foo", fixGQLAuth(), fixGQLStatusSucceeded()),
 		fixGQLPackageInstanceAuth("bar", nil, fixGQLStatusPending()),
 	}
@@ -102,7 +103,7 @@ func TestConverter_MultipleToGraphQL(t *testing.T) {
 		Name            string
 		AuthConverterFn func() *automock.AuthConverter
 		Input           []*model.PackageInstanceAuth
-		Expected        []*graphql.PackageInstanceAuth
+		Expected        []*externalschema.PackageInstanceAuth
 	}{
 		{
 			Name: "Success when nil",
@@ -145,17 +146,17 @@ func TestConverter_MultipleToGraphQL(t *testing.T) {
 
 func TestConverter_RequestInputFromGraphQL(t *testing.T) {
 	// GIVEN
-	testJSON := graphql.JSON("test")
+	testJSON := externalschema.JSON("test")
 	testStr := "test"
 
 	testCases := []struct {
 		Name     string
-		Input    graphql.PackageInstanceAuthRequestInput
+		Input    externalschema.PackageInstanceAuthRequestInput
 		Expected model.PackageInstanceAuthRequestInput
 	}{
 		{
 			Name: "Success when nil",
-			Input: graphql.PackageInstanceAuthRequestInput{
+			Input: externalschema.PackageInstanceAuthRequestInput{
 				Context:     nil,
 				InputParams: nil,
 			},
@@ -166,7 +167,7 @@ func TestConverter_RequestInputFromGraphQL(t *testing.T) {
 		},
 		{
 			Name: "Success when not nil",
-			Input: graphql.PackageInstanceAuthRequestInput{
+			Input: externalschema.PackageInstanceAuthRequestInput{
 				Context:     &testJSON,
 				InputParams: &testJSON,
 			},
@@ -198,7 +199,7 @@ func TestConverter_SetInputFromGraphQL(t *testing.T) {
 	testCases := []struct {
 		Name            string
 		AuthConverterFn func() *automock.AuthConverter
-		Input           graphql.PackageInstanceAuthSetInput
+		Input           externalschema.PackageInstanceAuthSetInput
 		Expected        model.PackageInstanceAuthSetInput
 	}{
 		{
@@ -208,9 +209,9 @@ func TestConverter_SetInputFromGraphQL(t *testing.T) {
 				conv.On("InputFromGraphQL", authInputGQL).Return(authInputModel, nil).Once()
 				return conv
 			},
-			Input: graphql.PackageInstanceAuthSetInput{
+			Input: externalschema.PackageInstanceAuthSetInput{
 				Auth:   authInputGQL,
-				Status: fixGQLStatusInput(graphql.PackageInstanceAuthSetStatusConditionInputSucceeded, "foo", "bar"),
+				Status: fixGQLStatusInput(externalschema.PackageInstanceAuthSetStatusConditionInputSucceeded, "foo", "bar"),
 			},
 			Expected: model.PackageInstanceAuthSetInput{
 				Auth:   authInputModel,
@@ -224,7 +225,7 @@ func TestConverter_SetInputFromGraphQL(t *testing.T) {
 				conv.On("InputFromGraphQL", authInputGQL).Return(authInputModel, nil).Once()
 				return conv
 			},
-			Input: graphql.PackageInstanceAuthSetInput{
+			Input: externalschema.PackageInstanceAuthSetInput{
 				Auth:   authInputGQL,
 				Status: nil,
 			},
@@ -237,12 +238,12 @@ func TestConverter_SetInputFromGraphQL(t *testing.T) {
 			Name: "Success when no auth",
 			AuthConverterFn: func() *automock.AuthConverter {
 				conv := &automock.AuthConverter{}
-				conv.On("InputFromGraphQL", (*graphql.AuthInput)(nil)).Return(nil, nil).Once()
+				conv.On("InputFromGraphQL", (*externalschema.AuthInput)(nil)).Return(nil, nil).Once()
 				return conv
 			},
-			Input: graphql.PackageInstanceAuthSetInput{
+			Input: externalschema.PackageInstanceAuthSetInput{
 				Auth:   nil,
-				Status: fixGQLStatusInput(graphql.PackageInstanceAuthSetStatusConditionInputFailed, "foo", "bar"),
+				Status: fixGQLStatusInput(externalschema.PackageInstanceAuthSetStatusConditionInputFailed, "foo", "bar"),
 			},
 			Expected: model.PackageInstanceAuthSetInput{
 				Auth:   nil,

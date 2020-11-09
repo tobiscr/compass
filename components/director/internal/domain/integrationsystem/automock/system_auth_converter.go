@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
@@ -13,15 +15,15 @@ type SystemAuthConverter struct {
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *SystemAuthConverter) ToGraphQL(in *model.SystemAuth) (*graphql.SystemAuth, error) {
+func (_m *SystemAuthConverter) ToGraphQL(in *model.SystemAuth) (*externalschema.SystemAuth, error) {
 	ret := _m.Called(in)
 
-	var r0 *graphql.SystemAuth
-	if rf, ok := ret.Get(0).(func(*model.SystemAuth) *graphql.SystemAuth); ok {
+	var r0 *externalschema.SystemAuth
+	if rf, ok := ret.Get(0).(func(*model.SystemAuth) *externalschema.SystemAuth); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.SystemAuth)
+			r0 = ret.Get(0).(*externalschema.SystemAuth)
 		}
 	}
 

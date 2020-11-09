@@ -3,9 +3,10 @@ package eventing
 import (
 	"context"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/google/uuid"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 	"github.com/pkg/errors"
 )
@@ -35,7 +36,7 @@ func NewResolver(transact persistence.Transactioner, eventingSvc EventingService
 	}
 }
 
-func (r *Resolver) SetEventingForApplication(ctx context.Context, appID string, runtime string) (*graphql.ApplicationEventingConfiguration, error) {
+func (r *Resolver) SetEventingForApplication(ctx context.Context, appID string, runtime string) (*externalschema.ApplicationEventingConfiguration, error) {
 	appUUID, err := uuid.Parse(appID)
 	if err != nil {
 		return nil, errors.Wrap(err, "while parsing application ID as UUID")
@@ -71,7 +72,7 @@ func (r *Resolver) SetEventingForApplication(ctx context.Context, appID string, 
 	return ApplicationEventingConfigurationToGraphQL(eventingCfg), nil
 }
 
-func (r *Resolver) UnsetEventingForApplication(ctx context.Context, appID string) (*graphql.ApplicationEventingConfiguration, error) {
+func (r *Resolver) UnsetEventingForApplication(ctx context.Context, appID string) (*externalschema.ApplicationEventingConfiguration, error) {
 	appUUID, err := uuid.Parse(appID)
 	if err != nil {
 		return nil, errors.Wrap(err, "while parsing application ID as UUID")

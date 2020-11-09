@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
 
@@ -12,18 +14,18 @@ type ApplicationConverter struct {
 }
 
 // CreateInputFromGraphQL provides a mock function with given fields: in
-func (_m *ApplicationConverter) CreateInputFromGraphQL(in graphql.ApplicationRegisterInput) (model.ApplicationRegisterInput, error) {
+func (_m *ApplicationConverter) CreateInputFromGraphQL(in externalschema.ApplicationRegisterInput) (model.ApplicationRegisterInput, error) {
 	ret := _m.Called(in)
 
 	var r0 model.ApplicationRegisterInput
-	if rf, ok := ret.Get(0).(func(graphql.ApplicationRegisterInput) model.ApplicationRegisterInput); ok {
+	if rf, ok := ret.Get(0).(func(externalschema.ApplicationRegisterInput) model.ApplicationRegisterInput); ok {
 		r0 = rf(in)
 	} else {
 		r0 = ret.Get(0).(model.ApplicationRegisterInput)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(graphql.ApplicationRegisterInput) error); ok {
+	if rf, ok := ret.Get(1).(func(externalschema.ApplicationRegisterInput) error); ok {
 		r1 = rf(in)
 	} else {
 		r1 = ret.Error(1)
@@ -33,11 +35,11 @@ func (_m *ApplicationConverter) CreateInputFromGraphQL(in graphql.ApplicationReg
 }
 
 // GraphQLToModel provides a mock function with given fields: obj, tenantID
-func (_m *ApplicationConverter) GraphQLToModel(obj *graphql.Application, tenantID string) *model.Application {
+func (_m *ApplicationConverter) GraphQLToModel(obj *externalschema.Application, tenantID string) *model.Application {
 	ret := _m.Called(obj, tenantID)
 
 	var r0 *model.Application
-	if rf, ok := ret.Get(0).(func(*graphql.Application, string) *model.Application); ok {
+	if rf, ok := ret.Get(0).(func(*externalschema.Application, string) *model.Application); ok {
 		r0 = rf(obj, tenantID)
 	} else {
 		if ret.Get(0) != nil {
@@ -49,15 +51,15 @@ func (_m *ApplicationConverter) GraphQLToModel(obj *graphql.Application, tenantI
 }
 
 // MultipleToGraphQL provides a mock function with given fields: in
-func (_m *ApplicationConverter) MultipleToGraphQL(in []*model.Application) []*graphql.Application {
+func (_m *ApplicationConverter) MultipleToGraphQL(in []*model.Application) []*externalschema.Application {
 	ret := _m.Called(in)
 
-	var r0 []*graphql.Application
-	if rf, ok := ret.Get(0).(func([]*model.Application) []*graphql.Application); ok {
+	var r0 []*externalschema.Application
+	if rf, ok := ret.Get(0).(func([]*model.Application) []*externalschema.Application); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*graphql.Application)
+			r0 = ret.Get(0).([]*externalschema.Application)
 		}
 	}
 
@@ -65,15 +67,15 @@ func (_m *ApplicationConverter) MultipleToGraphQL(in []*model.Application) []*gr
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *ApplicationConverter) ToGraphQL(in *model.Application) *graphql.Application {
+func (_m *ApplicationConverter) ToGraphQL(in *model.Application) *externalschema.Application {
 	ret := _m.Called(in)
 
-	var r0 *graphql.Application
-	if rf, ok := ret.Get(0).(func(*model.Application) *graphql.Application); ok {
+	var r0 *externalschema.Application
+	if rf, ok := ret.Get(0).(func(*model.Application) *externalschema.Application); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.Application)
+			r0 = ret.Get(0).(*externalschema.Application)
 		}
 	}
 
@@ -81,11 +83,11 @@ func (_m *ApplicationConverter) ToGraphQL(in *model.Application) *graphql.Applic
 }
 
 // UpdateInputFromGraphQL provides a mock function with given fields: in
-func (_m *ApplicationConverter) UpdateInputFromGraphQL(in graphql.ApplicationUpdateInput) model.ApplicationUpdateInput {
+func (_m *ApplicationConverter) UpdateInputFromGraphQL(in externalschema.ApplicationUpdateInput) model.ApplicationUpdateInput {
 	ret := _m.Called(in)
 
 	var r0 model.ApplicationUpdateInput
-	if rf, ok := ret.Get(0).(func(graphql.ApplicationUpdateInput) model.ApplicationUpdateInput); ok {
+	if rf, ok := ret.Get(0).(func(externalschema.ApplicationUpdateInput) model.ApplicationUpdateInput); ok {
 		r0 = rf(in)
 	} else {
 		r0 = ret.Get(0).(model.ApplicationUpdateInput)

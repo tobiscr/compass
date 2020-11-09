@@ -6,12 +6,13 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/onetimetoken"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/onetimetoken/automock"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -23,7 +24,7 @@ func TestResolver_GenerateOneTimeTokenForApp(t *testing.T) {
 	appID := "08d805a5-87f0-4194-adc7-277ec10de2ef"
 	ctx := context.TODO()
 	tokenModel := model.OneTimeToken{Token: "Token", ConnectorURL: "connectorURL"}
-	expectedToken := graphql.OneTimeTokenForApplication{TokenWithURL: graphql.TokenWithURL{Token: "Token", ConnectorURL: "connectorURL"}}
+	expectedToken := externalschema.OneTimeTokenForApplication{TokenWithURL: externalschema.TokenWithURL{Token: "Token", ConnectorURL: "connectorURL"}}
 	t.Run("Success", func(t *testing.T) {
 		//GIVEN
 		svc := &automock.TokenService{}
@@ -95,7 +96,7 @@ func TestResolver_GenerateOneTimeTokenForApp(t *testing.T) {
 		svc := &automock.TokenService{}
 		svc.On("GenerateOneTimeToken", txtest.CtxWithDBMatcher(), appID, model.ApplicationReference).Return(tokenModel, nil)
 		conv := &automock.TokenConverter{}
-		conv.On("ToGraphQLForApplication", tokenModel).Return(graphql.OneTimeTokenForApplication{}, errors.New("some-error"))
+		conv.On("ToGraphQLForApplication", tokenModel).Return(externalschema.OneTimeTokenForApplication{}, errors.New("some-error"))
 		persist, transact := txGen.ThatSucceeds()
 		r := onetimetoken.NewTokenResolver(transact, svc, conv)
 
@@ -114,7 +115,7 @@ func TestResolver_GenerateOneTimeTokenForRuntime(t *testing.T) {
 	runtimeID := "08d805a5-87f0-4194-adc7-277ec10de2ef"
 	ctx := context.TODO()
 	tokenModel := model.OneTimeToken{Token: "Token", ConnectorURL: "connectorURL"}
-	expectedToken := graphql.OneTimeTokenForRuntime{graphql.TokenWithURL{Token: "Token", ConnectorURL: "connectorURL"}}
+	expectedToken := externalschema.OneTimeTokenForRuntime{externalschema.TokenWithURL{Token: "Token", ConnectorURL: "connectorURL"}}
 	t.Run("Success", func(t *testing.T) {
 		//GIVEN
 		svc := &automock.TokenService{}
@@ -196,7 +197,7 @@ func TestResolver_GenerateOneTimeTokenForRuntime(t *testing.T) {
 
 func TestResolver_RawEncoded(t *testing.T) {
 	ctx := context.TODO()
-	tokenGraphql := graphql.OneTimeTokenForApplication{TokenWithURL: graphql.TokenWithURL{Token: "Token", ConnectorURL: "connectorURL"}, LegacyConnectorURL: "legacyConnectorURL"}
+	tokenGraphql := externalschema.OneTimeTokenForApplication{TokenWithURL: externalschema.TokenWithURL{Token: "Token", ConnectorURL: "connectorURL"}, LegacyConnectorURL: "legacyConnectorURL"}
 	expectedRawToken := "{\"token\":\"Token\"," +
 		"\"connectorURL\":\"connectorURL\"}"
 	expectedBaseToken := base64.StdEncoding.EncodeToString([]byte(expectedRawToken))
@@ -226,7 +227,7 @@ func TestResolver_RawEncoded(t *testing.T) {
 
 func TestResolver_Raw(t *testing.T) {
 	ctx := context.TODO()
-	tokenGraphql := graphql.OneTimeTokenForApplication{TokenWithURL: graphql.TokenWithURL{Token: "Token", ConnectorURL: "connectorURL"}, LegacyConnectorURL: "legacyConnectorURL"}
+	tokenGraphql := externalschema.OneTimeTokenForApplication{TokenWithURL: externalschema.TokenWithURL{Token: "Token", ConnectorURL: "connectorURL"}, LegacyConnectorURL: "legacyConnectorURL"}
 	expectedRawToken := "{\"token\":\"Token\"," +
 		"\"connectorURL\":\"connectorURL\"}"
 

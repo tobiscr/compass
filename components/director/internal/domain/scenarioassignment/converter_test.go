@@ -3,9 +3,10 @@ package scenarioassignment_test
 import (
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/scenarioassignment"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,9 +14,9 @@ func TestFromInputGraphql(t *testing.T) {
 	sut := scenarioassignment.NewConverter()
 	t.Run("happy path", func(t *testing.T) {
 		// WHEN
-		actual := sut.FromInputGraphQL(graphql.AutomaticScenarioAssignmentSetInput{
+		actual := sut.FromInputGraphQL(externalschema.AutomaticScenarioAssignmentSetInput{
 			ScenarioName: scenarioName,
-			Selector: &graphql.LabelSelectorInput{
+			Selector: &externalschema.LabelSelectorInput{
 				Key:   "my-label",
 				Value: "my-value",
 			},
@@ -45,9 +46,9 @@ func TestToGraphQL(t *testing.T) {
 		},
 	})
 	// THEN
-	assert.Equal(t, graphql.AutomaticScenarioAssignment{
+	assert.Equal(t, externalschema.AutomaticScenarioAssignment{
 		ScenarioName: scenarioName,
-		Selector: &graphql.Label{
+		Selector: &externalschema.Label{
 			Key:   "my-label",
 			Value: "my-value",
 		},
@@ -58,7 +59,7 @@ func TestLabelSelectorFromInput(t *testing.T) {
 	//GIVEN
 	sut := scenarioassignment.NewConverter()
 	//WHEN
-	actual := sut.LabelSelectorFromInput(graphql.LabelSelectorInput{
+	actual := sut.LabelSelectorFromInput(externalschema.LabelSelectorInput{
 		Key:   "test-key",
 		Value: "test-value",
 	})
@@ -142,24 +143,24 @@ func TestConverter_MultipleToGraphQL(t *testing.T) {
 				},
 			},
 		}
-		expected := []*graphql.AutomaticScenarioAssignment{
+		expected := []*externalschema.AutomaticScenarioAssignment{
 			{
 				ScenarioName: "Scenario-A",
-				Selector: &graphql.Label{
+				Selector: &externalschema.Label{
 					Key:   "A-Key",
 					Value: "A-Value",
 				},
 			},
 			{
 				ScenarioName: "Scenario-B",
-				Selector: &graphql.Label{
+				Selector: &externalschema.Label{
 					Key:   "B-Key",
 					Value: "B-Value",
 				},
 			},
 			{
 				ScenarioName: "Scenario-C",
-				Selector: &graphql.Label{
+				Selector: &externalschema.Label{
 					Key:   "C-Key",
 					Value: "C-Value",
 				},

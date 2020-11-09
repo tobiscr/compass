@@ -5,6 +5,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/resource"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
@@ -16,7 +18,6 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/apptemplate/automock"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/tenant"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -36,7 +37,7 @@ func TestResolver_ApplicationTemplate(t *testing.T) {
 		TxFn              func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		AppTemplateSvcFn  func() *automock.ApplicationTemplateService
 		AppTemplateConvFn func() *automock.ApplicationTemplateConverter
-		ExpectedOutput    *graphql.ApplicationTemplate
+		ExpectedOutput    *externalschema.ApplicationTemplate
 		ExpectedError     error
 	}{
 		{
@@ -163,21 +164,21 @@ func TestResolver_ApplicationTemplates(t *testing.T) {
 		fixModelAppTemplate("i2", "n2"),
 	}
 	modelPage := fixModelAppTemplatePage(modelAppTemplates)
-	gqlAppTemplates := []*graphql.ApplicationTemplate{
+	gqlAppTemplates := []*externalschema.ApplicationTemplate{
 		fixGQLAppTemplate("i1", "n1"),
 		fixGQLAppTemplate("i2", "n2"),
 	}
 	gqlPage := fixGQLAppTemplatePage(gqlAppTemplates)
 	first := 2
 	after := "test"
-	gqlAfter := graphql.PageCursor(after)
+	gqlAfter := externalschema.PageCursor(after)
 
 	testCases := []struct {
 		Name              string
 		TxFn              func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		AppTemplateSvcFn  func() *automock.ApplicationTemplateService
 		AppTemplateConvFn func() *automock.ApplicationTemplateConverter
-		ExpectedOutput    *graphql.ApplicationTemplatePage
+		ExpectedOutput    *externalschema.ApplicationTemplatePage
 		ExpectedError     error
 	}{
 		{
@@ -297,7 +298,7 @@ func TestResolver_CreateApplicationTemplate(t *testing.T) {
 		TxFn              func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		AppTemplateSvcFn  func() *automock.ApplicationTemplateService
 		AppTemplateConvFn func() *automock.ApplicationTemplateConverter
-		ExpectedOutput    *graphql.ApplicationTemplate
+		ExpectedOutput    *externalschema.ApplicationTemplate
 		ExpectedError     error
 	}{
 		{
@@ -463,7 +464,7 @@ func TestResolver_RegisterApplicationFromTemplate(t *testing.T) {
 		AppTemplateConvFn func() *automock.ApplicationTemplateConverter
 		AppSvcFn          func() *automock.ApplicationService
 		AppConvFn         func() *automock.ApplicationConverter
-		ExpectedOutput    *graphql.Application
+		ExpectedOutput    *externalschema.Application
 		ExpectedError     error
 	}{
 		{
@@ -588,7 +589,7 @@ func TestResolver_RegisterApplicationFromTemplate(t *testing.T) {
 			},
 			AppConvFn: func() *automock.ApplicationConverter {
 				appConv := &automock.ApplicationConverter{}
-				appConv.On("CreateInputJSONToGQL", jsonAppCreateInput).Return(graphql.ApplicationRegisterInput{}, testError).Once()
+				appConv.On("CreateInputJSONToGQL", jsonAppCreateInput).Return(externalschema.ApplicationRegisterInput{}, testError).Once()
 				return appConv
 			},
 			ExpectedOutput: nil,
@@ -614,7 +615,7 @@ func TestResolver_RegisterApplicationFromTemplate(t *testing.T) {
 			},
 			AppConvFn: func() *automock.ApplicationConverter {
 				appConv := &automock.ApplicationConverter{}
-				appConv.On("CreateInputJSONToGQL", jsonAppCreateInput).Return(graphql.ApplicationRegisterInput{}, nil).Once()
+				appConv.On("CreateInputJSONToGQL", jsonAppCreateInput).Return(externalschema.ApplicationRegisterInput{}, nil).Once()
 				return appConv
 			},
 			ExpectedOutput: nil,
@@ -756,7 +757,7 @@ func TestResolver_UpdateApplicationTemplate(t *testing.T) {
 		TxFn              func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		AppTemplateSvcFn  func() *automock.ApplicationTemplateService
 		AppTemplateConvFn func() *automock.ApplicationTemplateConverter
-		ExpectedOutput    *graphql.ApplicationTemplate
+		ExpectedOutput    *externalschema.ApplicationTemplate
 		ExpectedError     error
 	}{
 		{
@@ -911,7 +912,7 @@ func TestResolver_DeleteApplicationTemplate(t *testing.T) {
 		TxFn              func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		AppTemplateSvcFn  func() *automock.ApplicationTemplateService
 		AppTemplateConvFn func() *automock.ApplicationTemplateConverter
-		ExpectedOutput    *graphql.ApplicationTemplate
+		ExpectedOutput    *externalschema.ApplicationTemplate
 		ExpectedError     error
 	}{
 		{

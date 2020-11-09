@@ -3,15 +3,16 @@ package labelfilter_test
 import (
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/labelfilter"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestFromGraphQL(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		query := "foo"
-		in := &graphql.LabelFilter{
+		in := &externalschema.LabelFilter{
 			Key:   "label",
 			Query: &query,
 		}
@@ -27,7 +28,7 @@ func TestFromGraphQL(t *testing.T) {
 	})
 
 	t.Run("Empty query", func(t *testing.T) {
-		in := &graphql.LabelFilter{
+		in := &externalschema.LabelFilter{
 			Key:   "label",
 			Query: nil,
 		}
@@ -46,7 +47,7 @@ func TestFromGraphQL(t *testing.T) {
 func TestMultipleFromGraphQL(t *testing.T) {
 	queryFoo := "foo"
 	queryBar := "bar"
-	in := []*graphql.LabelFilter{
+	in := []*externalschema.LabelFilter{
 		{
 			Key:   "label",
 			Query: &queryFoo,

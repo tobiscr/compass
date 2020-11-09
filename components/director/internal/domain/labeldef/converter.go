@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"encoding/json"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/pkg/errors"
 )
 
@@ -15,7 +16,7 @@ func NewConverter() *converter {
 
 type converter struct{}
 
-func (c *converter) FromGraphQL(input graphql.LabelDefinitionInput, tenant string) (model.LabelDefinition, error) {
+func (c *converter) FromGraphQL(input externalschema.LabelDefinitionInput, tenant string) (model.LabelDefinition, error) {
 	schema, err := input.Schema.Unmarshal()
 	if err != nil {
 		return model.LabelDefinition{}, err
@@ -28,12 +29,12 @@ func (c *converter) FromGraphQL(input graphql.LabelDefinitionInput, tenant strin
 	}, nil
 }
 
-func (c *converter) ToGraphQL(in model.LabelDefinition) (graphql.LabelDefinition, error) {
-	schema, err := graphql.MarshalSchema(in.Schema)
+func (c *converter) ToGraphQL(in model.LabelDefinition) (externalschema.LabelDefinition, error) {
+	schema, err := externalschema.MarshalSchema(in.Schema)
 	if err != nil {
-		return graphql.LabelDefinition{}, err
+		return externalschema.LabelDefinition{}, err
 	}
-	return graphql.LabelDefinition{
+	return externalschema.LabelDefinition{
 		Key:    in.Key,
 		Schema: schema,
 	}, nil

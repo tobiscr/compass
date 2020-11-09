@@ -5,19 +5,20 @@ import (
 	"encoding/json"
 	"strings"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 	"github.com/kyma-incubator/compass/components/director/internal/repo"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql/graphqlizer"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema/graphqlizer"
 
 	"github.com/pkg/errors"
 )
 
 //go:generate mockery -name=AppConverter -output=automock -outpkg=automock -case=underscore
 type AppConverter interface {
-	CreateInputGQLToJSON(in *graphql.ApplicationRegisterInput) (string, error)
+	CreateInputGQLToJSON(in *externalschema.ApplicationRegisterInput) (string, error)
 }
 
 type converter struct {
@@ -28,7 +29,7 @@ func NewConverter(appConverter AppConverter) *converter {
 	return &converter{appConverter: appConverter}
 }
 
-func (c *converter) ToGraphQL(in *model.ApplicationTemplate) (*graphql.ApplicationTemplate, error) {
+func (c *converter) ToGraphQL(in *model.ApplicationTemplate) (*externalschema.ApplicationTemplate, error) {
 	if in == nil {
 		return nil, nil
 	}
@@ -42,18 +43,18 @@ func (c *converter) ToGraphQL(in *model.ApplicationTemplate) (*graphql.Applicati
 		return nil, errors.Wrapf(err, "while graphqlising application create input")
 	}
 
-	return &graphql.ApplicationTemplate{
+	return &externalschema.ApplicationTemplate{
 		ID:               in.ID,
 		Name:             in.Name,
 		Description:      in.Description,
 		ApplicationInput: gqlAppInput,
 		Placeholders:     c.placeholdersToGraphql(in.Placeholders),
-		AccessLevel:      graphql.ApplicationTemplateAccessLevel(in.AccessLevel),
+		AccessLevel:      externalschema.ApplicationTemplateAccessLevel(in.AccessLevel),
 	}, nil
 }
 
-func (c *converter) MultipleToGraphQL(in []*model.ApplicationTemplate) ([]*graphql.ApplicationTemplate, error) {
-	var appTemplates []*graphql.ApplicationTemplate
+func (c *converter) MultipleToGraphQL(in []*model.ApplicationTemplate) ([]*externalschema.ApplicationTemplate, error) {
+	var appTemplates []*externalschema.ApplicationTemplate
 	for _, r := range in {
 		if r == nil {
 			continue
@@ -69,7 +70,7 @@ func (c *converter) MultipleToGraphQL(in []*model.ApplicationTemplate) ([]*graph
 	return appTemplates, nil
 }
 
-func (c *converter) InputFromGraphQL(in graphql.ApplicationTemplateInput) (model.ApplicationTemplateInput, error) {
+func (c *converter) InputFromGraphQL(in externalschema.ApplicationTemplateInput) (model.ApplicationTemplateInput, error) {
 	var appCreateInput string
 	var err error
 	if in.ApplicationInput != nil {
@@ -88,7 +89,7 @@ func (c *converter) InputFromGraphQL(in graphql.ApplicationTemplateInput) (model
 	}, nil
 }
 
-func (c *converter) ApplicationFromTemplateInputFromGraphQL(in graphql.ApplicationFromTemplateInput) model.ApplicationFromTemplateInput {
+func (c *converter) ApplicationFromTemplateInputFromGraphQL(in externalschema.ApplicationFromTemplateInput) model.ApplicationFromTemplateInput {
 	var values []*model.ApplicationTemplateValueInput
 	for _, value := range in.Values {
 		valueInput := model.ApplicationTemplateValueInput{
@@ -145,7 +146,7 @@ func (c *converter) FromEntity(entity *Entity) (*model.ApplicationTemplate, erro
 }
 
 func (c *converter) graphqliseApplicationCreateInput(jsonAppInput string) (string, error) {
-	var gqlAppCreateInput graphql.ApplicationRegisterInput
+	var gqlAppCreateInput externalschema.ApplicationRegisterInput
 	err := json.Unmarshal([]byte(jsonAppInput), &gqlAppCreateInput)
 	if err != nil {
 		return "", errors.Wrap(err, "while unmarshaling application create input")
@@ -190,7 +191,7 @@ func (c *converter) placeholdersModelToJSON(in []model.ApplicationTemplatePlaceh
 	return repo.NewValidNullableString(string(placeholdersMarshalled)), nil
 }
 
-func (c *converter) placeholdersFromGraphql(in []*graphql.PlaceholderDefinitionInput) []model.ApplicationTemplatePlaceholder {
+func (c *converter) placeholdersFromGraphql(in []*externalschema.PlaceholderDefinitionInput) []model.ApplicationTemplatePlaceholder {
 	var placeholders []model.ApplicationTemplatePlaceholder
 	for _, p := range in {
 		np := model.ApplicationTemplatePlaceholder{
@@ -202,10 +203,10 @@ func (c *converter) placeholdersFromGraphql(in []*graphql.PlaceholderDefinitionI
 	return placeholders
 }
 
-func (c *converter) placeholdersToGraphql(in []model.ApplicationTemplatePlaceholder) []*graphql.PlaceholderDefinition {
-	var placeholders []*graphql.PlaceholderDefinition
+func (c *converter) placeholdersToGraphql(in []model.ApplicationTemplatePlaceholder) []*externalschema.PlaceholderDefinition {
+	var placeholders []*externalschema.PlaceholderDefinition
 	for _, p := range in {
-		np := graphql.PlaceholderDefinition{
+		np := externalschema.PlaceholderDefinition{
 			Name:        p.Name,
 			Description: p.Description,
 		}

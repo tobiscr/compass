@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
 
 	"github.com/stretchr/testify/require"
@@ -12,7 +14,6 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/webhook"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/webhook/automock"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 
 	"github.com/stretchr/testify/assert"
@@ -42,7 +43,7 @@ func TestResolver_AddWebhook(t *testing.T) {
 		ServiceFn       func() *automock.WebhookService
 		AppServiceFn    func() *automock.ApplicationService
 		ConverterFn     func() *automock.WebhookConverter
-		ExpectedWebhook *graphql.Webhook
+		ExpectedWebhook *externalschema.Webhook
 		ExpectedErr     error
 	}{
 		{
@@ -250,7 +251,7 @@ func TestResolver_UpdateWebhook(t *testing.T) {
 		ConverterFn     func() *automock.WebhookConverter
 		PersistenceFn   func() *persistenceautomock.PersistenceTx
 		TransactionerFn func(persistTx *persistenceautomock.PersistenceTx) *persistenceautomock.Transactioner
-		ExpectedWebhook *graphql.Webhook
+		ExpectedWebhook *externalschema.Webhook
 		ExpectedErr     error
 	}{
 		{
@@ -386,7 +387,7 @@ func TestResolver_DeleteWebhook(t *testing.T) {
 		ConverterFn     func() *automock.WebhookConverter
 		PersistenceFn   func() *persistenceautomock.PersistenceTx
 		TransactionerFn func(persistTx *persistenceautomock.PersistenceTx) *persistenceautomock.Transactioner
-		ExpectedWebhook *graphql.Webhook
+		ExpectedWebhook *externalschema.Webhook
 		ExpectedErr     error
 	}{
 		{

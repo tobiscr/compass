@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/require"
 )
 
@@ -13,12 +14,12 @@ func Test_RuntimeEventingConfigurationToGraphQL(t *testing.T) {
 	testCases := []struct {
 		Name     string
 		Input    *model.RuntimeEventingConfiguration
-		Expected *graphql.RuntimeEventingConfiguration
+		Expected *externalschema.RuntimeEventingConfiguration
 	}{
 		{
 			Name:  "Valid input model",
 			Input: fixRuntimeEventngCfgWithURL(t, runtimeEventURL),
-			Expected: &graphql.RuntimeEventingConfiguration{
+			Expected: &externalschema.RuntimeEventingConfiguration{
 				DefaultURL: runtimeEventURL,
 			},
 		}, {
@@ -43,7 +44,7 @@ func Test_ApplicationEventingConfigurationToGraphQL(t *testing.T) {
 	testCases := []struct {
 		Name     string
 		Input    *model.ApplicationEventingConfiguration
-		Expected *graphql.ApplicationEventingConfiguration
+		Expected *externalschema.ApplicationEventingConfiguration
 	}{
 		{
 			Name: "Valid input model",
@@ -52,7 +53,7 @@ func Test_ApplicationEventingConfigurationToGraphQL(t *testing.T) {
 					DefaultURL: validURL,
 				},
 			},
-			Expected: &graphql.ApplicationEventingConfiguration{
+			Expected: &externalschema.ApplicationEventingConfiguration{
 				DefaultURL: validURL.String(),
 			},
 		}, {

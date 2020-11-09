@@ -4,17 +4,18 @@ import (
 	"database/sql"
 	"encoding/json"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/pkg/errors"
 )
 
 //go:generate mockery -name=AuthConverter -output=automock -outpkg=automock -case=underscore
 type AuthConverter interface {
-	ToGraphQL(in *model.Auth) (*graphql.Auth, error)
-	InputFromGraphQL(in *graphql.AuthInput) (*model.AuthInput, error)
+	ToGraphQL(in *model.Auth) (*externalschema.Auth, error)
+	InputFromGraphQL(in *externalschema.AuthInput) (*model.AuthInput, error)
 }
 
 type converter struct {
@@ -25,7 +26,7 @@ func NewConverter(authConverter AuthConverter) *converter {
 	return &converter{authConverter: authConverter}
 }
 
-func (c *converter) ToGraphQL(in *model.Webhook) (*graphql.Webhook, error) {
+func (c *converter) ToGraphQL(in *model.Webhook) (*externalschema.Webhook, error) {
 	if in == nil {
 		return nil, nil
 	}
@@ -35,17 +36,17 @@ func (c *converter) ToGraphQL(in *model.Webhook) (*graphql.Webhook, error) {
 		return nil, errors.Wrap(err, "while converting Auth input")
 	}
 
-	return &graphql.Webhook{
+	return &externalschema.Webhook{
 		ID:            in.ID,
 		ApplicationID: in.ApplicationID,
-		Type:          graphql.ApplicationWebhookType(in.Type),
+		Type:          externalschema.ApplicationWebhookType(in.Type),
 		URL:           in.URL,
 		Auth:          auth,
 	}, nil
 }
 
-func (c *converter) MultipleToGraphQL(in []*model.Webhook) ([]*graphql.Webhook, error) {
-	var webhooks []*graphql.Webhook
+func (c *converter) MultipleToGraphQL(in []*model.Webhook) ([]*externalschema.Webhook, error) {
+	var webhooks []*externalschema.Webhook
 	for _, r := range in {
 		if r == nil {
 			continue
@@ -62,7 +63,7 @@ func (c *converter) MultipleToGraphQL(in []*model.Webhook) ([]*graphql.Webhook, 
 	return webhooks, nil
 }
 
-func (c *converter) InputFromGraphQL(in *graphql.WebhookInput) (*model.WebhookInput, error) {
+func (c *converter) InputFromGraphQL(in *externalschema.WebhookInput) (*model.WebhookInput, error) {
 	if in == nil {
 		return nil, nil
 	}
@@ -79,7 +80,7 @@ func (c *converter) InputFromGraphQL(in *graphql.WebhookInput) (*model.WebhookIn
 	}, nil
 }
 
-func (c *converter) MultipleInputFromGraphQL(in []*graphql.WebhookInput) ([]*model.WebhookInput, error) {
+func (c *converter) MultipleInputFromGraphQL(in []*externalschema.WebhookInput) ([]*model.WebhookInput, error) {
 	var inputs []*model.WebhookInput
 	for _, r := range in {
 		if r == nil {

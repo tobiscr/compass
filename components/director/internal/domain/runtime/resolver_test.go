@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/label"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/resource"
@@ -28,7 +30,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/runtime"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -46,7 +47,7 @@ func TestResolver_CreateRuntime(t *testing.T) {
 	testErr := errors.New("Test error")
 
 	desc := "Lorem ipsum"
-	gqlInput := graphql.RuntimeInput{
+	gqlInput := externalschema.RuntimeInput{
 		Name:        "Foo",
 		Description: &desc,
 	}
@@ -62,8 +63,8 @@ func TestResolver_CreateRuntime(t *testing.T) {
 		ServiceFn       func() *automock.RuntimeService
 		ConverterFn     func() *automock.RuntimeConverter
 
-		Input           graphql.RuntimeInput
-		ExpectedRuntime *graphql.Runtime
+		Input           externalschema.RuntimeInput
+		ExpectedRuntime *externalschema.Runtime
 		ExpectedErr     error
 	}{
 		{
@@ -181,7 +182,7 @@ func TestResolver_UpdateRuntime(t *testing.T) {
 	testErr := errors.New("Test error")
 
 	desc := "Lorem ipsum"
-	gqlInput := graphql.RuntimeInput{
+	gqlInput := externalschema.RuntimeInput{
 		Name:        "Foo",
 		Description: &desc,
 	}
@@ -198,8 +199,8 @@ func TestResolver_UpdateRuntime(t *testing.T) {
 		ServiceFn       func() *automock.RuntimeService
 		ConverterFn     func() *automock.RuntimeConverter
 		RuntimeID       string
-		Input           graphql.RuntimeInput
-		ExpectedRuntime *graphql.Runtime
+		Input           externalschema.RuntimeInput
+		ExpectedRuntime *externalschema.Runtime
 		ExpectedErr     error
 	}{
 		{
@@ -335,7 +336,7 @@ func TestResolver_DeleteRuntime(t *testing.T) {
 		OAuth20ServiceFn     func() *automock.OAuth20Service
 		ConverterFn          func() *automock.RuntimeConverter
 		InputID              string
-		ExpectedRuntime      *graphql.Runtime
+		ExpectedRuntime      *externalschema.Runtime
 		ExpectedErr          error
 	}{
 		{
@@ -957,7 +958,7 @@ func TestResolver_Runtime(t *testing.T) {
 		ServiceFn       func() *automock.RuntimeService
 		ConverterFn     func() *automock.RuntimeConverter
 		InputID         string
-		ExpectedRuntime *graphql.Runtime
+		ExpectedRuntime *externalschema.Runtime
 		ExpectedErr     error
 	}{
 		{
@@ -1074,16 +1075,16 @@ func TestResolver_Runtimes(t *testing.T) {
 		fixModelRuntime(t, "bar", "tenant-bar", "Bar", "Lorem Ipsum"),
 	}
 
-	gqlRuntimes := []*graphql.Runtime{
+	gqlRuntimes := []*externalschema.Runtime{
 		fixGQLRuntime(t, "foo", "Foo", "Lorem Ipsum"),
 		fixGQLRuntime(t, "bar", "Bar", "Lorem Ipsum"),
 	}
 
 	first := 2
-	gqlAfter := graphql.PageCursor("test")
+	gqlAfter := externalschema.PageCursor("test")
 	after := "test"
 	filter := []*labelfilter.LabelFilter{{Key: ""}}
-	gqlFilter := []*graphql.LabelFilter{{Key: ""}}
+	gqlFilter := []*externalschema.LabelFilter{{Key: ""}}
 	testErr := errors.New("Test error")
 
 	testCases := []struct {
@@ -1092,10 +1093,10 @@ func TestResolver_Runtimes(t *testing.T) {
 		TransactionerFn   func(persistTx *persistenceautomock.PersistenceTx) *persistenceautomock.Transactioner
 		ServiceFn         func() *automock.RuntimeService
 		ConverterFn       func() *automock.RuntimeConverter
-		InputLabelFilters []*graphql.LabelFilter
+		InputLabelFilters []*externalschema.LabelFilter
 		InputFirst        *int
-		InputAfter        *graphql.PageCursor
-		ExpectedResult    *graphql.RuntimePage
+		InputAfter        *externalschema.PageCursor
+		ExpectedResult    *externalschema.RuntimePage
 		ExpectedErr       error
 	}{
 		{
@@ -1186,7 +1187,7 @@ func TestResolver_SetRuntimeLabel(t *testing.T) {
 	runtimeID := "foo"
 	labelKey := "key"
 	labelValue := []string{"foo", "bar"}
-	gqlLabel := &graphql.Label{
+	gqlLabel := &externalschema.Label{
 		Key:   labelKey,
 		Value: labelValue,
 	}
@@ -1215,7 +1216,7 @@ func TestResolver_SetRuntimeLabel(t *testing.T) {
 		InputRuntimeID  string
 		InputKey        string
 		InputValue      interface{}
-		ExpectedLabel   *graphql.Label
+		ExpectedLabel   *externalschema.Label
 		ExpectedErr     error
 	}{
 		{
@@ -1318,7 +1319,7 @@ func TestResolver_DeleteRuntimeLabel(t *testing.T) {
 
 	runtimeID := "foo"
 
-	gqlLabel := &graphql.Label{
+	gqlLabel := &externalschema.Label{
 		Key:   "key",
 		Value: []string{"foo", "bar"},
 	}
@@ -1335,7 +1336,7 @@ func TestResolver_DeleteRuntimeLabel(t *testing.T) {
 		ConverterFn     func() *automock.RuntimeConverter
 		InputRuntimeID  string
 		InputKey        string
-		ExpectedLabel   *graphql.Label
+		ExpectedLabel   *externalschema.Label
 		ExpectedErr     error
 	}{
 		{
@@ -1473,7 +1474,7 @@ func TestResolver_Labels(t *testing.T) {
 		},
 	}
 
-	gqlLabels := &graphql.Labels{
+	gqlLabels := &externalschema.Labels{
 		labelKey: labelValue,
 		labelKey: labelValue,
 	}
@@ -1485,9 +1486,9 @@ func TestResolver_Labels(t *testing.T) {
 		PersistenceFn   func() *persistenceautomock.PersistenceTx
 		TransactionerFn func(persistTx *persistenceautomock.PersistenceTx) *persistenceautomock.Transactioner
 		ServiceFn       func() *automock.RuntimeService
-		InputRuntime    *graphql.Runtime
+		InputRuntime    *externalschema.Runtime
 		InputKey        string
-		ExpectedResult  *graphql.Labels
+		ExpectedResult  *externalschema.Labels
 		ExpectedErr     error
 	}{
 		{
@@ -1592,7 +1593,7 @@ func TestResolver_Auths(t *testing.T) {
 		fixModelSystemAuth("faz", tnt, parentRuntime.ID, fixModelAuth()),
 	}
 
-	gqlSysAuths := []*graphql.SystemAuth{
+	gqlSysAuths := []*externalschema.SystemAuth{
 		fixGQLSystemAuth("bar", fixGQLAuth()),
 		fixGQLSystemAuth("baz", fixGQLAuth()),
 		fixGQLSystemAuth("faz", fixGQLAuth()),
@@ -1606,7 +1607,7 @@ func TestResolver_Auths(t *testing.T) {
 		TransactionerFn func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		SysAuthSvcFn    func() *automock.SystemAuthService
 		SysAuthConvFn   func() *automock.SystemAuthConverter
-		ExpectedOutput  []*graphql.SystemAuth
+		ExpectedOutput  []*externalschema.SystemAuth
 		ExpectedError   error
 	}{
 		{
@@ -1731,7 +1732,7 @@ func TestResolver_EventingConfiguration(t *testing.T) {
 		Name            string
 		TransactionerFn func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		EventingSvcFn   func() *automock.EventingService
-		ExpectedOutput  *graphql.RuntimeEventingConfiguration
+		ExpectedOutput  *externalschema.RuntimeEventingConfiguration
 		ExpectedError   error
 	}{
 		{
@@ -1807,7 +1808,7 @@ func TestResolver_EventingConfiguration(t *testing.T) {
 		resolver := runtime.NewResolver(nil, nil, nil, nil, nil, nil, nil, nil)
 
 		// WHEN
-		result, err := resolver.EventingConfiguration(ctx, &graphql.Runtime{ID: "abc"})
+		result, err := resolver.EventingConfiguration(ctx, &externalschema.Runtime{ID: "abc"})
 
 		// THEN
 		require.Error(t, err)

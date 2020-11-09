@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
 
@@ -12,11 +14,11 @@ type Converter struct {
 }
 
 // RequestInputFromGraphQL provides a mock function with given fields: in
-func (_m *Converter) RequestInputFromGraphQL(in graphql.PackageInstanceAuthRequestInput) model.PackageInstanceAuthRequestInput {
+func (_m *Converter) RequestInputFromGraphQL(in externalschema.PackageInstanceAuthRequestInput) model.PackageInstanceAuthRequestInput {
 	ret := _m.Called(in)
 
 	var r0 model.PackageInstanceAuthRequestInput
-	if rf, ok := ret.Get(0).(func(graphql.PackageInstanceAuthRequestInput) model.PackageInstanceAuthRequestInput); ok {
+	if rf, ok := ret.Get(0).(func(externalschema.PackageInstanceAuthRequestInput) model.PackageInstanceAuthRequestInput); ok {
 		r0 = rf(in)
 	} else {
 		r0 = ret.Get(0).(model.PackageInstanceAuthRequestInput)
@@ -26,18 +28,18 @@ func (_m *Converter) RequestInputFromGraphQL(in graphql.PackageInstanceAuthReque
 }
 
 // SetInputFromGraphQL provides a mock function with given fields: in
-func (_m *Converter) SetInputFromGraphQL(in graphql.PackageInstanceAuthSetInput) (model.PackageInstanceAuthSetInput, error) {
+func (_m *Converter) SetInputFromGraphQL(in externalschema.PackageInstanceAuthSetInput) (model.PackageInstanceAuthSetInput, error) {
 	ret := _m.Called(in)
 
 	var r0 model.PackageInstanceAuthSetInput
-	if rf, ok := ret.Get(0).(func(graphql.PackageInstanceAuthSetInput) model.PackageInstanceAuthSetInput); ok {
+	if rf, ok := ret.Get(0).(func(externalschema.PackageInstanceAuthSetInput) model.PackageInstanceAuthSetInput); ok {
 		r0 = rf(in)
 	} else {
 		r0 = ret.Get(0).(model.PackageInstanceAuthSetInput)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(graphql.PackageInstanceAuthSetInput) error); ok {
+	if rf, ok := ret.Get(1).(func(externalschema.PackageInstanceAuthSetInput) error); ok {
 		r1 = rf(in)
 	} else {
 		r1 = ret.Error(1)
@@ -47,15 +49,15 @@ func (_m *Converter) SetInputFromGraphQL(in graphql.PackageInstanceAuthSetInput)
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *Converter) ToGraphQL(in *model.PackageInstanceAuth) (*graphql.PackageInstanceAuth, error) {
+func (_m *Converter) ToGraphQL(in *model.PackageInstanceAuth) (*externalschema.PackageInstanceAuth, error) {
 	ret := _m.Called(in)
 
-	var r0 *graphql.PackageInstanceAuth
-	if rf, ok := ret.Get(0).(func(*model.PackageInstanceAuth) *graphql.PackageInstanceAuth); ok {
+	var r0 *externalschema.PackageInstanceAuth
+	if rf, ok := ret.Get(0).(func(*model.PackageInstanceAuth) *externalschema.PackageInstanceAuth); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.PackageInstanceAuth)
+			r0 = ret.Get(0).(*externalschema.PackageInstanceAuth)
 		}
 	}
 

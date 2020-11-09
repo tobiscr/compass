@@ -1,20 +1,22 @@
 package labelfilter
 
-import "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 
 type LabelFilter struct {
 	Key   string
 	Query *string
 }
 
-func FromGraphQL(in *graphql.LabelFilter) *LabelFilter {
+func FromGraphQL(in *externalschema.LabelFilter) *LabelFilter {
 	return &LabelFilter{
 		Key:   in.Key,
 		Query: in.Query,
 	}
 }
 
-func MultipleFromGraphQL(in []*graphql.LabelFilter) []*LabelFilter {
+func MultipleFromGraphQL(in []*externalschema.LabelFilter) []*LabelFilter {
 	var filters []*LabelFilter
 
 	for _, f := range in {

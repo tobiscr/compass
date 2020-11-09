@@ -3,7 +3,7 @@ package healthcheck
 import (
 	"context"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 )
 
 //go:generate mockery -name=HealthCheckService -output=automock -outpkg=automock -case=underscore
@@ -24,10 +24,10 @@ func NewResolver(svc HealthCheckService) *Resolver {
 	}
 }
 
-func (r *Resolver) HealthChecks(ctx context.Context, types []graphql.HealthCheckType, origin *string, first *int, after *graphql.PageCursor) (*graphql.HealthCheckPage, error) {
-	return &graphql.HealthCheckPage{
-		Data: []*graphql.HealthCheck{},
-		PageInfo: &graphql.PageInfo{
+func (r *Resolver) HealthChecks(ctx context.Context, types []externalschema.HealthCheckType, origin *string, first *int, after *externalschema.PageCursor) (*externalschema.HealthCheckPage, error) {
+	return &externalschema.HealthCheckPage{
+		Data: []*externalschema.HealthCheck{},
+		PageInfo: &externalschema.PageInfo{
 			HasNextPage: false,
 			EndCursor:   "",
 			StartCursor: "",

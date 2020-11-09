@@ -5,13 +5,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/str"
 
 	"github.com/kyma-incubator/compass/components/director/internal/repo"
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/application"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/pagination"
 	"github.com/stretchr/testify/require"
 )
@@ -34,10 +35,10 @@ func fixApplicationPage(applications []*model.Application) *model.ApplicationPag
 	}
 }
 
-func fixGQLApplicationPage(applications []*graphql.Application) *graphql.ApplicationPage {
-	return &graphql.ApplicationPage{
+func fixGQLApplicationPage(applications []*externalschema.Application) *externalschema.ApplicationPage {
+	return &externalschema.ApplicationPage{
 		Data: applications,
-		PageInfo: &graphql.PageInfo{
+		PageInfo: &externalschema.PageInfo{
 			StartCursor: "start",
 			EndCursor:   "end",
 			HasNextPage: false,
@@ -74,11 +75,11 @@ func fixModelApplicationWithAllUpdatableFields(id, tenant, name, description, ur
 	}
 }
 
-func fixGQLApplication(id, name, description string) *graphql.Application {
-	return &graphql.Application{
+func fixGQLApplication(id, name, description string) *externalschema.Application {
+	return &externalschema.Application{
 		ID: id,
-		Status: &graphql.ApplicationStatus{
-			Condition: graphql.ApplicationStatusConditionInitial,
+		Status: &externalschema.ApplicationStatus{
+			Condition: externalschema.ApplicationStatusConditionInitial,
 		},
 		Name:        name,
 		Description: &description,
@@ -104,15 +105,15 @@ func fixDetailedModelApplication(t *testing.T, id, tenant, name, description str
 	}
 }
 
-func fixDetailedGQLApplication(t *testing.T, id, name, description string) *graphql.Application {
+func fixDetailedGQLApplication(t *testing.T, id, name, description string) *externalschema.Application {
 	time, err := time.Parse(time.RFC3339, "2002-10-02T10:00:00-05:00")
 	require.NoError(t, err)
 
-	return &graphql.Application{
+	return &externalschema.Application{
 		ID: id,
-		Status: &graphql.ApplicationStatus{
-			Condition: graphql.ApplicationStatusConditionInitial,
-			Timestamp: graphql.Timestamp(time),
+		Status: &externalschema.ApplicationStatus{
+			Condition: externalschema.ApplicationStatusConditionInitial,
+			Timestamp: externalschema.Timestamp(time),
 		},
 		Name:                name,
 		Description:         &description,
@@ -191,35 +192,35 @@ func fixModelApplicationUpdateInputStatus(statusCondition model.ApplicationStatu
 	}
 }
 
-func fixGQLApplicationRegisterInput(name, description string) graphql.ApplicationRegisterInput {
-	labels := graphql.Labels{
+func fixGQLApplicationRegisterInput(name, description string) externalschema.ApplicationRegisterInput {
+	labels := externalschema.Labels{
 		"test": []string{"val", "val2"},
 	}
 	kind := "test"
 	desc := "Sample"
-	return graphql.ApplicationRegisterInput{
+	return externalschema.ApplicationRegisterInput{
 		Name:                name,
 		Description:         &description,
 		Labels:              &labels,
 		HealthCheckURL:      &testURL,
 		IntegrationSystemID: &intSysID,
 		ProviderName:        &providerName,
-		Webhooks: []*graphql.WebhookInput{
+		Webhooks: []*externalschema.WebhookInput{
 			{URL: "webhook1.foo.bar"},
 			{URL: "webhook2.foo.bar"},
 		},
-		Packages: []*graphql.PackageCreateInput{
+		Packages: []*externalschema.PackageCreateInput{
 			{
 				Name: "foo",
-				APIDefinitions: []*graphql.APIDefinitionInput{
+				APIDefinitions: []*externalschema.APIDefinitionInput{
 					{Name: "api1", TargetURL: "foo.bar"},
 					{Name: "api2", TargetURL: "foo.bar2"},
 				},
-				EventDefinitions: []*graphql.EventDefinitionInput{
+				EventDefinitions: []*externalschema.EventDefinitionInput{
 					{Name: "event1", Description: &desc},
 					{Name: "event2", Description: &desc},
 				},
-				Documents: []*graphql.DocumentInput{
+				Documents: []*externalschema.DocumentInput{
 					{DisplayName: "doc1", Kind: &kind},
 					{DisplayName: "doc2", Kind: &kind},
 				},
@@ -228,8 +229,8 @@ func fixGQLApplicationRegisterInput(name, description string) graphql.Applicatio
 	}
 }
 
-func fixGQLApplicationUpdateInput(name, description, url string, statusCondition graphql.ApplicationStatusCondition) graphql.ApplicationUpdateInput {
-	return graphql.ApplicationUpdateInput{
+func fixGQLApplicationUpdateInput(name, description, url string, statusCondition externalschema.ApplicationStatusCondition) externalschema.ApplicationUpdateInput {
+	return externalschema.ApplicationUpdateInput{
 		Description:         &description,
 		HealthCheckURL:      &url,
 		IntegrationSystemID: &intSysID,
@@ -242,7 +243,7 @@ var (
 	docKind  = "fookind"
 	docTitle = "footitle"
 	docData  = "foodata"
-	docCLOB  = graphql.CLOB(docData)
+	docCLOB  = externalschema.CLOB(docData)
 )
 
 func fixModelDocument(packageID, id string) *model.Document {
@@ -268,20 +269,20 @@ func fixModelDocumentPage(documents []*model.Document) *model.DocumentPage {
 	}
 }
 
-func fixGQLDocument(id string) *graphql.Document {
-	return &graphql.Document{
+func fixGQLDocument(id string) *externalschema.Document {
+	return &externalschema.Document{
 		ID:     id,
 		Title:  docTitle,
-		Format: graphql.DocumentFormatMarkdown,
+		Format: externalschema.DocumentFormatMarkdown,
 		Kind:   &docKind,
 		Data:   &docCLOB,
 	}
 }
 
-func fixGQLDocumentPage(documents []*graphql.Document) *graphql.DocumentPage {
-	return &graphql.DocumentPage{
+func fixGQLDocumentPage(documents []*externalschema.Document) *externalschema.DocumentPage {
+	return &externalschema.DocumentPage{
 		Data: documents,
-		PageInfo: &graphql.PageInfo{
+		PageInfo: &externalschema.PageInfo{
 			StartCursor: "start",
 			EndCursor:   "end",
 			HasNextPage: false,
@@ -300,12 +301,12 @@ func fixModelWebhook(appID, id string) *model.Webhook {
 	}
 }
 
-func fixGQLWebhook(id string) *graphql.Webhook {
-	return &graphql.Webhook{
+func fixGQLWebhook(id string) *externalschema.Webhook {
+	return &externalschema.Webhook{
 		ID:   id,
-		Type: graphql.ApplicationWebhookTypeConfigurationChanged,
+		Type: externalschema.ApplicationWebhookTypeConfigurationChanged,
 		URL:  "foourl",
-		Auth: &graphql.Auth{},
+		Auth: &externalschema.Auth{},
 	}
 }
 
@@ -321,10 +322,10 @@ func fixEventAPIDefinitionPage(eventAPIDefinitions []*model.EventDefinition) *mo
 	}
 }
 
-func fixGQLEventDefinitionPage(eventAPIDefinitions []*graphql.EventDefinition) *graphql.EventDefinitionPage {
-	return &graphql.EventDefinitionPage{
+func fixGQLEventDefinitionPage(eventAPIDefinitions []*externalschema.EventDefinition) *externalschema.EventDefinitionPage {
+	return &externalschema.EventDefinitionPage{
 		Data: eventAPIDefinitions,
-		PageInfo: &graphql.PageInfo{
+		PageInfo: &externalschema.PageInfo{
 			StartCursor: "start",
 			EndCursor:   "end",
 			HasNextPage: false,
@@ -346,8 +347,8 @@ func fixMinModelEventAPIDefinition(id, placeholder string) *model.EventDefinitio
 	return &model.EventDefinition{ID: id, Tenant: "ttttttttt-tttt-tttt-tttt-tttttttttttt",
 		PackageID: "ppppppppp-pppp-pppp-pppp-pppppppppppp", Name: placeholder}
 }
-func fixGQLEventDefinition(id string, appId, packageID string, name, description string, group string) *graphql.EventDefinition {
-	return &graphql.EventDefinition{
+func fixGQLEventDefinition(id string, appId, packageID string, name, description string, group string) *externalschema.EventDefinition {
+	return &externalschema.EventDefinition{
 		ID:          id,
 		PackageID:   packageID,
 		Name:        name,
@@ -393,8 +394,8 @@ func fixModelApplicationEventingConfiguration(t *testing.T, rawURL string) *mode
 	}
 }
 
-func fixGQLApplicationEventingConfiguration(url string) *graphql.ApplicationEventingConfiguration {
-	return &graphql.ApplicationEventingConfiguration{
+func fixGQLApplicationEventingConfiguration(url string) *externalschema.ApplicationEventingConfiguration {
+	return &externalschema.ApplicationEventingConfiguration{
 		DefaultURL: url,
 	}
 }
@@ -411,8 +412,8 @@ func fixModelPackage(id, tenantID, appId, name, description string) *model.Packa
 	}
 }
 
-func fixGQLPackage(id, appId, name, description string) *graphql.Package {
-	return &graphql.Package{
+func fixGQLPackage(id, appId, name, description string) *externalschema.Package {
+	return &externalschema.Package{
 		ID:                             id,
 		Name:                           name,
 		Description:                    &description,
@@ -421,10 +422,10 @@ func fixGQLPackage(id, appId, name, description string) *graphql.Package {
 	}
 }
 
-func fixGQLPackagePage(packages []*graphql.Package) *graphql.PackagePage {
-	return &graphql.PackagePage{
+func fixGQLPackagePage(packages []*externalschema.Package) *externalschema.PackagePage {
+	return &externalschema.PackagePage{
 		Data: packages,
-		PageInfo: &graphql.PageInfo{
+		PageInfo: &externalschema.PageInfo{
 			StartCursor: "start",
 			EndCursor:   "end",
 			HasNextPage: false,

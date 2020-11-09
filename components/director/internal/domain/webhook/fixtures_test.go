@@ -2,7 +2,7 @@ package webhook_test
 
 import (
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 )
 
 func fixModelWebhook(id, appID, tenant, url string) *model.Webhook {
@@ -16,13 +16,13 @@ func fixModelWebhook(id, appID, tenant, url string) *model.Webhook {
 	}
 }
 
-func fixGQLWebhook(id, appID, url string) *graphql.Webhook {
-	return &graphql.Webhook{
+func fixGQLWebhook(id, appID, url string) *externalschema.Webhook {
+	return &externalschema.Webhook{
 		ID:            id,
 		ApplicationID: appID,
-		Type:          graphql.ApplicationWebhookTypeConfigurationChanged,
+		Type:          externalschema.ApplicationWebhookTypeConfigurationChanged,
 		URL:           url,
-		Auth:          &graphql.Auth{},
+		Auth:          &externalschema.Auth{},
 	}
 }
 
@@ -34,10 +34,10 @@ func fixModelWebhookInput(url string) *model.WebhookInput {
 	}
 }
 
-func fixGQLWebhookInput(url string) *graphql.WebhookInput {
-	return &graphql.WebhookInput{
-		Type: graphql.ApplicationWebhookTypeConfigurationChanged,
+func fixGQLWebhookInput(url string) *externalschema.WebhookInput {
+	return &externalschema.WebhookInput{
+		Type: externalschema.ApplicationWebhookTypeConfigurationChanged,
 		URL:  url,
-		Auth: &graphql.AuthInput{},
+		Auth: &externalschema.AuthInput{},
 	}
 }

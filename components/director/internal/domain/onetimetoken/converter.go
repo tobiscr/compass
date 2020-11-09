@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/pkg/errors"
 )
 
@@ -17,19 +18,19 @@ func NewConverter(legacyConnectorURL string) *converter {
 	return &converter{legacyConnectorURL}
 }
 
-func (c converter) ToGraphQLForRuntime(model model.OneTimeToken) graphql.OneTimeTokenForRuntime {
-	return graphql.OneTimeTokenForRuntime{
-		TokenWithURL: graphql.TokenWithURL{
+func (c converter) ToGraphQLForRuntime(model model.OneTimeToken) externalschema.OneTimeTokenForRuntime {
+	return externalschema.OneTimeTokenForRuntime{
+		TokenWithURL: externalschema.TokenWithURL{
 			Token:        model.Token,
 			ConnectorURL: model.ConnectorURL,
 		},
 	}
 }
 
-func (c converter) ToGraphQLForApplication(model model.OneTimeToken) (graphql.OneTimeTokenForApplication, error) {
+func (c converter) ToGraphQLForApplication(model model.OneTimeToken) (externalschema.OneTimeTokenForApplication, error) {
 	legacyConnectorURL, err := url.Parse(c.legacyConnectorURL)
 	if err != nil {
-		return graphql.OneTimeTokenForApplication{}, errors.Wrapf(err, "while parsing string (%s) as the URL", c.legacyConnectorURL)
+		return externalschema.OneTimeTokenForApplication{}, errors.Wrapf(err, "while parsing string (%s) as the URL", c.legacyConnectorURL)
 	}
 
 	if legacyConnectorURL.RawQuery != "" {
@@ -37,8 +38,8 @@ func (c converter) ToGraphQLForApplication(model model.OneTimeToken) (graphql.On
 	}
 	legacyConnectorURL.RawQuery += fmt.Sprintf("token=%s", model.Token)
 
-	return graphql.OneTimeTokenForApplication{
-		TokenWithURL: graphql.TokenWithURL{
+	return externalschema.OneTimeTokenForApplication{
+		TokenWithURL: externalschema.TokenWithURL{
 			Token:        model.Token,
 			ConnectorURL: model.ConnectorURL,
 		},

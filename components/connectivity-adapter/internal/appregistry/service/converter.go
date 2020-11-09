@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kyma-incubator/compass/components/connectivity-adapter/internal/appregistry/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 )
 
 type converter struct{}
@@ -21,17 +21,17 @@ func NewConverter() *converter {
 const oDataSpecFormat = "%s/$metadata"
 const oDataSpecType = "odata"
 
-func (c *converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails) (graphql.PackageCreateInput, error) {
-	out := graphql.PackageCreateInput{}
+func (c *converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails) (externalschema.PackageCreateInput, error) {
+	out := externalschema.PackageCreateInput{}
 	out.Name = deprecated.Name
 	if deprecated.Description != "" {
 		out.Description = &deprecated.Description
 	}
 
-	defaultInstanceAuth := &graphql.AuthInput{}
+	defaultInstanceAuth := &externalschema.AuthInput{}
 	if deprecated.Api != nil {
-		var apiDef *graphql.APIDefinitionInput
-		apiDef = &graphql.APIDefinitionInput{
+		var apiDef *externalschema.APIDefinitionInput
+		apiDef = &externalschema.APIDefinitionInput{
 			Name:      deprecated.Name,
 			TargetURL: deprecated.Api.TargetUrl,
 		}
@@ -42,44 +42,44 @@ func (c *converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails)
 
 		if deprecated.Api.ApiType != "" {
 			if apiDef.Spec == nil {
-				apiDef.Spec = &graphql.APISpecInput{}
+				apiDef.Spec = &externalschema.APISpecInput{}
 			}
 
 			if strings.ToLower(deprecated.Api.ApiType) == "odata" {
-				apiDef.Spec.Type = graphql.APISpecTypeOdata
+				apiDef.Spec.Type = externalschema.APISpecTypeOdata
 			} else {
-				apiDef.Spec.Type = graphql.APISpecTypeOpenAPI // quite brave assumption that it will be OpenAPI
+				apiDef.Spec.Type = externalschema.APISpecTypeOpenAPI // quite brave assumption that it will be OpenAPI
 			}
-			apiDef.Spec.Format = graphql.SpecFormatYaml
+			apiDef.Spec.Format = externalschema.SpecFormatYaml
 		}
 
 		if deprecated.Api.Credentials != nil && (deprecated.Api.Credentials.OauthWithCSRF != nil || deprecated.Api.Credentials.BasicWithCSRF != nil) {
-			defaultInstanceAuth.Credential = &graphql.CredentialDataInput{}
+			defaultInstanceAuth.Credential = &externalschema.CredentialDataInput{}
 
 			if deprecated.Api.Credentials.BasicWithCSRF != nil {
-				defaultInstanceAuth.Credential.Basic = &graphql.BasicCredentialDataInput{
+				defaultInstanceAuth.Credential.Basic = &externalschema.BasicCredentialDataInput{
 					Username: deprecated.Api.Credentials.BasicWithCSRF.Username,
 					Password: deprecated.Api.Credentials.BasicWithCSRF.Password,
 				}
 
 				if deprecated.Api.Credentials.BasicWithCSRF.CSRFInfo != nil {
-					defaultInstanceAuth.RequestAuth = &graphql.CredentialRequestAuthInput{
-						Csrf: &graphql.CSRFTokenCredentialRequestAuthInput{
+					defaultInstanceAuth.RequestAuth = &externalschema.CredentialRequestAuthInput{
+						Csrf: &externalschema.CSRFTokenCredentialRequestAuthInput{
 							TokenEndpointURL: deprecated.Api.Credentials.BasicWithCSRF.CSRFInfo.TokenEndpointURL,
 						}}
 				}
 			}
 
 			if deprecated.Api.Credentials.OauthWithCSRF != nil {
-				defaultInstanceAuth.Credential.Oauth = &graphql.OAuthCredentialDataInput{
+				defaultInstanceAuth.Credential.Oauth = &externalschema.OAuthCredentialDataInput{
 					ClientID:     deprecated.Api.Credentials.OauthWithCSRF.ClientID,
 					ClientSecret: deprecated.Api.Credentials.OauthWithCSRF.ClientSecret,
 					URL:          deprecated.Api.Credentials.OauthWithCSRF.URL,
 				}
 
 				if deprecated.Api.Credentials.OauthWithCSRF.CSRFInfo != nil {
-					defaultInstanceAuth.RequestAuth = &graphql.CredentialRequestAuthInput{
-						Csrf: &graphql.CSRFTokenCredentialRequestAuthInput{
+					defaultInstanceAuth.RequestAuth = &externalschema.CredentialRequestAuthInput{
+						Csrf: &externalschema.CSRFTokenCredentialRequestAuthInput{
 							TokenEndpointURL: deprecated.Api.Credentials.OauthWithCSRF.CSRFInfo.TokenEndpointURL,
 						}}
 				}
@@ -90,9 +90,9 @@ func (c *converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails)
 
 		// old way of providing request headers
 		if deprecated.Api.Headers != nil {
-			h, err := graphql.NewHttpHeadersSerialized(*deprecated.Api.Headers)
+			h, err := externalschema.NewHttpHeadersSerialized(*deprecated.Api.Headers)
 			if err != nil {
-				return graphql.PackageCreateInput{}, err
+				return externalschema.PackageCreateInput{}, err
 			}
 
 			defaultInstanceAuth.AdditionalHeadersSerialized = &h
@@ -100,9 +100,9 @@ func (c *converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails)
 
 		// old way of providing request headers
 		if deprecated.Api.QueryParameters != nil {
-			q, err := graphql.NewQueryParamsSerialized(*deprecated.Api.QueryParameters)
+			q, err := externalschema.NewQueryParamsSerialized(*deprecated.Api.QueryParameters)
 			if err != nil {
-				return graphql.PackageCreateInput{}, err
+				return externalschema.PackageCreateInput{}, err
 			}
 
 			defaultInstanceAuth.AdditionalQueryParamsSerialized = &q
@@ -111,17 +111,17 @@ func (c *converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails)
 		// new way
 		if deprecated.Api.RequestParameters != nil {
 			if deprecated.Api.RequestParameters.Headers != nil {
-				h, err := graphql.NewHttpHeadersSerialized(*deprecated.Api.RequestParameters.Headers)
+				h, err := externalschema.NewHttpHeadersSerialized(*deprecated.Api.RequestParameters.Headers)
 				if err != nil {
-					return graphql.PackageCreateInput{}, err
+					return externalschema.PackageCreateInput{}, err
 				}
 
 				defaultInstanceAuth.AdditionalHeadersSerialized = &h
 			}
 			if deprecated.Api.RequestParameters.QueryParameters != nil {
-				q, err := graphql.NewQueryParamsSerialized(*deprecated.Api.RequestParameters.QueryParameters)
+				q, err := externalschema.NewQueryParamsSerialized(*deprecated.Api.RequestParameters.QueryParameters)
 				if err != nil {
-					return graphql.PackageCreateInput{}, err
+					return externalschema.PackageCreateInput{}, err
 				}
 
 				defaultInstanceAuth.AdditionalQueryParamsSerialized = &q
@@ -130,20 +130,20 @@ func (c *converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails)
 
 		if deprecated.Api.Spec != nil {
 			if apiDef.Spec == nil {
-				apiDef.Spec = &graphql.APISpecInput{}
+				apiDef.Spec = &externalschema.APISpecInput{}
 			}
-			asClob := graphql.CLOB(string(deprecated.Api.Spec))
+			asClob := externalschema.CLOB(string(deprecated.Api.Spec))
 			apiDef.Spec.Data = &asClob
 			if apiDef.Spec.Type == "" {
-				apiDef.Spec.Type = graphql.APISpecTypeOpenAPI
+				apiDef.Spec.Type = externalschema.APISpecTypeOpenAPI
 			}
 
 			if c.isXML(string(deprecated.Api.Spec)) {
-				apiDef.Spec.Format = graphql.SpecFormatXML
+				apiDef.Spec.Format = externalschema.SpecFormatXML
 			} else if c.isJSON(deprecated.Api.Spec) {
-				apiDef.Spec.Format = graphql.SpecFormatJSON
+				apiDef.Spec.Format = externalschema.SpecFormatJSON
 			} else {
-				apiDef.Spec.Format = graphql.SpecFormatYaml
+				apiDef.Spec.Format = externalschema.SpecFormatYaml
 			}
 		}
 
@@ -152,14 +152,14 @@ func (c *converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails)
 			lowercaseDeprecatedAPIType := strings.ToLower(deprecated.Api.ApiType)
 			if deprecated.Api.SpecificationUrl != "" || deprecated.Api.SpecificationCredentials != nil || deprecated.Api.SpecificationRequestParameters != nil || lowercaseDeprecatedAPIType == oDataSpecType {
 				if apiDef.Spec == nil {
-					apiDef.Spec = &graphql.APISpecInput{}
+					apiDef.Spec = &externalschema.APISpecInput{}
 				}
 
 				apiDef.Spec.Type = toNewSpecType(deprecated.Api.ApiType)
 				if lowercaseDeprecatedAPIType == oDataSpecType {
-					apiDef.Spec.Format = graphql.SpecFormatXML
+					apiDef.Spec.Format = externalschema.SpecFormatXML
 				} else {
-					apiDef.Spec.Format = graphql.SpecFormatJSON
+					apiDef.Spec.Format = externalschema.SpecFormatJSON
 				}
 
 				url := deprecated.Api.SpecificationUrl
@@ -168,20 +168,20 @@ func (c *converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails)
 					url = fmt.Sprintf(oDataSpecFormat, targetURL)
 				}
 
-				apiDef.Spec.FetchRequest = &graphql.FetchRequestInput{
+				apiDef.Spec.FetchRequest = &externalschema.FetchRequestInput{
 					URL: url,
 				}
 			}
 
 			if deprecated.Api.SpecificationCredentials != nil || deprecated.Api.SpecificationRequestParameters != nil {
-				apiDef.Spec.FetchRequest.Auth = &graphql.AuthInput{}
+				apiDef.Spec.FetchRequest.Auth = &externalschema.AuthInput{}
 			}
 
 			if deprecated.Api.SpecificationCredentials != nil {
 				if deprecated.Api.SpecificationCredentials.Oauth != nil {
 					inOauth := deprecated.Api.SpecificationCredentials.Oauth
-					apiDef.Spec.FetchRequest.Auth.Credential = &graphql.CredentialDataInput{
-						Oauth: &graphql.OAuthCredentialDataInput{
+					apiDef.Spec.FetchRequest.Auth.Credential = &externalschema.CredentialDataInput{
+						Oauth: &externalschema.OAuthCredentialDataInput{
 							URL:          inOauth.URL,
 							ClientID:     inOauth.ClientID,
 							ClientSecret: inOauth.ClientSecret,
@@ -190,8 +190,8 @@ func (c *converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails)
 				}
 				if deprecated.Api.SpecificationCredentials.Basic != nil {
 					inBasic := deprecated.Api.SpecificationCredentials.Basic
-					apiDef.Spec.FetchRequest.Auth.Credential = &graphql.CredentialDataInput{
-						Basic: &graphql.BasicCredentialDataInput{
+					apiDef.Spec.FetchRequest.Auth.Credential = &externalschema.CredentialDataInput{
+						Basic: &externalschema.BasicCredentialDataInput{
 							Username: inBasic.Username,
 							Password: inBasic.Password,
 						},
@@ -201,17 +201,17 @@ func (c *converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails)
 
 			if deprecated.Api.SpecificationRequestParameters != nil && apiDef.Spec.FetchRequest != nil {
 				if deprecated.Api.SpecificationRequestParameters.Headers != nil {
-					h, err := graphql.NewHttpHeadersSerialized(*deprecated.Api.SpecificationRequestParameters.Headers)
+					h, err := externalschema.NewHttpHeadersSerialized(*deprecated.Api.SpecificationRequestParameters.Headers)
 					if err != nil {
-						return graphql.PackageCreateInput{}, err
+						return externalschema.PackageCreateInput{}, err
 					}
 
 					apiDef.Spec.FetchRequest.Auth.AdditionalHeadersSerialized = &h
 				}
 				if deprecated.Api.SpecificationRequestParameters.QueryParameters != nil {
-					q, err := graphql.NewQueryParamsSerialized(*deprecated.Api.SpecificationRequestParameters.QueryParameters)
+					q, err := externalschema.NewQueryParamsSerialized(*deprecated.Api.SpecificationRequestParameters.QueryParameters)
 					if err != nil {
-						return graphql.PackageCreateInput{}, err
+						return externalschema.PackageCreateInput{}, err
 					}
 
 					apiDef.Spec.FetchRequest.Auth.AdditionalQueryParamsSerialized = &q
@@ -219,30 +219,30 @@ func (c *converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails)
 			}
 		}
 
-		out.APIDefinitions = []*graphql.APIDefinitionInput{apiDef}
+		out.APIDefinitions = []*externalschema.APIDefinitionInput{apiDef}
 	}
 
 	out.DefaultInstanceAuth = defaultInstanceAuth
 
 	if deprecated.Events != nil && deprecated.Events.Spec != nil {
-		var eventDef *graphql.EventDefinitionInput
+		var eventDef *externalschema.EventDefinitionInput
 
 		// TODO add tests
-		var format graphql.SpecFormat
+		var format externalschema.SpecFormat
 		if c.isXML(string(deprecated.Events.Spec)) {
-			format = graphql.SpecFormatXML
+			format = externalschema.SpecFormatXML
 		} else if c.isJSON(deprecated.Events.Spec) {
-			format = graphql.SpecFormatJSON
+			format = externalschema.SpecFormatJSON
 		} else {
-			format = graphql.SpecFormatYaml
+			format = externalschema.SpecFormatYaml
 		}
 
 		eventDef =
-			&graphql.EventDefinitionInput{
+			&externalschema.EventDefinitionInput{
 				Name: deprecated.Name,
-				Spec: &graphql.EventSpecInput{
-					Data:   ptrClob(graphql.CLOB(deprecated.Events.Spec)),
-					Type:   graphql.EventSpecTypeAsyncAPI,
+				Spec: &externalschema.EventSpecInput{
+					Data:   ptrClob(externalschema.CLOB(deprecated.Events.Spec)),
+					Type:   externalschema.EventSpecTypeAsyncAPI,
 					Format: format,
 				},
 			}
@@ -251,7 +251,7 @@ func (c *converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails)
 			eventDef.Description = &deprecated.Description
 		}
 
-		out.EventDefinitions = []*graphql.EventDefinitionInput{eventDef}
+		out.EventDefinitions = []*externalschema.EventDefinitionInput{eventDef}
 	}
 
 	out.Documents = c.legacyDocumentationToDocuments(deprecated.Documentation)
@@ -259,19 +259,19 @@ func (c *converter) DetailsToGraphQLCreateInput(deprecated model.ServiceDetails)
 	return out, nil
 }
 
-func (c *converter) legacyDocumentationToDocuments(legacyDocumentation *model.Documentation) []*graphql.DocumentInput {
+func (c *converter) legacyDocumentationToDocuments(legacyDocumentation *model.Documentation) []*externalschema.DocumentInput {
 	if legacyDocumentation == nil {
 		return nil
 	}
 
-	var docs []*graphql.DocumentInput
+	var docs []*externalschema.DocumentInput
 	for _, legacyDoc := range legacyDocumentation.Docs {
-		data := graphql.CLOB(legacyDoc.Source)
-		doc := &graphql.DocumentInput{
+		data := externalschema.CLOB(legacyDoc.Source)
+		doc := &externalschema.DocumentInput{
 			Title:       legacyDoc.Title,
 			DisplayName: legacyDoc.Title,
-			Description: " ",                            // to workaround our strict validation
-			Format:      graphql.DocumentFormatMarkdown, // we don't have any other format in our API anyway
+			Description: " ",                                   // to workaround our strict validation
+			Format:      externalschema.DocumentFormatMarkdown, // we don't have any other format in our API anyway
 			Kind:        nil,
 			Data:        &data,
 		}
@@ -282,7 +282,7 @@ func (c *converter) legacyDocumentationToDocuments(legacyDocumentation *model.Do
 	return docs
 }
 
-func (c *converter) documentsToLegacyDocumentation(documents []*graphql.DocumentExt) *model.Documentation {
+func (c *converter) documentsToLegacyDocumentation(documents []*externalschema.DocumentExt) *model.Documentation {
 	if documents == nil || len(documents) == 0 {
 		return nil
 	}
@@ -311,18 +311,18 @@ func (c *converter) documentsToLegacyDocumentation(documents []*graphql.Document
 	}
 }
 
-func toNewSpecType(apiType string) graphql.APISpecType {
+func toNewSpecType(apiType string) externalschema.APISpecType {
 	switch strings.ToLower(apiType) {
 	case "openapi":
-		return graphql.APISpecTypeOpenAPI
+		return externalschema.APISpecTypeOpenAPI
 	case "odata":
-		return graphql.APISpecTypeOdata
+		return externalschema.APISpecTypeOdata
 	default:
-		return graphql.APISpecTypeOpenAPI
+		return externalschema.APISpecTypeOpenAPI
 	}
 }
 
-func (c *converter) GraphQLToServiceDetails(in graphql.PackageExt, legacyServiceReference LegacyServiceReference) (model.ServiceDetails, error) {
+func (c *converter) GraphQLToServiceDetails(in externalschema.PackageExt, legacyServiceReference LegacyServiceReference) (model.ServiceDetails, error) {
 	var desc string
 	if in.Description != nil {
 		desc = *in.Description
@@ -355,15 +355,15 @@ func (c *converter) GraphQLToServiceDetails(in graphql.PackageExt, legacyService
 		}
 
 		if in.DefaultInstanceAuth != nil && in.DefaultInstanceAuth.Credential != nil {
-			basicCreds, isBasic := in.DefaultInstanceAuth.Credential.(*graphql.BasicCredentialData)
-			oauthCreds, isOauth := in.DefaultInstanceAuth.Credential.(*graphql.OAuthCredentialData)
+			basicCreds, isBasic := in.DefaultInstanceAuth.Credential.(*externalschema.BasicCredentialData)
+			oauthCreds, isOauth := in.DefaultInstanceAuth.Credential.(*externalschema.OAuthCredentialData)
 
 			if (isBasic && basicCreds != nil) || (isOauth && oauthCreds != nil) {
 				if outDeprecated.Api.Credentials == nil {
 					outDeprecated.Api.Credentials = &model.CredentialsWithCSRF{}
 				}
 				switch actual := in.DefaultInstanceAuth.Credential.(type) {
-				case *graphql.BasicCredentialData:
+				case *externalschema.BasicCredentialData:
 					outDeprecated.Api.Credentials.BasicWithCSRF = &model.BasicAuthWithCSRF{
 						BasicAuth: model.BasicAuth{
 							Username: actual.Username,
@@ -376,7 +376,7 @@ func (c *converter) GraphQLToServiceDetails(in graphql.PackageExt, legacyService
 						}
 					}
 
-				case *graphql.OAuthCredentialData:
+				case *externalschema.OAuthCredentialData:
 					outDeprecated.Api.Credentials.OauthWithCSRF = &model.OauthWithCSRF{
 						Oauth: model.Oauth{
 							URL:          actual.URL,
@@ -440,8 +440,8 @@ func (c *converter) GraphQLToServiceDetails(in graphql.PackageExt, legacyService
 					outDeprecated.Api.SpecificationRequestParameters.Headers = &asMap
 				}
 
-				basic, isBasic := (apiDef.Spec.FetchRequest.Auth.Credential).(*graphql.BasicCredentialData)
-				oauth, isOauth := (apiDef.Spec.FetchRequest.Auth.Credential).(*graphql.OAuthCredentialData)
+				basic, isBasic := (apiDef.Spec.FetchRequest.Auth.Credential).(*externalschema.BasicCredentialData)
+				oauth, isOauth := (apiDef.Spec.FetchRequest.Auth.Credential).(*externalschema.OAuthCredentialData)
 
 				if isOauth || isBasic {
 					outCred := &model.Credentials{}
@@ -490,8 +490,8 @@ func (c *converter) GraphQLToServiceDetails(in graphql.PackageExt, legacyService
 	return outDeprecated, nil
 }
 
-func (c *converter) GraphQLCreateInputToUpdateInput(in graphql.PackageCreateInput) graphql.PackageUpdateInput {
-	return graphql.PackageUpdateInput{
+func (c *converter) GraphQLCreateInputToUpdateInput(in externalschema.PackageCreateInput) externalschema.PackageUpdateInput {
+	return externalschema.PackageUpdateInput{
 		Name:                           in.Name,
 		Description:                    in.Description,
 		InstanceAuthRequestInputSchema: in.InstanceAuthRequestInputSchema,
@@ -510,7 +510,7 @@ func (c *converter) ServiceDetailsToService(in model.ServiceDetails, serviceID s
 	}, nil
 }
 
-func ptrClob(in graphql.CLOB) *graphql.CLOB {
+func ptrClob(in externalschema.CLOB) *externalschema.CLOB {
 	return &in
 }
 

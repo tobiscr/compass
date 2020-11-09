@@ -2,11 +2,11 @@ package version_test
 
 import (
 	"github.com/kyma-incubator/compass/components/director/internal/domain/version"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 
 	"github.com/kyma-incubator/compass/components/director/internal/repo"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 )
 
 func fixModelVersion(value string, deprecated bool, deprecatedSince string, forRemoval bool) *model.Version {
@@ -18,8 +18,8 @@ func fixModelVersion(value string, deprecated bool, deprecatedSince string, forR
 	}
 }
 
-func fixGQLVersion(value string, deprecated bool, deprecatedSince string, forRemoval bool) *graphql.Version {
-	return &graphql.Version{
+func fixGQLVersion(value string, deprecated bool, deprecatedSince string, forRemoval bool) *externalschema.Version {
+	return &externalschema.Version{
 		Value:           value,
 		Deprecated:      &deprecated,
 		DeprecatedSince: &deprecatedSince,
@@ -36,8 +36,8 @@ func fixModelVersionInput(value string, deprecated bool, deprecatedSince string,
 	}
 }
 
-func fixGQLVersionInput(value string, deprecated bool, deprecatedSince string, forRemoval bool) *graphql.VersionInput {
-	return &graphql.VersionInput{
+func fixGQLVersionInput(value string, deprecated bool, deprecatedSince string, forRemoval bool) *externalschema.VersionInput {
+	return &externalschema.VersionInput{
 		Value:           value,
 		Deprecated:      &deprecated,
 		DeprecatedSince: &deprecatedSince,

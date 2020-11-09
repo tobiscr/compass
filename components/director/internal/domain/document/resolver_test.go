@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 	"github.com/stretchr/testify/mock"
 
@@ -13,7 +15,6 @@ import (
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/document"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/document/automock"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/stretchr/testify/assert"
 )
@@ -41,7 +42,7 @@ func TestResolver_AddDocumentToPackage(t *testing.T) {
 		ServiceFn        func() *automock.DocumentService
 		PkgServiceFn     func() *automock.PackageService
 		ConverterFn      func() *automock.DocumentConverter
-		ExpectedDocument *graphql.Document
+		ExpectedDocument *externalschema.Document
 		ExpectedErr      error
 	}{
 		{
@@ -252,7 +253,7 @@ func TestResolver_DeleteDocument(t *testing.T) {
 		TransactionerFn  func(persistTx *persistenceautomock.PersistenceTx) *persistenceautomock.Transactioner
 		ServiceFn        func() *automock.DocumentService
 		ConverterFn      func() *automock.DocumentConverter
-		ExpectedDocument *graphql.Document
+		ExpectedDocument *externalschema.Document
 		ExpectedErr      error
 	}{
 		{
@@ -378,7 +379,7 @@ func TestResolver_FetchRequest(t *testing.T) {
 		TransactionerFn func(persistTx *persistenceautomock.PersistenceTx) *persistenceautomock.Transactioner
 		ServiceFn       func() *automock.DocumentService
 		ConverterFn     func() *automock.FetchRequestConverter
-		ExpectedResult  *graphql.FetchRequest
+		ExpectedResult  *externalschema.FetchRequest
 		ExpectedErr     error
 	}{
 		{
@@ -468,7 +469,7 @@ func TestResolver_FetchRequest(t *testing.T) {
 			resolver := document.NewResolver(transact, svc, nil, nil, converter)
 
 			// when
-			result, err := resolver.FetchRequest(context.TODO(), &graphql.Document{ID: id})
+			result, err := resolver.FetchRequest(context.TODO(), &externalschema.Document{ID: id})
 
 			// then
 			assert.Equal(t, testCase.ExpectedResult, result)

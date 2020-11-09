@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/webhook"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/webhook/automock"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,7 +21,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 	testCases := []struct {
 		Name     string
 		Input    *model.Webhook
-		Expected *graphql.Webhook
+		Expected *externalschema.Webhook
 	}{
 		{
 			Name:     "All properties given",
@@ -30,7 +31,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 		{
 			Name:     "Empty",
 			Input:    &model.Webhook{},
-			Expected: &graphql.Webhook{},
+			Expected: &externalschema.Webhook{},
 		},
 		{
 			Name:     "Nil",
@@ -66,7 +67,7 @@ func TestConverter_MultipleToGraphQL(t *testing.T) {
 		{},
 		nil,
 	}
-	expected := []*graphql.Webhook{
+	expected := []*externalschema.Webhook{
 		fixGQLWebhook("1", "foo", "baz"),
 		fixGQLWebhook("2", "bar", "bez"),
 		{},
@@ -89,7 +90,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 	// given
 	testCases := []struct {
 		Name     string
-		Input    *graphql.WebhookInput
+		Input    *externalschema.WebhookInput
 		Expected *model.WebhookInput
 	}{
 		{
@@ -99,7 +100,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 		},
 		{
 			Name:     "Empty",
-			Input:    &graphql.WebhookInput{},
+			Input:    &externalschema.WebhookInput{},
 			Expected: &model.WebhookInput{},
 		},
 		{
@@ -130,7 +131,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 
 func TestConverter_MultipleInputFromGraphQL(t *testing.T) {
 	// given
-	input := []*graphql.WebhookInput{
+	input := []*externalschema.WebhookInput{
 		fixGQLWebhookInput("foo"),
 		fixGQLWebhookInput("bar"),
 		{},
@@ -143,7 +144,7 @@ func TestConverter_MultipleInputFromGraphQL(t *testing.T) {
 	}
 	authConv := &automock.AuthConverter{}
 	authConv.On("InputFromGraphQL", input[0].Auth).Return(expected[0].Auth, nil)
-	authConv.On("InputFromGraphQL", (*graphql.AuthInput)(nil)).Return(nil, nil)
+	authConv.On("InputFromGraphQL", (*externalschema.AuthInput)(nil)).Return(nil, nil)
 	converter := webhook.NewConverter(authConv)
 
 	// when

@@ -4,10 +4,11 @@ import (
 	"context"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/packageinstanceauth"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/packageinstanceauth/automock"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
 
@@ -31,7 +32,7 @@ func TestResolver_DeletePackageInstanceAuth(t *testing.T) {
 		TransactionerFn func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		ServiceFn       func() *automock.Service
 		ConverterFn     func() *automock.Converter
-		ExpectedResult  *graphql.PackageInstanceAuth
+		ExpectedResult  *externalschema.PackageInstanceAuth
 		ExpectedErr     error
 	}{
 		{
@@ -155,7 +156,7 @@ func TestResolver_RequestPackageInstanceAuthCreation(t *testing.T) {
 		ServiceFn       func() *automock.Service
 		PkgServiceFn    func() *automock.PackageService
 		ConverterFn     func() *automock.Converter
-		ExpectedResult  *graphql.PackageInstanceAuth
+		ExpectedResult  *externalschema.PackageInstanceAuth
 		ExpectedErr     error
 	}{
 		{
@@ -325,7 +326,7 @@ func TestResolver_SetPackageInstanceAuth(t *testing.T) {
 		TransactionerFn func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		ServiceFn       func() *automock.Service
 		ConverterFn     func() *automock.Converter
-		ExpectedResult  *graphql.PackageInstanceAuth
+		ExpectedResult  *externalschema.PackageInstanceAuth
 		ExpectedErr     error
 	}{
 		{
@@ -451,7 +452,7 @@ func TestResolver_RequestPackageInstanceAuthDeletion(t *testing.T) {
 		ServiceFn        func() *automock.Service
 		PackageServiceFn func() *automock.PackageService
 		ConverterFn      func() *automock.Converter
-		ExpectedResult   *graphql.PackageInstanceAuth
+		ExpectedResult   *externalschema.PackageInstanceAuth
 		ExpectedErr      error
 	}{
 		{

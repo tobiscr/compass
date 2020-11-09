@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"testing"
 
-	"github.com/kyma-incubator/compass/components/director/internal/domain/apptemplate/automock"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/internal/domain/apptemplate/automock"
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/apptemplate"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
@@ -22,7 +22,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 	testCases := []struct {
 		Name          string
 		Input         *model.ApplicationTemplate
-		Expected      *graphql.ApplicationTemplate
+		Expected      *externalschema.ApplicationTemplate
 		ExpectedError bool
 	}{
 		{
@@ -78,7 +78,7 @@ func TestConverter_MultipleToGraphQL(t *testing.T) {
 	testCases := []struct {
 		Name          string
 		Input         []*model.ApplicationTemplate
-		Expected      []*graphql.ApplicationTemplate
+		Expected      []*externalschema.ApplicationTemplate
 		ExpectedError bool
 	}{
 		{
@@ -88,7 +88,7 @@ func TestConverter_MultipleToGraphQL(t *testing.T) {
 				fixModelAppTemplate("id2", "name2"),
 				nil,
 			},
-			Expected: []*graphql.ApplicationTemplate{
+			Expected: []*externalschema.ApplicationTemplate{
 				fixGQLAppTemplate("id1", "name1"),
 				fixGQLAppTemplate("id2", "name2"),
 			},
@@ -146,7 +146,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 	testCases := []struct {
 		Name           string
 		AppConverterFn func() *automock.AppConverter
-		Input          graphql.ApplicationTemplateInput
+		Input          externalschema.ApplicationTemplateInput
 		Expected       model.ApplicationTemplateInput
 		ExpectedError  error
 	}{
@@ -167,7 +167,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 				appConverter := automock.AppConverter{}
 				return &appConverter
 			},
-			Input:         graphql.ApplicationTemplateInput{},
+			Input:         externalschema.ApplicationTemplateInput{},
 			Expected:      model.ApplicationTemplateInput{},
 			ExpectedError: nil,
 		},

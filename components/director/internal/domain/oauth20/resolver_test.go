@@ -4,12 +4,13 @@ import (
 	"context"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/str"
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/oauth20"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/oauth20/automock"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
 	"github.com/pkg/errors"
@@ -33,7 +34,7 @@ func TestResolver_CommonRequestClientCredentialsSuccess(t *testing.T) {
 	testCases := []struct {
 		Name                       string
 		ObjType                    model.SystemAuthReferenceObjectType
-		Method                     func(resolver *oauth20.Resolver, ctx context.Context, id string) (*graphql.SystemAuth, error)
+		Method                     func(resolver *oauth20.Resolver, ctx context.Context, id string) (*externalschema.SystemAuth, error)
 		RtmID                      *string
 		AppID                      *string
 		IntSysID                   *string
@@ -58,7 +59,7 @@ func TestResolver_CommonRequestClientCredentialsSuccess(t *testing.T) {
 				isSvc := &automock.IntegrationSystemService{}
 				return isSvc
 			},
-			Method: func(resolver *oauth20.Resolver, ctx context.Context, id string) (*graphql.SystemAuth, error) {
+			Method: func(resolver *oauth20.Resolver, ctx context.Context, id string) (*externalschema.SystemAuth, error) {
 				return resolver.RequestClientCredentialsForRuntime(ctx, id)
 			},
 		},
@@ -79,7 +80,7 @@ func TestResolver_CommonRequestClientCredentialsSuccess(t *testing.T) {
 				isSvc := &automock.IntegrationSystemService{}
 				return isSvc
 			},
-			Method: func(resolver *oauth20.Resolver, ctx context.Context, id string) (*graphql.SystemAuth, error) {
+			Method: func(resolver *oauth20.Resolver, ctx context.Context, id string) (*externalschema.SystemAuth, error) {
 				return resolver.RequestClientCredentialsForApplication(ctx, id)
 			},
 		},
@@ -100,7 +101,7 @@ func TestResolver_CommonRequestClientCredentialsSuccess(t *testing.T) {
 				isSvc.On("Exists", txtest.CtxWithDBMatcher(), id).Return(true, nil).Once()
 				return isSvc
 			},
-			Method: func(resolver *oauth20.Resolver, ctx context.Context, id string) (*graphql.SystemAuth, error) {
+			Method: func(resolver *oauth20.Resolver, ctx context.Context, id string) (*externalschema.SystemAuth, error) {
 				return resolver.RequestClientCredentialsForIntegrationSystem(ctx, id)
 			},
 		},
@@ -396,15 +397,15 @@ func fixModelSystemAuth(clientID string, rtmID, appID, isID *string) *model.Syst
 	}
 }
 
-func fixGQLSystemAuth(clientID string) *graphql.SystemAuth {
-	oauthCredsData := graphql.OAuthCredentialData{
+func fixGQLSystemAuth(clientID string) *externalschema.SystemAuth {
+	oauthCredsData := externalschema.OAuthCredentialData{
 		ClientID:     clientID,
 		ClientSecret: "secret",
 		URL:          "url",
 	}
-	return &graphql.SystemAuth{
+	return &externalschema.SystemAuth{
 		ID: "sysauth-id",
-		Auth: &graphql.Auth{
+		Auth: &externalschema.Auth{
 			Credential: oauthCredsData,
 		},
 	}

@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/runtime_context"
 
 	"github.com/kyma-incubator/compass/components/director/internal/consumer"
@@ -37,14 +39,13 @@ import (
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 	"github.com/kyma-incubator/compass/components/director/internal/uid"
 	configprovider "github.com/kyma-incubator/compass/components/director/pkg/config"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	httputil "github.com/kyma-incubator/compass/components/director/pkg/http"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 
 	log "github.com/sirupsen/logrus"
 )
 
-var _ graphql.ResolverRoot = &RootResolver{}
+var _ externalschema.ResolverRoot = &RootResolver{}
 
 type RootResolver struct {
 	app                 *application.Resolver
@@ -180,44 +181,44 @@ func NewRootResolver(
 	}
 }
 
-func (r *RootResolver) Mutation() graphql.MutationResolver {
+func (r *RootResolver) Mutation() externalschema.MutationResolver {
 	return &mutationResolver{r}
 }
-func (r *RootResolver) Query() graphql.QueryResolver {
+func (r *RootResolver) Query() externalschema.QueryResolver {
 	return &queryResolver{r}
 }
-func (r *RootResolver) Application() graphql.ApplicationResolver {
+func (r *RootResolver) Application() externalschema.ApplicationResolver {
 	return &applicationResolver{r}
 }
-func (r *RootResolver) Runtime() graphql.RuntimeResolver {
+func (r *RootResolver) Runtime() externalschema.RuntimeResolver {
 	return &runtimeResolver{r}
 }
-func (r *RootResolver) RuntimeContext() graphql.RuntimeContextResolver {
+func (r *RootResolver) RuntimeContext() externalschema.RuntimeContextResolver {
 	return &runtimeContextResolver{r}
 }
-func (r *RootResolver) APISpec() graphql.APISpecResolver {
+func (r *RootResolver) APISpec() externalschema.APISpecResolver {
 	return &apiSpecResolver{r}
 }
-func (r *RootResolver) Document() graphql.DocumentResolver {
+func (r *RootResolver) Document() externalschema.DocumentResolver {
 	return &documentResolver{r}
 }
-func (r *RootResolver) EventSpec() graphql.EventSpecResolver {
+func (r *RootResolver) EventSpec() externalschema.EventSpecResolver {
 	return &eventSpecResolver{r}
 }
 
-func (r *RootResolver) Package() graphql.PackageResolver {
+func (r *RootResolver) Package() externalschema.PackageResolver {
 	return &PackageResolver{r}
 }
 
-func (r *RootResolver) IntegrationSystem() graphql.IntegrationSystemResolver {
+func (r *RootResolver) IntegrationSystem() externalschema.IntegrationSystemResolver {
 	return &integrationSystemResolver{r}
 }
 
-func (r *RootResolver) OneTimeTokenForApplication() graphql.OneTimeTokenForApplicationResolver {
+func (r *RootResolver) OneTimeTokenForApplication() externalschema.OneTimeTokenForApplicationResolver {
 	return &oneTimeTokenForApplicationResolver{r}
 }
 
-func (r *RootResolver) OneTimeTokenForRuntime() graphql.OneTimeTokenForRuntimeResolver {
+func (r *RootResolver) OneTimeTokenForRuntime() externalschema.OneTimeTokenForRuntimeResolver {
 	return &oneTimeTokenForRuntimeResolver{r}
 }
 
@@ -225,11 +226,11 @@ type queryResolver struct {
 	*RootResolver
 }
 
-func (r *queryResolver) Viewer(ctx context.Context) (*graphql.Viewer, error) {
+func (r *queryResolver) Viewer(ctx context.Context) (*externalschema.Viewer, error) {
 	return r.viewer.Viewer(ctx)
 }
 
-func (r *queryResolver) Applications(ctx context.Context, filter []*graphql.LabelFilter, first *int, after *graphql.PageCursor) (*graphql.ApplicationPage, error) {
+func (r *queryResolver) Applications(ctx context.Context, filter []*externalschema.LabelFilter, first *int, after *externalschema.PageCursor) (*externalschema.ApplicationPage, error) {
 	consumerInfo, err := consumer.LoadFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -243,59 +244,59 @@ func (r *queryResolver) Applications(ctx context.Context, filter []*graphql.Labe
 	return r.app.Applications(ctx, filter, first, after)
 }
 
-func (r *queryResolver) Application(ctx context.Context, id string) (*graphql.Application, error) {
+func (r *queryResolver) Application(ctx context.Context, id string) (*externalschema.Application, error) {
 	return r.app.Application(ctx, id)
 }
-func (r *queryResolver) ApplicationTemplates(ctx context.Context, first *int, after *graphql.PageCursor) (*graphql.ApplicationTemplatePage, error) {
+func (r *queryResolver) ApplicationTemplates(ctx context.Context, first *int, after *externalschema.PageCursor) (*externalschema.ApplicationTemplatePage, error) {
 	return r.appTemplate.ApplicationTemplates(ctx, first, after)
 }
-func (r *queryResolver) ApplicationTemplate(ctx context.Context, id string) (*graphql.ApplicationTemplate, error) {
+func (r *queryResolver) ApplicationTemplate(ctx context.Context, id string) (*externalschema.ApplicationTemplate, error) {
 	return r.appTemplate.ApplicationTemplate(ctx, id)
 }
-func (r *queryResolver) ApplicationsForRuntime(ctx context.Context, runtimeID string, first *int, after *graphql.PageCursor) (*graphql.ApplicationPage, error) {
+func (r *queryResolver) ApplicationsForRuntime(ctx context.Context, runtimeID string, first *int, after *externalschema.PageCursor) (*externalschema.ApplicationPage, error) {
 	return r.app.ApplicationsForRuntime(ctx, runtimeID, first, after)
 }
-func (r *queryResolver) Runtimes(ctx context.Context, filter []*graphql.LabelFilter, first *int, after *graphql.PageCursor) (*graphql.RuntimePage, error) {
+func (r *queryResolver) Runtimes(ctx context.Context, filter []*externalschema.LabelFilter, first *int, after *externalschema.PageCursor) (*externalschema.RuntimePage, error) {
 	return r.runtime.Runtimes(ctx, filter, first, after)
 }
-func (r *queryResolver) Runtime(ctx context.Context, id string) (*graphql.Runtime, error) {
+func (r *queryResolver) Runtime(ctx context.Context, id string) (*externalschema.Runtime, error) {
 	return r.runtime.Runtime(ctx, id)
 }
-func (r *queryResolver) RuntimeContexts(ctx context.Context, filter []*graphql.LabelFilter, first *int, after *graphql.PageCursor) (*graphql.RuntimeContextPage, error) {
+func (r *queryResolver) RuntimeContexts(ctx context.Context, filter []*externalschema.LabelFilter, first *int, after *externalschema.PageCursor) (*externalschema.RuntimeContextPage, error) {
 	return r.runtimeContext.RuntimeContexts(ctx, filter, first, after)
 }
-func (r *queryResolver) RuntimeContext(ctx context.Context, id string) (*graphql.RuntimeContext, error) {
+func (r *queryResolver) RuntimeContext(ctx context.Context, id string) (*externalschema.RuntimeContext, error) {
 	return r.runtimeContext.RuntimeContext(ctx, id)
 }
-func (r *queryResolver) LabelDefinitions(ctx context.Context) ([]*graphql.LabelDefinition, error) {
+func (r *queryResolver) LabelDefinitions(ctx context.Context) ([]*externalschema.LabelDefinition, error) {
 	return r.labelDef.LabelDefinitions(ctx)
 }
-func (r *queryResolver) LabelDefinition(ctx context.Context, key string) (*graphql.LabelDefinition, error) {
+func (r *queryResolver) LabelDefinition(ctx context.Context, key string) (*externalschema.LabelDefinition, error) {
 	return r.labelDef.LabelDefinition(ctx, key)
 }
-func (r *queryResolver) HealthChecks(ctx context.Context, types []graphql.HealthCheckType, origin *string, first *int, after *graphql.PageCursor) (*graphql.HealthCheckPage, error) {
+func (r *queryResolver) HealthChecks(ctx context.Context, types []externalschema.HealthCheckType, origin *string, first *int, after *externalschema.PageCursor) (*externalschema.HealthCheckPage, error) {
 	return r.healthCheck.HealthChecks(ctx, types, origin, first, after)
 }
-func (r *queryResolver) IntegrationSystems(ctx context.Context, first *int, after *graphql.PageCursor) (*graphql.IntegrationSystemPage, error) {
+func (r *queryResolver) IntegrationSystems(ctx context.Context, first *int, after *externalschema.PageCursor) (*externalschema.IntegrationSystemPage, error) {
 	return r.intSys.IntegrationSystems(ctx, first, after)
 }
-func (r *queryResolver) IntegrationSystem(ctx context.Context, id string) (*graphql.IntegrationSystem, error) {
+func (r *queryResolver) IntegrationSystem(ctx context.Context, id string) (*externalschema.IntegrationSystem, error) {
 	return r.intSys.IntegrationSystem(ctx, id)
 }
 
-func (r *queryResolver) Tenants(ctx context.Context) ([]*graphql.Tenant, error) {
+func (r *queryResolver) Tenants(ctx context.Context) ([]*externalschema.Tenant, error) {
 	return r.tenant.Tenants(ctx)
 }
 
-func (r *queryResolver) AutomaticScenarioAssignmentForScenario(ctx context.Context, scenarioName string) (*graphql.AutomaticScenarioAssignment, error) {
+func (r *queryResolver) AutomaticScenarioAssignmentForScenario(ctx context.Context, scenarioName string) (*externalschema.AutomaticScenarioAssignment, error) {
 	return r.scenarioAssignment.GetAutomaticScenarioAssignmentForScenarioName(ctx, scenarioName)
 }
 
-func (r *queryResolver) AutomaticScenarioAssignmentsForSelector(ctx context.Context, selector graphql.LabelSelectorInput) ([]*graphql.AutomaticScenarioAssignment, error) {
+func (r *queryResolver) AutomaticScenarioAssignmentsForSelector(ctx context.Context, selector externalschema.LabelSelectorInput) ([]*externalschema.AutomaticScenarioAssignment, error) {
 	return r.scenarioAssignment.AutomaticScenarioAssignmentsForSelector(ctx, selector)
 }
 
-func (r *queryResolver) AutomaticScenarioAssignments(ctx context.Context, first *int, after *graphql.PageCursor) (*graphql.AutomaticScenarioAssignmentPage, error) {
+func (r *queryResolver) AutomaticScenarioAssignments(ctx context.Context, first *int, after *externalschema.PageCursor) (*externalschema.AutomaticScenarioAssignmentPage, error) {
 	return r.scenarioAssignment.AutomaticScenarioAssignments(ctx, first, after)
 }
 
@@ -303,183 +304,183 @@ type mutationResolver struct {
 	*RootResolver
 }
 
-func (r *mutationResolver) RegisterApplication(ctx context.Context, in graphql.ApplicationRegisterInput) (*graphql.Application, error) {
+func (r *mutationResolver) RegisterApplication(ctx context.Context, in externalschema.ApplicationRegisterInput) (*externalschema.Application, error) {
 	return r.app.RegisterApplication(ctx, in)
 }
-func (r *mutationResolver) UpdateApplication(ctx context.Context, id string, in graphql.ApplicationUpdateInput) (*graphql.Application, error) {
+func (r *mutationResolver) UpdateApplication(ctx context.Context, id string, in externalschema.ApplicationUpdateInput) (*externalschema.Application, error) {
 	return r.app.UpdateApplication(ctx, id, in)
 }
-func (r *mutationResolver) UnregisterApplication(ctx context.Context, id string) (*graphql.Application, error) {
+func (r *mutationResolver) UnregisterApplication(ctx context.Context, id string) (*externalschema.Application, error) {
 	return r.app.UnregisterApplication(ctx, id)
 }
-func (r *mutationResolver) CreateApplicationTemplate(ctx context.Context, in graphql.ApplicationTemplateInput) (*graphql.ApplicationTemplate, error) {
+func (r *mutationResolver) CreateApplicationTemplate(ctx context.Context, in externalschema.ApplicationTemplateInput) (*externalschema.ApplicationTemplate, error) {
 	return r.appTemplate.CreateApplicationTemplate(ctx, in)
 }
-func (r *mutationResolver) RegisterApplicationFromTemplate(ctx context.Context, in graphql.ApplicationFromTemplateInput) (*graphql.Application, error) {
+func (r *mutationResolver) RegisterApplicationFromTemplate(ctx context.Context, in externalschema.ApplicationFromTemplateInput) (*externalschema.Application, error) {
 	return r.appTemplate.RegisterApplicationFromTemplate(ctx, in)
 }
-func (r *mutationResolver) UpdateApplicationTemplate(ctx context.Context, id string, in graphql.ApplicationTemplateInput) (*graphql.ApplicationTemplate, error) {
+func (r *mutationResolver) UpdateApplicationTemplate(ctx context.Context, id string, in externalschema.ApplicationTemplateInput) (*externalschema.ApplicationTemplate, error) {
 	return r.appTemplate.UpdateApplicationTemplate(ctx, id, in)
 }
-func (r *mutationResolver) DeleteApplicationTemplate(ctx context.Context, id string) (*graphql.ApplicationTemplate, error) {
+func (r *mutationResolver) DeleteApplicationTemplate(ctx context.Context, id string) (*externalschema.ApplicationTemplate, error) {
 	return r.appTemplate.DeleteApplicationTemplate(ctx, id)
 }
-func (r *mutationResolver) AddWebhook(ctx context.Context, applicationID string, in graphql.WebhookInput) (*graphql.Webhook, error) {
+func (r *mutationResolver) AddWebhook(ctx context.Context, applicationID string, in externalschema.WebhookInput) (*externalschema.Webhook, error) {
 	return r.webhook.AddApplicationWebhook(ctx, applicationID, in)
 }
-func (r *mutationResolver) UpdateWebhook(ctx context.Context, webhookID string, in graphql.WebhookInput) (*graphql.Webhook, error) {
+func (r *mutationResolver) UpdateWebhook(ctx context.Context, webhookID string, in externalschema.WebhookInput) (*externalschema.Webhook, error) {
 	return r.webhook.UpdateApplicationWebhook(ctx, webhookID, in)
 }
-func (r *mutationResolver) DeleteWebhook(ctx context.Context, webhookID string) (*graphql.Webhook, error) {
+func (r *mutationResolver) DeleteWebhook(ctx context.Context, webhookID string) (*externalschema.Webhook, error) {
 	return r.webhook.DeleteApplicationWebhook(ctx, webhookID)
 }
 
-func (r *mutationResolver) UpdateAPIDefinition(ctx context.Context, id string, in graphql.APIDefinitionInput) (*graphql.APIDefinition, error) {
+func (r *mutationResolver) UpdateAPIDefinition(ctx context.Context, id string, in externalschema.APIDefinitionInput) (*externalschema.APIDefinition, error) {
 	return r.api.UpdateAPIDefinition(ctx, id, in)
 }
-func (r *mutationResolver) DeleteAPIDefinition(ctx context.Context, id string) (*graphql.APIDefinition, error) {
+func (r *mutationResolver) DeleteAPIDefinition(ctx context.Context, id string) (*externalschema.APIDefinition, error) {
 	return r.api.DeleteAPIDefinition(ctx, id)
 }
-func (r *mutationResolver) RefetchAPISpec(ctx context.Context, apiID string) (*graphql.APISpec, error) {
+func (r *mutationResolver) RefetchAPISpec(ctx context.Context, apiID string) (*externalschema.APISpec, error) {
 	return r.api.RefetchAPISpec(ctx, apiID)
 }
 
-func (r *mutationResolver) UpdateEventDefinition(ctx context.Context, id string, in graphql.EventDefinitionInput) (*graphql.EventDefinition, error) {
+func (r *mutationResolver) UpdateEventDefinition(ctx context.Context, id string, in externalschema.EventDefinitionInput) (*externalschema.EventDefinition, error) {
 	return r.eventAPI.UpdateEventDefinition(ctx, id, in)
 }
-func (r *mutationResolver) DeleteEventDefinition(ctx context.Context, id string) (*graphql.EventDefinition, error) {
+func (r *mutationResolver) DeleteEventDefinition(ctx context.Context, id string) (*externalschema.EventDefinition, error) {
 	return r.eventAPI.DeleteEventDefinition(ctx, id)
 }
-func (r *mutationResolver) RefetchEventDefinitionSpec(ctx context.Context, eventID string) (*graphql.EventSpec, error) {
+func (r *mutationResolver) RefetchEventDefinitionSpec(ctx context.Context, eventID string) (*externalschema.EventSpec, error) {
 	return r.eventAPI.RefetchEventDefinitionSpec(ctx, eventID)
 }
-func (r *mutationResolver) RegisterRuntime(ctx context.Context, in graphql.RuntimeInput) (*graphql.Runtime, error) {
+func (r *mutationResolver) RegisterRuntime(ctx context.Context, in externalschema.RuntimeInput) (*externalschema.Runtime, error) {
 	return r.runtime.RegisterRuntime(ctx, in)
 }
-func (r *mutationResolver) UpdateRuntime(ctx context.Context, id string, in graphql.RuntimeInput) (*graphql.Runtime, error) {
+func (r *mutationResolver) UpdateRuntime(ctx context.Context, id string, in externalschema.RuntimeInput) (*externalschema.Runtime, error) {
 	return r.runtime.UpdateRuntime(ctx, id, in)
 }
-func (r *mutationResolver) UnregisterRuntime(ctx context.Context, id string) (*graphql.Runtime, error) {
+func (r *mutationResolver) UnregisterRuntime(ctx context.Context, id string) (*externalschema.Runtime, error) {
 	return r.runtime.DeleteRuntime(ctx, id)
 }
-func (r *mutationResolver) RegisterRuntimeContext(ctx context.Context, in graphql.RuntimeContextInput) (*graphql.RuntimeContext, error) {
+func (r *mutationResolver) RegisterRuntimeContext(ctx context.Context, in externalschema.RuntimeContextInput) (*externalschema.RuntimeContext, error) {
 	return r.runtimeContext.RegisterRuntimeContext(ctx, in)
 }
-func (r *mutationResolver) UpdateRuntimeContext(ctx context.Context, id string, in graphql.RuntimeContextInput) (*graphql.RuntimeContext, error) {
+func (r *mutationResolver) UpdateRuntimeContext(ctx context.Context, id string, in externalschema.RuntimeContextInput) (*externalschema.RuntimeContext, error) {
 	return r.runtimeContext.UpdateRuntimeContext(ctx, id, in)
 }
-func (r *mutationResolver) UnregisterRuntimeContext(ctx context.Context, id string) (*graphql.RuntimeContext, error) {
+func (r *mutationResolver) UnregisterRuntimeContext(ctx context.Context, id string) (*externalschema.RuntimeContext, error) {
 	return r.runtimeContext.DeleteRuntimeContext(ctx, id)
 }
-func (r *mutationResolver) DeleteDocument(ctx context.Context, id string) (*graphql.Document, error) {
+func (r *mutationResolver) DeleteDocument(ctx context.Context, id string) (*externalschema.Document, error) {
 	return r.doc.DeleteDocument(ctx, id)
 }
-func (r *mutationResolver) CreateLabelDefinition(ctx context.Context, in graphql.LabelDefinitionInput) (*graphql.LabelDefinition, error) {
+func (r *mutationResolver) CreateLabelDefinition(ctx context.Context, in externalschema.LabelDefinitionInput) (*externalschema.LabelDefinition, error) {
 	return r.labelDef.CreateLabelDefinition(ctx, in)
 }
-func (r *mutationResolver) UpdateLabelDefinition(ctx context.Context, in graphql.LabelDefinitionInput) (*graphql.LabelDefinition, error) {
+func (r *mutationResolver) UpdateLabelDefinition(ctx context.Context, in externalschema.LabelDefinitionInput) (*externalschema.LabelDefinition, error) {
 	return r.labelDef.UpdateLabelDefinition(ctx, in)
 }
-func (r *mutationResolver) DeleteLabelDefinition(ctx context.Context, key string, deleteRelatedLabels *bool) (*graphql.LabelDefinition, error) {
+func (r *mutationResolver) DeleteLabelDefinition(ctx context.Context, key string, deleteRelatedLabels *bool) (*externalschema.LabelDefinition, error) {
 	return r.labelDef.DeleteLabelDefinition(ctx, key, deleteRelatedLabels)
 }
-func (r *mutationResolver) SetApplicationLabel(ctx context.Context, applicationID string, key string, value interface{}) (*graphql.Label, error) {
+func (r *mutationResolver) SetApplicationLabel(ctx context.Context, applicationID string, key string, value interface{}) (*externalschema.Label, error) {
 	return r.app.SetApplicationLabel(ctx, applicationID, key, value)
 }
-func (r *mutationResolver) DeleteApplicationLabel(ctx context.Context, applicationID string, key string) (*graphql.Label, error) {
+func (r *mutationResolver) DeleteApplicationLabel(ctx context.Context, applicationID string, key string) (*externalschema.Label, error) {
 	return r.app.DeleteApplicationLabel(ctx, applicationID, key)
 }
-func (r *mutationResolver) SetRuntimeLabel(ctx context.Context, runtimeID string, key string, value interface{}) (*graphql.Label, error) {
+func (r *mutationResolver) SetRuntimeLabel(ctx context.Context, runtimeID string, key string, value interface{}) (*externalschema.Label, error) {
 	return r.runtime.SetRuntimeLabel(ctx, runtimeID, key, value)
 }
-func (r *mutationResolver) DeleteRuntimeLabel(ctx context.Context, runtimeID string, key string) (*graphql.Label, error) {
+func (r *mutationResolver) DeleteRuntimeLabel(ctx context.Context, runtimeID string, key string) (*externalschema.Label, error) {
 	return r.runtime.DeleteRuntimeLabel(ctx, runtimeID, key)
 }
-func (r *mutationResolver) RequestOneTimeTokenForApplication(ctx context.Context, id string) (*graphql.OneTimeTokenForApplication, error) {
+func (r *mutationResolver) RequestOneTimeTokenForApplication(ctx context.Context, id string) (*externalschema.OneTimeTokenForApplication, error) {
 	return r.token.RequestOneTimeTokenForApplication(ctx, id)
 }
-func (r *mutationResolver) RequestOneTimeTokenForRuntime(ctx context.Context, id string) (*graphql.OneTimeTokenForRuntime, error) {
+func (r *mutationResolver) RequestOneTimeTokenForRuntime(ctx context.Context, id string) (*externalschema.OneTimeTokenForRuntime, error) {
 	return r.token.RequestOneTimeTokenForRuntime(ctx, id)
 }
-func (r *mutationResolver) RequestClientCredentialsForRuntime(ctx context.Context, id string) (*graphql.SystemAuth, error) {
+func (r *mutationResolver) RequestClientCredentialsForRuntime(ctx context.Context, id string) (*externalschema.SystemAuth, error) {
 	return r.oAuth20.RequestClientCredentialsForRuntime(ctx, id)
 }
-func (r *mutationResolver) RequestClientCredentialsForApplication(ctx context.Context, id string) (*graphql.SystemAuth, error) {
+func (r *mutationResolver) RequestClientCredentialsForApplication(ctx context.Context, id string) (*externalschema.SystemAuth, error) {
 	return r.oAuth20.RequestClientCredentialsForApplication(ctx, id)
 }
-func (r *mutationResolver) RequestClientCredentialsForIntegrationSystem(ctx context.Context, id string) (*graphql.SystemAuth, error) {
+func (r *mutationResolver) RequestClientCredentialsForIntegrationSystem(ctx context.Context, id string) (*externalschema.SystemAuth, error) {
 	return r.oAuth20.RequestClientCredentialsForIntegrationSystem(ctx, id)
 }
-func (r *mutationResolver) DeleteSystemAuthForRuntime(ctx context.Context, authID string) (*graphql.SystemAuth, error) {
+func (r *mutationResolver) DeleteSystemAuthForRuntime(ctx context.Context, authID string) (*externalschema.SystemAuth, error) {
 	fn := r.systemAuth.GenericDeleteSystemAuth(model.RuntimeReference)
 	return fn(ctx, authID)
 }
-func (r *mutationResolver) DeleteSystemAuthForApplication(ctx context.Context, authID string) (*graphql.SystemAuth, error) {
+func (r *mutationResolver) DeleteSystemAuthForApplication(ctx context.Context, authID string) (*externalschema.SystemAuth, error) {
 	fn := r.systemAuth.GenericDeleteSystemAuth(model.ApplicationReference)
 	return fn(ctx, authID)
 }
-func (r *mutationResolver) DeleteSystemAuthForIntegrationSystem(ctx context.Context, authID string) (*graphql.SystemAuth, error) {
+func (r *mutationResolver) DeleteSystemAuthForIntegrationSystem(ctx context.Context, authID string) (*externalschema.SystemAuth, error) {
 	fn := r.systemAuth.GenericDeleteSystemAuth(model.IntegrationSystemReference)
 	return fn(ctx, authID)
 }
-func (r *mutationResolver) RegisterIntegrationSystem(ctx context.Context, in graphql.IntegrationSystemInput) (*graphql.IntegrationSystem, error) {
+func (r *mutationResolver) RegisterIntegrationSystem(ctx context.Context, in externalschema.IntegrationSystemInput) (*externalschema.IntegrationSystem, error) {
 	return r.intSys.RegisterIntegrationSystem(ctx, in)
 }
-func (r *mutationResolver) UpdateIntegrationSystem(ctx context.Context, id string, in graphql.IntegrationSystemInput) (*graphql.IntegrationSystem, error) {
+func (r *mutationResolver) UpdateIntegrationSystem(ctx context.Context, id string, in externalschema.IntegrationSystemInput) (*externalschema.IntegrationSystem, error) {
 	return r.intSys.UpdateIntegrationSystem(ctx, id, in)
 }
-func (r *mutationResolver) UnregisterIntegrationSystem(ctx context.Context, id string) (*graphql.IntegrationSystem, error) {
+func (r *mutationResolver) UnregisterIntegrationSystem(ctx context.Context, id string) (*externalschema.IntegrationSystem, error) {
 	return r.intSys.UnregisterIntegrationSystem(ctx, id)
 }
 
-func (r *mutationResolver) SetDefaultEventingForApplication(ctx context.Context, appID string, runtimeID string) (*graphql.ApplicationEventingConfiguration, error) {
+func (r *mutationResolver) SetDefaultEventingForApplication(ctx context.Context, appID string, runtimeID string) (*externalschema.ApplicationEventingConfiguration, error) {
 	return r.eventing.SetEventingForApplication(ctx, appID, runtimeID)
 }
 
-func (r *mutationResolver) DeleteDefaultEventingForApplication(ctx context.Context, appID string) (*graphql.ApplicationEventingConfiguration, error) {
+func (r *mutationResolver) DeleteDefaultEventingForApplication(ctx context.Context, appID string) (*externalschema.ApplicationEventingConfiguration, error) {
 	return r.eventing.UnsetEventingForApplication(ctx, appID)
 }
 
-func (r *mutationResolver) AddAPIDefinitionToPackage(ctx context.Context, packageID string, in graphql.APIDefinitionInput) (*graphql.APIDefinition, error) {
+func (r *mutationResolver) AddAPIDefinitionToPackage(ctx context.Context, packageID string, in externalschema.APIDefinitionInput) (*externalschema.APIDefinition, error) {
 	return r.api.AddAPIDefinitionToPackage(ctx, packageID, in)
 }
-func (r *mutationResolver) AddEventDefinitionToPackage(ctx context.Context, packageID string, in graphql.EventDefinitionInput) (*graphql.EventDefinition, error) {
+func (r *mutationResolver) AddEventDefinitionToPackage(ctx context.Context, packageID string, in externalschema.EventDefinitionInput) (*externalschema.EventDefinition, error) {
 	return r.eventAPI.AddEventDefinitionToPackage(ctx, packageID, in)
 }
-func (r *mutationResolver) AddDocumentToPackage(ctx context.Context, packageID string, in graphql.DocumentInput) (*graphql.Document, error) {
+func (r *mutationResolver) AddDocumentToPackage(ctx context.Context, packageID string, in externalschema.DocumentInput) (*externalschema.Document, error) {
 	return r.doc.AddDocumentToPackage(ctx, packageID, in)
 }
-func (r *mutationResolver) SetPackageInstanceAuth(ctx context.Context, authID string, in graphql.PackageInstanceAuthSetInput) (*graphql.PackageInstanceAuth, error) {
+func (r *mutationResolver) SetPackageInstanceAuth(ctx context.Context, authID string, in externalschema.PackageInstanceAuthSetInput) (*externalschema.PackageInstanceAuth, error) {
 	return r.packageInstanceAuth.SetPackageInstanceAuth(ctx, authID, in)
 }
-func (r *mutationResolver) DeletePackageInstanceAuth(ctx context.Context, authID string) (*graphql.PackageInstanceAuth, error) {
+func (r *mutationResolver) DeletePackageInstanceAuth(ctx context.Context, authID string) (*externalschema.PackageInstanceAuth, error) {
 	return r.packageInstanceAuth.DeletePackageInstanceAuth(ctx, authID)
 }
-func (r *mutationResolver) RequestPackageInstanceAuthCreation(ctx context.Context, packageID string, in graphql.PackageInstanceAuthRequestInput) (*graphql.PackageInstanceAuth, error) {
+func (r *mutationResolver) RequestPackageInstanceAuthCreation(ctx context.Context, packageID string, in externalschema.PackageInstanceAuthRequestInput) (*externalschema.PackageInstanceAuth, error) {
 	return r.packageInstanceAuth.RequestPackageInstanceAuthCreation(ctx, packageID, in)
 }
-func (r *mutationResolver) RequestPackageInstanceAuthDeletion(ctx context.Context, authID string) (*graphql.PackageInstanceAuth, error) {
+func (r *mutationResolver) RequestPackageInstanceAuthDeletion(ctx context.Context, authID string) (*externalschema.PackageInstanceAuth, error) {
 	return r.packageInstanceAuth.RequestPackageInstanceAuthDeletion(ctx, authID)
 }
 
-func (r *mutationResolver) AddPackage(ctx context.Context, applicationID string, in graphql.PackageCreateInput) (*graphql.Package, error) {
+func (r *mutationResolver) AddPackage(ctx context.Context, applicationID string, in externalschema.PackageCreateInput) (*externalschema.Package, error) {
 	return r.mpPackage.AddPackage(ctx, applicationID, in)
 }
-func (r *mutationResolver) UpdatePackage(ctx context.Context, id string, in graphql.PackageUpdateInput) (*graphql.Package, error) {
+func (r *mutationResolver) UpdatePackage(ctx context.Context, id string, in externalschema.PackageUpdateInput) (*externalschema.Package, error) {
 	return r.mpPackage.UpdatePackage(ctx, id, in)
 }
-func (r *mutationResolver) DeletePackage(ctx context.Context, id string) (*graphql.Package, error) {
+func (r *mutationResolver) DeletePackage(ctx context.Context, id string) (*externalschema.Package, error) {
 	return r.mpPackage.DeletePackage(ctx, id)
 }
 
-func (r *mutationResolver) DeleteAutomaticScenarioAssignmentForScenario(ctx context.Context, scenarioName string) (*graphql.AutomaticScenarioAssignment, error) {
+func (r *mutationResolver) DeleteAutomaticScenarioAssignmentForScenario(ctx context.Context, scenarioName string) (*externalschema.AutomaticScenarioAssignment, error) {
 	return r.scenarioAssignment.DeleteAutomaticScenarioAssignmentForScenario(ctx, scenarioName)
 }
 
-func (r *mutationResolver) DeleteAutomaticScenarioAssignmentsForSelector(ctx context.Context, selector graphql.LabelSelectorInput) ([]*graphql.AutomaticScenarioAssignment, error) {
+func (r *mutationResolver) DeleteAutomaticScenarioAssignmentsForSelector(ctx context.Context, selector externalschema.LabelSelectorInput) ([]*externalschema.AutomaticScenarioAssignment, error) {
 	return r.scenarioAssignment.DeleteAutomaticScenarioAssignmentsForSelector(ctx, selector)
 }
-func (r *mutationResolver) CreateAutomaticScenarioAssignment(ctx context.Context, in graphql.AutomaticScenarioAssignmentSetInput) (*graphql.AutomaticScenarioAssignment, error) {
+func (r *mutationResolver) CreateAutomaticScenarioAssignment(ctx context.Context, in externalschema.AutomaticScenarioAssignmentSetInput) (*externalschema.AutomaticScenarioAssignment, error) {
 	return r.scenarioAssignment.CreateAutomaticScenarioAssignment(ctx, in)
 }
 
@@ -487,23 +488,23 @@ type applicationResolver struct {
 	*RootResolver
 }
 
-func (r *applicationResolver) Auths(ctx context.Context, obj *graphql.Application) ([]*graphql.SystemAuth, error) {
+func (r *applicationResolver) Auths(ctx context.Context, obj *externalschema.Application) ([]*externalschema.SystemAuth, error) {
 	return r.app.Auths(ctx, obj)
 }
 
-func (r *applicationResolver) Labels(ctx context.Context, obj *graphql.Application, key *string) (*graphql.Labels, error) {
+func (r *applicationResolver) Labels(ctx context.Context, obj *externalschema.Application, key *string) (*externalschema.Labels, error) {
 	return r.app.Labels(ctx, obj, key)
 }
-func (r *applicationResolver) Webhooks(ctx context.Context, obj *graphql.Application) ([]*graphql.Webhook, error) {
+func (r *applicationResolver) Webhooks(ctx context.Context, obj *externalschema.Application) ([]*externalschema.Webhook, error) {
 	return r.app.Webhooks(ctx, obj)
 }
-func (r *applicationResolver) EventingConfiguration(ctx context.Context, obj *graphql.Application) (*graphql.ApplicationEventingConfiguration, error) {
+func (r *applicationResolver) EventingConfiguration(ctx context.Context, obj *externalschema.Application) (*externalschema.ApplicationEventingConfiguration, error) {
 	return r.app.EventingConfiguration(ctx, obj)
 }
-func (r *applicationResolver) Packages(ctx context.Context, obj *graphql.Application, first *int, after *graphql.PageCursor) (*graphql.PackagePage, error) {
+func (r *applicationResolver) Packages(ctx context.Context, obj *externalschema.Application, first *int, after *externalschema.PageCursor) (*externalschema.PackagePage, error) {
 	return r.app.Packages(ctx, obj, first, after)
 }
-func (r *applicationResolver) Package(ctx context.Context, obj *graphql.Application, id string) (*graphql.Package, error) {
+func (r *applicationResolver) Package(ctx context.Context, obj *externalschema.Application, id string) (*externalschema.Package, error) {
 	return r.app.Package(ctx, obj, id)
 }
 
@@ -511,59 +512,59 @@ type runtimeResolver struct {
 	*RootResolver
 }
 
-func (r *runtimeResolver) Labels(ctx context.Context, obj *graphql.Runtime, key *string) (*graphql.Labels, error) {
+func (r *runtimeResolver) Labels(ctx context.Context, obj *externalschema.Runtime, key *string) (*externalschema.Labels, error) {
 	return r.runtime.Labels(ctx, obj, key)
 }
 
-func (r *runtimeResolver) Auths(ctx context.Context, obj *graphql.Runtime) ([]*graphql.SystemAuth, error) {
+func (r *runtimeResolver) Auths(ctx context.Context, obj *externalschema.Runtime) ([]*externalschema.SystemAuth, error) {
 	return r.runtime.Auths(ctx, obj)
 }
 
-func (r *runtimeResolver) EventingConfiguration(ctx context.Context, obj *graphql.Runtime) (*graphql.RuntimeEventingConfiguration, error) {
+func (r *runtimeResolver) EventingConfiguration(ctx context.Context, obj *externalschema.Runtime) (*externalschema.RuntimeEventingConfiguration, error) {
 	return r.runtime.EventingConfiguration(ctx, obj)
 }
 
 type apiSpecResolver struct{ *RootResolver }
 
-func (r *apiSpecResolver) FetchRequest(ctx context.Context, obj *graphql.APISpec) (*graphql.FetchRequest, error) {
+func (r *apiSpecResolver) FetchRequest(ctx context.Context, obj *externalschema.APISpec) (*externalschema.FetchRequest, error) {
 	return r.api.FetchRequest(ctx, obj)
 }
 
 type documentResolver struct{ *RootResolver }
 
-func (r *documentResolver) FetchRequest(ctx context.Context, obj *graphql.Document) (*graphql.FetchRequest, error) {
+func (r *documentResolver) FetchRequest(ctx context.Context, obj *externalschema.Document) (*externalschema.FetchRequest, error) {
 	return r.doc.FetchRequest(ctx, obj)
 }
 
 type eventSpecResolver struct{ *RootResolver }
 
-func (r *eventSpecResolver) FetchRequest(ctx context.Context, obj *graphql.EventSpec) (*graphql.FetchRequest, error) {
+func (r *eventSpecResolver) FetchRequest(ctx context.Context, obj *externalschema.EventSpec) (*externalschema.FetchRequest, error) {
 	return r.eventAPI.FetchRequest(ctx, obj)
 }
 
 type integrationSystemResolver struct{ *RootResolver }
 
-func (r *integrationSystemResolver) Auths(ctx context.Context, obj *graphql.IntegrationSystem) ([]*graphql.SystemAuth, error) {
+func (r *integrationSystemResolver) Auths(ctx context.Context, obj *externalschema.IntegrationSystem) ([]*externalschema.SystemAuth, error) {
 	return r.intSys.Auths(ctx, obj)
 }
 
 type oneTimeTokenForApplicationResolver struct{ *RootResolver }
 
-func (r *oneTimeTokenForApplicationResolver) RawEncoded(ctx context.Context, obj *graphql.OneTimeTokenForApplication) (*string, error) {
+func (r *oneTimeTokenForApplicationResolver) RawEncoded(ctx context.Context, obj *externalschema.OneTimeTokenForApplication) (*string, error) {
 	return r.token.RawEncoded(ctx, &obj.TokenWithURL)
 }
 
-func (r *oneTimeTokenForApplicationResolver) Raw(ctx context.Context, obj *graphql.OneTimeTokenForApplication) (*string, error) {
+func (r *oneTimeTokenForApplicationResolver) Raw(ctx context.Context, obj *externalschema.OneTimeTokenForApplication) (*string, error) {
 	return r.token.Raw(ctx, &obj.TokenWithURL)
 }
 
 type oneTimeTokenForRuntimeResolver struct{ *RootResolver }
 
-func (r *oneTimeTokenForRuntimeResolver) RawEncoded(ctx context.Context, obj *graphql.OneTimeTokenForRuntime) (*string, error) {
+func (r *oneTimeTokenForRuntimeResolver) RawEncoded(ctx context.Context, obj *externalschema.OneTimeTokenForRuntime) (*string, error) {
 	return r.token.RawEncoded(ctx, &obj.TokenWithURL)
 }
 
-func (r *oneTimeTokenForRuntimeResolver) Raw(ctx context.Context, obj *graphql.OneTimeTokenForRuntime) (*string, error) {
+func (r *oneTimeTokenForRuntimeResolver) Raw(ctx context.Context, obj *externalschema.OneTimeTokenForRuntime) (*string, error) {
 	return r.token.Raw(ctx, &obj.TokenWithURL)
 }
 
@@ -571,33 +572,33 @@ type runtimeContextResolver struct {
 	*RootResolver
 }
 
-func (r *runtimeContextResolver) Labels(ctx context.Context, obj *graphql.RuntimeContext, key *string) (*graphql.Labels, error) {
+func (r *runtimeContextResolver) Labels(ctx context.Context, obj *externalschema.RuntimeContext, key *string) (*externalschema.Labels, error) {
 	return r.runtimeContext.Labels(ctx, obj, key)
 }
 
 type PackageResolver struct{ *RootResolver }
 
-func (r *PackageResolver) InstanceAuth(ctx context.Context, obj *graphql.Package, id string) (*graphql.PackageInstanceAuth, error) {
+func (r *PackageResolver) InstanceAuth(ctx context.Context, obj *externalschema.Package, id string) (*externalschema.PackageInstanceAuth, error) {
 	return r.mpPackage.InstanceAuth(ctx, obj, id)
 }
-func (r *PackageResolver) InstanceAuths(ctx context.Context, obj *graphql.Package) ([]*graphql.PackageInstanceAuth, error) {
+func (r *PackageResolver) InstanceAuths(ctx context.Context, obj *externalschema.Package) ([]*externalschema.PackageInstanceAuth, error) {
 	return r.mpPackage.InstanceAuths(ctx, obj)
 }
-func (r *PackageResolver) APIDefinitions(ctx context.Context, obj *graphql.Package, group *string, first *int, after *graphql.PageCursor) (*graphql.APIDefinitionPage, error) {
+func (r *PackageResolver) APIDefinitions(ctx context.Context, obj *externalschema.Package, group *string, first *int, after *externalschema.PageCursor) (*externalschema.APIDefinitionPage, error) {
 	return r.mpPackage.APIDefinitions(ctx, obj, group, first, after)
 }
-func (r *PackageResolver) EventDefinitions(ctx context.Context, obj *graphql.Package, group *string, first *int, after *graphql.PageCursor) (*graphql.EventDefinitionPage, error) {
+func (r *PackageResolver) EventDefinitions(ctx context.Context, obj *externalschema.Package, group *string, first *int, after *externalschema.PageCursor) (*externalschema.EventDefinitionPage, error) {
 	return r.mpPackage.EventDefinitions(ctx, obj, group, first, after)
 }
-func (r *PackageResolver) Documents(ctx context.Context, obj *graphql.Package, first *int, after *graphql.PageCursor) (*graphql.DocumentPage, error) {
+func (r *PackageResolver) Documents(ctx context.Context, obj *externalschema.Package, first *int, after *externalschema.PageCursor) (*externalschema.DocumentPage, error) {
 	return r.mpPackage.Documents(ctx, obj, first, after)
 }
-func (r *PackageResolver) APIDefinition(ctx context.Context, obj *graphql.Package, id string) (*graphql.APIDefinition, error) {
+func (r *PackageResolver) APIDefinition(ctx context.Context, obj *externalschema.Package, id string) (*externalschema.APIDefinition, error) {
 	return r.mpPackage.APIDefinition(ctx, obj, id)
 }
-func (r *PackageResolver) EventDefinition(ctx context.Context, obj *graphql.Package, id string) (*graphql.EventDefinition, error) {
+func (r *PackageResolver) EventDefinition(ctx context.Context, obj *externalschema.Package, id string) (*externalschema.EventDefinition, error) {
 	return r.mpPackage.EventDefinition(ctx, obj, id)
 }
-func (r *PackageResolver) Document(ctx context.Context, obj *graphql.Package, id string) (*graphql.Document, error) {
+func (r *PackageResolver) Document(ctx context.Context, obj *externalschema.Package, id string) (*externalschema.Document, error) {
 	return r.mpPackage.Document(ctx, obj, id)
 }

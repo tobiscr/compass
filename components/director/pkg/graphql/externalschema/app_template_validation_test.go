@@ -1,0 +1,620 @@
+package externalschema_test
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
+	"github.com/kyma-incubator/compass/components/director/pkg/inputvalidation/inputvalidationtest"
+
+	"github.com/kyma-incubator/compass/components/director/pkg/str"
+
+	"github.com/stretchr/testify/require"
+)
+
+// ApplicationTemaplteInput
+
+func TestApplicationTemplateInput_Validate_Rule_ValidPlaceholders(t *testing.T) {
+	testPlaceholderName := "test"
+
+	testCases := []struct {
+		Name  string
+		Value []*externalschema.PlaceholderDefinitionInput
+		Valid bool
+	}{
+		{
+			Name: "Valid",
+			Value: []*externalschema.PlaceholderDefinitionInput{
+				{Name: testPlaceholderName, Description: str.Ptr("Test description")},
+			},
+			Valid: true,
+		},
+		{
+			Name:  "Valid - no placeholders",
+			Value: []*externalschema.PlaceholderDefinitionInput{},
+			Valid: true,
+		},
+		{
+			Name: "Invalid - not unique",
+			Value: []*externalschema.PlaceholderDefinitionInput{
+				{Name: testPlaceholderName, Description: str.Ptr("Test description")},
+				{Name: testPlaceholderName, Description: str.Ptr("Different description")},
+			},
+			Valid: false,
+		},
+		{
+			Name: "Invalid - not used",
+			Value: []*externalschema.PlaceholderDefinitionInput{
+				{Name: "notused", Description: str.Ptr("Test description")},
+			},
+			Valid: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Name, func(t *testing.T) {
+			//GIVEN
+			sut := fixValidApplicationTemplateInput()
+			sut.ApplicationInput.Description = str.Ptr(fmt.Sprintf("{{%s}}", testPlaceholderName))
+			sut.Placeholders = testCase.Value
+			//WHEN
+			err := sut.Validate()
+			//THEN
+			if testCase.Valid {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+			}
+		})
+	}
+}
+
+func TestApplicationTemplateInput_Validate_Name(t *testing.T) {
+	testCases := []struct {
+		Name          string
+		Value         string
+		ExpectedValid bool
+	}{
+		{
+			Name:          "ExpectedValid",
+			Value:         "name-123.com",
+			ExpectedValid: true,
+		},
+		{
+			Name:          "Valid Printable ASCII",
+			Value:         "V1 +=_-)(*&^%$#@!?/>.<,|\\\"':;}{][",
+			ExpectedValid: true,
+		},
+		{
+			Name:          "Empty string",
+			Value:         inputvalidationtest.EmptyString,
+			ExpectedValid: false,
+		},
+		{
+			Name:          "String longer than 100 chars",
+			Value:         inputvalidationtest.String129Long,
+			ExpectedValid: false,
+		},
+		{
+			Name:          "String contains invalid ASCII",
+			Value:         "ąćńłóęǖǘǚǜ",
+			ExpectedValid: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Name, func(t *testing.T) {
+			//GIVEN
+			sut := fixValidApplicationTemplateInput()
+			sut.Name = testCase.Value
+			//WHEN
+			err := sut.Validate()
+			//THEN
+			if testCase.ExpectedValid {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+			}
+		})
+	}
+}
+
+func TestApplicationTemplateInput_Validate_Description(t *testing.T) {
+	testCases := []struct {
+		Name  string
+		Value *string
+		Valid bool
+	}{
+		{
+			Name: "Valid",
+			Value: str.Ptr("valid	valid"),
+			Valid: true,
+		},
+		{
+			Name:  "Valid - Nil",
+			Value: (*string)(nil),
+			Valid: true,
+		},
+		{
+			Name:  "Valid - Empty",
+			Value: str.Ptr(inputvalidationtest.EmptyString),
+			Valid: true,
+		},
+		{
+			Name:  "Invalid - Too long",
+			Value: str.Ptr(inputvalidationtest.String2001Long),
+			Valid: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Name, func(t *testing.T) {
+			//GIVEN
+			sut := fixValidApplicationTemplateInput()
+			sut.Description = testCase.Value
+			//WHEN
+			err := sut.Validate()
+			//THEN
+			if testCase.Valid {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+			}
+		})
+	}
+}
+
+func TestApplicationTemplateInput_Validate_Placeholders(t *testing.T) {
+	testPlaceholderName := "test"
+	testCases := []struct {
+		Name  string
+		Value []*externalschema.PlaceholderDefinitionInput
+		Valid bool
+	}{
+		{
+			Name: "Valid",
+			Value: []*externalschema.PlaceholderDefinitionInput{
+				{Name: testPlaceholderName, Description: str.Ptr("Test description")},
+			},
+			Valid: true,
+		},
+		{
+			Name:  "Valid - Empty",
+			Value: []*externalschema.PlaceholderDefinitionInput{},
+			Valid: true,
+		},
+		{
+			Name:  "Valid - Nil",
+			Value: nil,
+			Valid: true,
+		},
+		{
+			Name: "Invalid - Nil in slice",
+			Value: []*externalschema.PlaceholderDefinitionInput{
+				nil,
+			},
+			Valid: false,
+		},
+		{
+			Name: "Invalid - Nested validation error",
+			Value: []*externalschema.PlaceholderDefinitionInput{
+				{},
+			},
+			Valid: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Name, func(t *testing.T) {
+			//GIVEN
+			sut := fixValidApplicationTemplateInput()
+			sut.ApplicationInput.Description = str.Ptr(fmt.Sprintf("{{%s}}", testPlaceholderName))
+			sut.Placeholders = testCase.Value
+			//WHEN
+			err := sut.Validate()
+			//THEN
+			if testCase.Valid {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+			}
+		})
+	}
+}
+
+func TestApplicationTemplateInput_Validate_AccessLevel(t *testing.T) {
+	testCases := []struct {
+		Name  string
+		Value externalschema.ApplicationTemplateAccessLevel
+		Valid bool
+	}{
+		{
+			Name:  "Valid",
+			Value: externalschema.ApplicationTemplateAccessLevelGlobal,
+			Valid: true,
+		},
+		{
+			Name:  "Invalid - Empty",
+			Value: inputvalidationtest.EmptyString,
+			Valid: false,
+		},
+		{
+			Name:  "Invalid - Not in enum",
+			Value: "invalid",
+			Valid: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Name, func(t *testing.T) {
+			//GIVEN
+			sut := fixValidApplicationTemplateInput()
+			sut.AccessLevel = testCase.Value
+			//WHEN
+			err := sut.Validate()
+			//THEN
+			if testCase.Valid {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+			}
+		})
+	}
+}
+
+// PlaceholderDefinitionInput
+
+func TestPlaceholderDefinitionInput_Validate_Name(t *testing.T) {
+	testCases := []struct {
+		Name  string
+		Value string
+		Valid bool
+	}{
+		{
+			Name:  "Valid",
+			Value: inputvalidationtest.ValidName,
+			Valid: true,
+		},
+		{
+			Name:  "Invalid - Empty",
+			Value: inputvalidationtest.EmptyString,
+			Valid: false,
+		},
+		{
+			Name:  "Invalid - Invalid Name",
+			Value: inputvalidationtest.InvalidName,
+			Valid: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Name, func(t *testing.T) {
+			//GIVEN
+			sut := fixValidPlaceholderDefintionInput()
+			sut.Name = testCase.Value
+			//WHEN
+			err := sut.Validate()
+			//THEN
+			if testCase.Valid {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+			}
+		})
+	}
+}
+
+func TestPlaceholderDefinitionInput_Validate_Description(t *testing.T) {
+	testCases := []struct {
+		Name  string
+		Value *string
+		Valid bool
+	}{
+		{
+			Name: "Valid",
+			Value: str.Ptr("valid	valid"),
+			Valid: true,
+		},
+		{
+			Name:  "Valid - Nil",
+			Value: (*string)(nil),
+			Valid: true,
+		},
+		{
+			Name:  "Valid - Empty",
+			Value: str.Ptr(inputvalidationtest.EmptyString),
+			Valid: true,
+		},
+		{
+			Name:  "Invalid - Too long",
+			Value: str.Ptr(inputvalidationtest.String2001Long),
+			Valid: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Name, func(t *testing.T) {
+			//GIVEN
+			sut := fixValidPlaceholderDefintionInput()
+			sut.Description = testCase.Value
+			//WHEN
+			err := sut.Validate()
+			//THEN
+			if testCase.Valid {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+			}
+		})
+	}
+}
+
+// ApplicationFromTemplateInput
+
+func TestApplicationFromTemplateInput_Validate_Rule_UniquePlaceholders(t *testing.T) {
+	testPlaceholderName := "test"
+
+	testCases := []struct {
+		Name  string
+		Value []*externalschema.TemplateValueInput
+		Valid bool
+	}{
+		{
+			Name: "Valid",
+			Value: []*externalschema.TemplateValueInput{
+				{Placeholder: testPlaceholderName, Value: ""},
+			},
+			Valid: true,
+		},
+		{
+			Name:  "Valid - no placeholders",
+			Value: []*externalschema.TemplateValueInput{},
+			Valid: true,
+		},
+		{
+			Name: "Invalid - not unique",
+			Value: []*externalschema.TemplateValueInput{
+				{Placeholder: testPlaceholderName, Value: "one"},
+				{Placeholder: testPlaceholderName, Value: "two"},
+			},
+			Valid: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Name, func(t *testing.T) {
+			//GIVEN
+			sut := fixValidApplicationFromTemplateInput()
+			sut.Values = testCase.Value
+			//WHEN
+			err := sut.Validate()
+			//THEN
+			if testCase.Valid {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+			}
+		})
+	}
+}
+
+func TestApplicationFromTemplateInput_Validate_TemplateName(t *testing.T) {
+	testCases := []struct {
+		Name          string
+		Value         string
+		ExpectedValid bool
+	}{
+		{
+			Name:          "ExpectedValid",
+			Value:         "name-123.com",
+			ExpectedValid: true,
+		},
+		{
+			Name:          "Valid Printable ASCII",
+			Value:         "V1 +=_-)(*&^%$#@!?/>.<,|\\\"':;}{][",
+			ExpectedValid: true,
+		},
+		{
+			Name:          "Empty string",
+			Value:         inputvalidationtest.EmptyString,
+			ExpectedValid: false,
+		},
+		{
+			Name:          "String longer than 100 chars",
+			Value:         inputvalidationtest.String129Long,
+			ExpectedValid: false,
+		},
+		{
+			Name:          "String contains invalid ASCII",
+			Value:         "ąćńłóęǖǘǚǜ",
+			ExpectedValid: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Name, func(t *testing.T) {
+			//GIVEN
+			sut := fixValidApplicationFromTemplateInput()
+			sut.TemplateName = testCase.Value
+			//WHEN
+			err := sut.Validate()
+			//THEN
+			if testCase.ExpectedValid {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+			}
+		})
+	}
+}
+
+func TestApplicationTemplateInput_Validate_Values(t *testing.T) {
+	testPlaceholderName := "test"
+	testCases := []struct {
+		Name  string
+		Value []*externalschema.TemplateValueInput
+		Valid bool
+	}{
+		{
+			Name: "Valid",
+			Value: []*externalschema.TemplateValueInput{
+				{Placeholder: testPlaceholderName, Value: "valid"},
+			},
+			Valid: true,
+		},
+		{
+			Name:  "Valid - Empty",
+			Value: []*externalschema.TemplateValueInput{},
+			Valid: true,
+		},
+		{
+			Name:  "Valid - Nil",
+			Value: nil,
+			Valid: true,
+		},
+		{
+			Name: "Invalid - Nil in slice",
+			Value: []*externalschema.TemplateValueInput{
+				nil,
+			},
+			Valid: false,
+		},
+		{
+			Name: "Invalid - Nested validation error",
+			Value: []*externalschema.TemplateValueInput{
+				{},
+			},
+			Valid: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Name, func(t *testing.T) {
+			//GIVEN
+			sut := fixValidApplicationFromTemplateInput()
+			sut.Values = testCase.Value
+			//WHEN
+			err := sut.Validate()
+			//THEN
+			if testCase.Valid {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+			}
+		})
+	}
+}
+
+// TemplateValueInput
+
+func TestTemplateValueInput_Validate_Name(t *testing.T) {
+	testCases := []struct {
+		Name  string
+		Value string
+		Valid bool
+	}{
+		{
+			Name:  "Valid",
+			Value: inputvalidationtest.ValidName,
+			Valid: true,
+		},
+		{
+			Name:  "Invalid - Empty",
+			Value: inputvalidationtest.EmptyString,
+			Valid: false,
+		},
+		{
+			Name:  "Invalid - Invalid Name",
+			Value: inputvalidationtest.InvalidName,
+			Valid: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Name, func(t *testing.T) {
+			//GIVEN
+			sut := fixValidTemplateValueInput()
+			sut.Placeholder = testCase.Value
+			//WHEN
+			err := sut.Validate()
+			//THEN
+			if testCase.Valid {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+			}
+		})
+	}
+}
+
+func TestTemplateValueInput_Validate_Description(t *testing.T) {
+	testCases := []struct {
+		Name  string
+		Value string
+		Valid bool
+	}{
+		{
+			Name:  "Valid",
+			Value: "valid",
+			Valid: true,
+		},
+		{
+			Name:  "Valid - Empty",
+			Value: inputvalidationtest.EmptyString,
+			Valid: true,
+		},
+		{
+			Name:  "Invalid - Too long",
+			Value: inputvalidationtest.String129Long,
+			Valid: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.Name, func(t *testing.T) {
+			//GIVEN
+			sut := fixValidTemplateValueInput()
+			sut.Value = testCase.Value
+			//WHEN
+			err := sut.Validate()
+			//THEN
+			if testCase.Valid {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+			}
+		})
+	}
+}
+
+// fixtures
+
+func fixValidApplicationTemplateInput() externalschema.ApplicationTemplateInput {
+	return externalschema.ApplicationTemplateInput{
+		Name: "valid",
+		ApplicationInput: &externalschema.ApplicationRegisterInput{
+			Name: "valid",
+		},
+		AccessLevel: externalschema.ApplicationTemplateAccessLevelGlobal,
+	}
+}
+
+func fixValidPlaceholderDefintionInput() externalschema.PlaceholderDefinitionInput {
+	return externalschema.PlaceholderDefinitionInput{
+		Name: "valid",
+	}
+}
+
+func fixValidApplicationFromTemplateInput() externalschema.ApplicationFromTemplateInput {
+	return externalschema.ApplicationFromTemplateInput{
+		TemplateName: "valid",
+	}
+}
+
+func fixValidTemplateValueInput() externalschema.TemplateValueInput {
+	return externalschema.TemplateValueInput{
+		Placeholder: "test",
+		Value:       "",
+	}
+}

@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
 
 	"github.com/stretchr/testify/require"
@@ -13,7 +15,6 @@ import (
 	"github.com/kyma-incubator/compass/components/director/internal/domain/api"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/api/automock"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 
 	"github.com/stretchr/testify/assert"
@@ -39,7 +40,7 @@ func TestResolver_AddAPIToPackage(t *testing.T) {
 		ServiceFn       func() *automock.APIService
 		PkgServiceFn    func() *automock.PackageService
 		ConverterFn     func() *automock.APIConverter
-		ExpectedAPI     *graphql.APIDefinition
+		ExpectedAPI     *externalschema.APIDefinition
 		ExpectedErr     error
 	}{
 		{
@@ -236,7 +237,7 @@ func TestResolver_DeleteAPI(t *testing.T) {
 		TransactionerFn func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		ServiceFn       func() *automock.APIService
 		ConverterFn     func() *automock.APIConverter
-		ExpectedAPI     *graphql.APIDefinition
+		ExpectedAPI     *externalschema.APIDefinition
 		ExpectedErr     error
 	}{
 		{
@@ -361,8 +362,8 @@ func TestResolver_UpdateAPI(t *testing.T) {
 		ServiceFn             func() *automock.APIService
 		ConverterFn           func() *automock.APIConverter
 		InputWebhookID        string
-		InputAPI              graphql.APIDefinitionInput
-		ExpectedAPIDefinition *graphql.APIDefinition
+		InputAPI              externalschema.APIDefinitionInput
+		ExpectedAPIDefinition *externalschema.APIDefinition
 		ExpectedErr           error
 	}{
 		{
@@ -494,8 +495,8 @@ func TestResolver_RefetchAPISpec(t *testing.T) {
 		Data: &dataBytes,
 	}
 
-	clob := graphql.CLOB(dataBytes)
-	gqlAPISpec := &graphql.APISpec{
+	clob := externalschema.CLOB(dataBytes)
+	gqlAPISpec := &externalschema.APISpec{
 		Data: &clob,
 	}
 
@@ -506,7 +507,7 @@ func TestResolver_RefetchAPISpec(t *testing.T) {
 		TransactionerFn func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		ServiceFn       func() *automock.APIService
 		ConvFn          func() *automock.APIConverter
-		ExpectedAPISpec *graphql.APISpec
+		ExpectedAPISpec *externalschema.APISpec
 		ExpectedErr     error
 	}{
 		{
@@ -612,7 +613,7 @@ func TestResolver_FetchRequest(t *testing.T) {
 		TransactionerFn func() (*persistenceautomock.PersistenceTx, *persistenceautomock.Transactioner)
 		ServiceFn       func() *automock.APIService
 		ConverterFn     func() *automock.FetchRequestConverter
-		ExpectedResult  *graphql.FetchRequest
+		ExpectedResult  *externalschema.FetchRequest
 		ExpectedErr     error
 	}{
 		{
@@ -716,7 +717,7 @@ func TestResolver_FetchRequest(t *testing.T) {
 			resolver := api.NewResolver(transact, svc, nil, nil, nil, nil, converter)
 
 			// when
-			result, err := resolver.FetchRequest(context.TODO(), &graphql.APISpec{DefinitionID: id})
+			result, err := resolver.FetchRequest(context.TODO(), &externalschema.APISpec{DefinitionID: id})
 
 			// then
 			assert.Equal(t, testCase.ExpectedResult, result)

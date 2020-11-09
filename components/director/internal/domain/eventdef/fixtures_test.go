@@ -4,12 +4,13 @@ import (
 	"database/sql/driver"
 	"time"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/eventdef"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/version"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 	"github.com/kyma-incubator/compass/components/director/internal/repo"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/str"
 )
 
@@ -25,8 +26,8 @@ func fixMinModelEventAPIDefinition(id, placeholder string) *model.EventDefinitio
 	return &model.EventDefinition{ID: id, Tenant: tenantID, PackageID: packageID, Name: placeholder}
 }
 
-func fixGQLEventDefinition(id, placeholder string) *graphql.EventDefinition {
-	return &graphql.EventDefinition{
+func fixGQLEventDefinition(id, placeholder string) *externalschema.EventDefinition {
+	return &externalschema.EventDefinition{
 		ID:        id,
 		PackageID: packageID,
 		Name:      placeholder,
@@ -53,28 +54,28 @@ func fixFullModelEventDefinition(id, placeholder string) model.EventDefinition {
 	}
 }
 
-func fixDetailedGQLEventDefinition(id, placeholder string) *graphql.EventDefinition {
-	data := graphql.CLOB("data")
-	format := graphql.SpecFormatJSON
+func fixDetailedGQLEventDefinition(id, placeholder string) *externalschema.EventDefinition {
+	data := externalschema.CLOB("data")
+	format := externalschema.SpecFormatJSON
 
-	spec := &graphql.EventSpec{
+	spec := &externalschema.EventSpec{
 		Data:         &data,
 		Format:       format,
-		Type:         graphql.EventSpecTypeAsyncAPI,
+		Type:         externalschema.EventSpecTypeAsyncAPI,
 		DefinitionID: id,
 	}
 
 	deprecated := false
 	forRemoval := false
 
-	v := &graphql.Version{
+	v := &externalschema.Version{
 		Value:           "v1.1",
 		Deprecated:      &deprecated,
 		DeprecatedSince: str.Ptr("v1.0"),
 		ForRemoval:      &forRemoval,
 	}
 
-	return &graphql.EventDefinition{
+	return &externalschema.EventDefinition{
 		ID:          id,
 		PackageID:   packageID,
 		Name:        placeholder,
@@ -115,27 +116,27 @@ func fixModelEventDefinitionInput() *model.EventDefinitionInput {
 	}
 }
 
-func fixGQLEventDefinitionInput() *graphql.EventDefinitionInput {
-	data := graphql.CLOB("data")
+func fixGQLEventDefinitionInput() *externalschema.EventDefinitionInput {
+	data := externalschema.CLOB("data")
 
-	spec := &graphql.EventSpecInput{
+	spec := &externalschema.EventSpecInput{
 		Data:         &data,
-		Type:         graphql.EventSpecTypeAsyncAPI,
-		Format:       graphql.SpecFormatYaml,
-		FetchRequest: &graphql.FetchRequestInput{},
+		Type:         externalschema.EventSpecTypeAsyncAPI,
+		Format:       externalschema.SpecFormatYaml,
+		FetchRequest: &externalschema.FetchRequestInput{},
 	}
 
 	deprecated := false
 	forRemoval := false
 
-	v := &graphql.VersionInput{
+	v := &externalschema.VersionInput{
 		Value:           "v1.1",
 		Deprecated:      &deprecated,
 		DeprecatedSince: str.Ptr("v1.0"),
 		ForRemoval:      &forRemoval,
 	}
 
-	return &graphql.EventDefinitionInput{
+	return &externalschema.EventDefinitionInput{
 		Name:        "name",
 		Description: str.Ptr("description"),
 		Group:       str.Ptr("group"),
@@ -221,15 +222,15 @@ func fixModelFetchRequest(id, url string, timestamp time.Time) *model.FetchReque
 	}
 }
 
-func fixGQLFetchRequest(url string, timestamp time.Time) *graphql.FetchRequest {
-	return &graphql.FetchRequest{
+func fixGQLFetchRequest(url string, timestamp time.Time) *externalschema.FetchRequest {
+	return &externalschema.FetchRequest{
 		Filter: nil,
-		Mode:   graphql.FetchModeSingle,
+		Mode:   externalschema.FetchModeSingle,
 		Auth:   nil,
 		URL:    url,
-		Status: &graphql.FetchRequestStatus{
-			Timestamp: graphql.Timestamp(timestamp),
-			Condition: graphql.FetchRequestStatusConditionInitial,
+		Status: &externalschema.FetchRequestStatus{
+			Timestamp: externalschema.Timestamp(timestamp),
+			Condition: externalschema.FetchRequestStatusConditionInitial,
 		},
 	}
 }

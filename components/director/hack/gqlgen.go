@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	examplesDirectory = "../../examples"
+	examplesDirectory = "../../../examples"
 )
 
 func main() {

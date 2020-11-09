@@ -7,10 +7,11 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/apptemplate"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 	"github.com/kyma-incubator/compass/components/director/internal/repo"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/pagination"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -57,16 +58,16 @@ func fixModelAppTemplateWithAppInputJSON(id, name, appInputJSON string) *model.A
 	return out
 }
 
-func fixGQLAppTemplate(id, name string) *graphql.ApplicationTemplate {
+func fixGQLAppTemplate(id, name string) *externalschema.ApplicationTemplate {
 	desc := testDescription
 
-	return &graphql.ApplicationTemplate{
+	return &externalschema.ApplicationTemplate{
 		ID:               id,
 		Name:             name,
 		Description:      &desc,
 		ApplicationInput: appInputGQLString,
 		Placeholders:     fixGQLPlaceholders(),
-		AccessLevel:      graphql.ApplicationTemplateAccessLevelGlobal,
+		AccessLevel:      externalschema.ApplicationTemplateAccessLevelGlobal,
 	}
 }
 
@@ -82,10 +83,10 @@ func fixModelAppTemplatePage(appTemplates []*model.ApplicationTemplate) model.Ap
 	}
 }
 
-func fixGQLAppTemplatePage(appTemplates []*graphql.ApplicationTemplate) graphql.ApplicationTemplatePage {
-	return graphql.ApplicationTemplatePage{
+func fixGQLAppTemplatePage(appTemplates []*externalschema.ApplicationTemplate) externalschema.ApplicationTemplatePage {
+	return externalschema.ApplicationTemplatePage{
 		Data: appTemplates,
-		PageInfo: &graphql.PageInfo{
+		PageInfo: &externalschema.PageInfo{
 			StartCursor: "start",
 			EndCursor:   "end",
 			HasNextPage: false,
@@ -106,18 +107,18 @@ func fixModelAppTemplateInput(name string, appInputString string) *model.Applica
 	}
 }
 
-func fixGQLAppTemplateInput(name string) *graphql.ApplicationTemplateInput {
+func fixGQLAppTemplateInput(name string) *externalschema.ApplicationTemplateInput {
 	desc := testDescription
 
-	return &graphql.ApplicationTemplateInput{
+	return &externalschema.ApplicationTemplateInput{
 		Name:        name,
 		Description: &desc,
-		ApplicationInput: &graphql.ApplicationRegisterInput{
+		ApplicationInput: &externalschema.ApplicationRegisterInput{
 			Name:        "foo",
 			Description: &desc,
 		},
 		Placeholders: fixGQLPlaceholderDefinitionInput(),
-		AccessLevel:  graphql.ApplicationTemplateAccessLevelGlobal,
+		AccessLevel:  externalschema.ApplicationTemplateAccessLevelGlobal,
 	}
 }
 
@@ -148,9 +149,9 @@ func fixModelPlaceholders() []model.ApplicationTemplatePlaceholder {
 	}
 }
 
-func fixGQLPlaceholderDefinitionInput() []*graphql.PlaceholderDefinitionInput {
+func fixGQLPlaceholderDefinitionInput() []*externalschema.PlaceholderDefinitionInput {
 	placeholderDesc := testDescription
-	return []*graphql.PlaceholderDefinitionInput{
+	return []*externalschema.PlaceholderDefinitionInput{
 		{
 			Name:        "test",
 			Description: &placeholderDesc,
@@ -158,9 +159,9 @@ func fixGQLPlaceholderDefinitionInput() []*graphql.PlaceholderDefinitionInput {
 	}
 }
 
-func fixGQLPlaceholders() []*graphql.PlaceholderDefinition {
+func fixGQLPlaceholders() []*externalschema.PlaceholderDefinition {
 	placeholderDesc := testDescription
-	return []*graphql.PlaceholderDefinition{
+	return []*externalschema.PlaceholderDefinition{
 		{
 			Name:        "test",
 			Description: &placeholderDesc,
@@ -168,10 +169,10 @@ func fixGQLPlaceholders() []*graphql.PlaceholderDefinition {
 	}
 }
 
-func fixGQLApplicationFromTemplateInput(name string) graphql.ApplicationFromTemplateInput {
-	return graphql.ApplicationFromTemplateInput{
+func fixGQLApplicationFromTemplateInput(name string) externalschema.ApplicationFromTemplateInput {
+	return externalschema.ApplicationFromTemplateInput{
 		TemplateName: name,
-		Values: []*graphql.TemplateValueInput{
+		Values: []*externalschema.TemplateValueInput{
 			{Placeholder: "a", Value: "b"},
 			{Placeholder: "c", Value: "d"},
 		},
@@ -212,8 +213,8 @@ func fixModelApplicationCreateInput(name string) model.ApplicationRegisterInput 
 	}
 }
 
-func fixGQLApplicationCreateInput(name string) graphql.ApplicationRegisterInput {
-	return graphql.ApplicationRegisterInput{
+func fixGQLApplicationCreateInput(name string) externalschema.ApplicationRegisterInput {
+	return externalschema.ApplicationRegisterInput{
 		Name:           name,
 		ProviderName:   &testProviderName,
 		Description:    &testDescription,
@@ -231,8 +232,8 @@ func fixModelApplication(id, name string) model.Application {
 	}
 }
 
-func fixGQLApplication(id, name string) graphql.Application {
-	return graphql.Application{
+func fixGQLApplication(id, name string) externalschema.Application {
+	return externalschema.Application{
 		ID:             id,
 		Name:           name,
 		Description:    &testDescription,

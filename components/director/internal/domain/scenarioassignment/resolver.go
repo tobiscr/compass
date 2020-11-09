@@ -3,10 +3,11 @@ package scenarioassignment
 import (
 	"context"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 
 	"github.com/pkg/errors"
@@ -14,10 +15,10 @@ import (
 
 //go:generate mockery -name=Converter -output=automock -outpkg=automock -case=underscore
 type Converter interface {
-	FromInputGraphQL(in graphql.AutomaticScenarioAssignmentSetInput) model.AutomaticScenarioAssignment
-	ToGraphQL(in model.AutomaticScenarioAssignment) graphql.AutomaticScenarioAssignment
-	LabelSelectorFromInput(in graphql.LabelSelectorInput) model.LabelSelector
-	MultipleToGraphQL(assignments []*model.AutomaticScenarioAssignment) []*graphql.AutomaticScenarioAssignment
+	FromInputGraphQL(in externalschema.AutomaticScenarioAssignmentSetInput) model.AutomaticScenarioAssignment
+	ToGraphQL(in model.AutomaticScenarioAssignment) externalschema.AutomaticScenarioAssignment
+	LabelSelectorFromInput(in externalschema.LabelSelectorInput) model.LabelSelector
+	MultipleToGraphQL(assignments []*model.AutomaticScenarioAssignment) []*externalschema.AutomaticScenarioAssignment
 }
 
 //go:generate mockery -name=Service -output=automock -outpkg=automock -case=underscore
@@ -44,7 +45,7 @@ type Resolver struct {
 	svc       Service
 }
 
-func (r *Resolver) CreateAutomaticScenarioAssignment(ctx context.Context, in graphql.AutomaticScenarioAssignmentSetInput) (*graphql.AutomaticScenarioAssignment, error) {
+func (r *Resolver) CreateAutomaticScenarioAssignment(ctx context.Context, in externalschema.AutomaticScenarioAssignmentSetInput) (*externalschema.AutomaticScenarioAssignment, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, errors.Wrap(err, "while beginning transaction")
@@ -70,7 +71,7 @@ func (r *Resolver) CreateAutomaticScenarioAssignment(ctx context.Context, in gra
 	return &assignment, nil
 }
 
-func (r *Resolver) GetAutomaticScenarioAssignmentForScenarioName(ctx context.Context, scenarioName string) (*graphql.AutomaticScenarioAssignment, error) {
+func (r *Resolver) GetAutomaticScenarioAssignmentForScenarioName(ctx context.Context, scenarioName string) (*externalschema.AutomaticScenarioAssignment, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, errors.Wrap(err, "while beginning transaction")
@@ -94,7 +95,7 @@ func (r *Resolver) GetAutomaticScenarioAssignmentForScenarioName(ctx context.Con
 	return &assignment, nil
 }
 
-func (r *Resolver) AutomaticScenarioAssignmentsForSelector(ctx context.Context, in graphql.LabelSelectorInput) ([]*graphql.AutomaticScenarioAssignment, error) {
+func (r *Resolver) AutomaticScenarioAssignmentsForSelector(ctx context.Context, in externalschema.LabelSelectorInput) ([]*externalschema.AutomaticScenarioAssignment, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, errors.Wrap(err, "while beginning transaction")
@@ -118,7 +119,7 @@ func (r *Resolver) AutomaticScenarioAssignmentsForSelector(ctx context.Context, 
 	return gqlAssignments, nil
 }
 
-func (r *Resolver) AutomaticScenarioAssignments(ctx context.Context, first *int, after *graphql.PageCursor) (*graphql.AutomaticScenarioAssignmentPage, error) {
+func (r *Resolver) AutomaticScenarioAssignments(ctx context.Context, first *int, after *externalschema.PageCursor) (*externalschema.AutomaticScenarioAssignmentPage, error) {
 	var cursor string
 	if after != nil {
 		cursor = string(*after)
@@ -147,18 +148,18 @@ func (r *Resolver) AutomaticScenarioAssignments(ctx context.Context, first *int,
 
 	gqlApps := r.converter.MultipleToGraphQL(page.Data)
 
-	return &graphql.AutomaticScenarioAssignmentPage{
+	return &externalschema.AutomaticScenarioAssignmentPage{
 		Data:       gqlApps,
 		TotalCount: page.TotalCount,
-		PageInfo: &graphql.PageInfo{
-			StartCursor: graphql.PageCursor(page.PageInfo.StartCursor),
-			EndCursor:   graphql.PageCursor(page.PageInfo.EndCursor),
+		PageInfo: &externalschema.PageInfo{
+			StartCursor: externalschema.PageCursor(page.PageInfo.StartCursor),
+			EndCursor:   externalschema.PageCursor(page.PageInfo.EndCursor),
 			HasNextPage: page.PageInfo.HasNextPage,
 		},
 	}, nil
 }
 
-func (r *Resolver) DeleteAutomaticScenarioAssignmentsForSelector(ctx context.Context, in graphql.LabelSelectorInput) ([]*graphql.AutomaticScenarioAssignment, error) {
+func (r *Resolver) DeleteAutomaticScenarioAssignmentsForSelector(ctx context.Context, in externalschema.LabelSelectorInput) ([]*externalschema.AutomaticScenarioAssignment, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, errors.Wrap(err, "while beginning transaction")
@@ -187,7 +188,7 @@ func (r *Resolver) DeleteAutomaticScenarioAssignmentsForSelector(ctx context.Con
 	return r.converter.MultipleToGraphQL(assignments), nil
 }
 
-func (r *Resolver) DeleteAutomaticScenarioAssignmentForScenario(ctx context.Context, scenarioName string) (*graphql.AutomaticScenarioAssignment, error) {
+func (r *Resolver) DeleteAutomaticScenarioAssignmentForScenario(ctx context.Context, scenarioName string) (*externalschema.AutomaticScenarioAssignment, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, errors.Wrap(err, "while beginning transaction")

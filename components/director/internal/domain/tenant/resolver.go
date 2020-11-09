@@ -3,11 +3,11 @@ package tenant
 import (
 	"context"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 )
 
 //go:generate mockery -name=BusinessTenantMappingService -output=automock -outpkg=automock -case=underscore
@@ -17,7 +17,7 @@ type BusinessTenantMappingService interface {
 
 //go:generate mockery -name=BusinessTenantMappingConverter -output=automock -outpkg=automock -case=underscore
 type BusinessTenantMappingConverter interface {
-	MultipleToGraphQL(in []*model.BusinessTenantMapping) []*graphql.Tenant
+	MultipleToGraphQL(in []*model.BusinessTenantMapping) []*externalschema.Tenant
 }
 
 type Resolver struct {
@@ -27,7 +27,7 @@ type Resolver struct {
 	conv BusinessTenantMappingConverter
 }
 
-func (r *Resolver) Tenants(ctx context.Context) ([]*graphql.Tenant, error) {
+func (r *Resolver) Tenants(ctx context.Context) ([]*externalschema.Tenant, error) {
 
 	tx, err := r.transact.Begin()
 	if err != nil {

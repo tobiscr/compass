@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
 
@@ -12,11 +14,11 @@ type Converter struct {
 }
 
 // FromInputGraphQL provides a mock function with given fields: in
-func (_m *Converter) FromInputGraphQL(in graphql.AutomaticScenarioAssignmentSetInput) model.AutomaticScenarioAssignment {
+func (_m *Converter) FromInputGraphQL(in externalschema.AutomaticScenarioAssignmentSetInput) model.AutomaticScenarioAssignment {
 	ret := _m.Called(in)
 
 	var r0 model.AutomaticScenarioAssignment
-	if rf, ok := ret.Get(0).(func(graphql.AutomaticScenarioAssignmentSetInput) model.AutomaticScenarioAssignment); ok {
+	if rf, ok := ret.Get(0).(func(externalschema.AutomaticScenarioAssignmentSetInput) model.AutomaticScenarioAssignment); ok {
 		r0 = rf(in)
 	} else {
 		r0 = ret.Get(0).(model.AutomaticScenarioAssignment)
@@ -26,11 +28,11 @@ func (_m *Converter) FromInputGraphQL(in graphql.AutomaticScenarioAssignmentSetI
 }
 
 // LabelSelectorFromInput provides a mock function with given fields: in
-func (_m *Converter) LabelSelectorFromInput(in graphql.LabelSelectorInput) model.LabelSelector {
+func (_m *Converter) LabelSelectorFromInput(in externalschema.LabelSelectorInput) model.LabelSelector {
 	ret := _m.Called(in)
 
 	var r0 model.LabelSelector
-	if rf, ok := ret.Get(0).(func(graphql.LabelSelectorInput) model.LabelSelector); ok {
+	if rf, ok := ret.Get(0).(func(externalschema.LabelSelectorInput) model.LabelSelector); ok {
 		r0 = rf(in)
 	} else {
 		r0 = ret.Get(0).(model.LabelSelector)
@@ -40,15 +42,15 @@ func (_m *Converter) LabelSelectorFromInput(in graphql.LabelSelectorInput) model
 }
 
 // MultipleToGraphQL provides a mock function with given fields: assignments
-func (_m *Converter) MultipleToGraphQL(assignments []*model.AutomaticScenarioAssignment) []*graphql.AutomaticScenarioAssignment {
+func (_m *Converter) MultipleToGraphQL(assignments []*model.AutomaticScenarioAssignment) []*externalschema.AutomaticScenarioAssignment {
 	ret := _m.Called(assignments)
 
-	var r0 []*graphql.AutomaticScenarioAssignment
-	if rf, ok := ret.Get(0).(func([]*model.AutomaticScenarioAssignment) []*graphql.AutomaticScenarioAssignment); ok {
+	var r0 []*externalschema.AutomaticScenarioAssignment
+	if rf, ok := ret.Get(0).(func([]*model.AutomaticScenarioAssignment) []*externalschema.AutomaticScenarioAssignment); ok {
 		r0 = rf(assignments)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*graphql.AutomaticScenarioAssignment)
+			r0 = ret.Get(0).([]*externalschema.AutomaticScenarioAssignment)
 		}
 	}
 
@@ -56,14 +58,14 @@ func (_m *Converter) MultipleToGraphQL(assignments []*model.AutomaticScenarioAss
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *Converter) ToGraphQL(in model.AutomaticScenarioAssignment) graphql.AutomaticScenarioAssignment {
+func (_m *Converter) ToGraphQL(in model.AutomaticScenarioAssignment) externalschema.AutomaticScenarioAssignment {
 	ret := _m.Called(in)
 
-	var r0 graphql.AutomaticScenarioAssignment
-	if rf, ok := ret.Get(0).(func(model.AutomaticScenarioAssignment) graphql.AutomaticScenarioAssignment); ok {
+	var r0 externalschema.AutomaticScenarioAssignment
+	if rf, ok := ret.Get(0).(func(model.AutomaticScenarioAssignment) externalschema.AutomaticScenarioAssignment); ok {
 		r0 = rf(in)
 	} else {
-		r0 = ret.Get(0).(graphql.AutomaticScenarioAssignment)
+		r0 = ret.Get(0).(externalschema.AutomaticScenarioAssignment)
 	}
 
 	return r0

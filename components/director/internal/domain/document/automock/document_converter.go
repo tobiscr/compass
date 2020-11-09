@@ -2,8 +2,10 @@
 
 package automock
 
-import document "github.com/kyma-incubator/compass/components/director/internal/domain/document"
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	document "github.com/kyma-incubator/compass/components/director/internal/domain/document"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
 
@@ -34,11 +36,11 @@ func (_m *DocumentConverter) FromEntity(in document.Entity) (model.Document, err
 }
 
 // InputFromGraphQL provides a mock function with given fields: in
-func (_m *DocumentConverter) InputFromGraphQL(in *graphql.DocumentInput) (*model.DocumentInput, error) {
+func (_m *DocumentConverter) InputFromGraphQL(in *externalschema.DocumentInput) (*model.DocumentInput, error) {
 	ret := _m.Called(in)
 
 	var r0 *model.DocumentInput
-	if rf, ok := ret.Get(0).(func(*graphql.DocumentInput) *model.DocumentInput); ok {
+	if rf, ok := ret.Get(0).(func(*externalschema.DocumentInput) *model.DocumentInput); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
@@ -47,7 +49,7 @@ func (_m *DocumentConverter) InputFromGraphQL(in *graphql.DocumentInput) (*model
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*graphql.DocumentInput) error); ok {
+	if rf, ok := ret.Get(1).(func(*externalschema.DocumentInput) error); ok {
 		r1 = rf(in)
 	} else {
 		r1 = ret.Error(1)
@@ -78,15 +80,15 @@ func (_m *DocumentConverter) ToEntity(in model.Document) (document.Entity, error
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *DocumentConverter) ToGraphQL(in *model.Document) *graphql.Document {
+func (_m *DocumentConverter) ToGraphQL(in *model.Document) *externalschema.Document {
 	ret := _m.Called(in)
 
-	var r0 *graphql.Document
-	if rf, ok := ret.Get(0).(func(*model.Document) *graphql.Document); ok {
+	var r0 *externalschema.Document
+	if rf, ok := ret.Get(0).(func(*model.Document) *externalschema.Document); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.Document)
+			r0 = ret.Get(0).(*externalschema.Document)
 		}
 	}
 

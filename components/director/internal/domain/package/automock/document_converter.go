@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
 
@@ -12,11 +14,11 @@ type DocumentConverter struct {
 }
 
 // MultipleInputFromGraphQL provides a mock function with given fields: in
-func (_m *DocumentConverter) MultipleInputFromGraphQL(in []*graphql.DocumentInput) ([]*model.DocumentInput, error) {
+func (_m *DocumentConverter) MultipleInputFromGraphQL(in []*externalschema.DocumentInput) ([]*model.DocumentInput, error) {
 	ret := _m.Called(in)
 
 	var r0 []*model.DocumentInput
-	if rf, ok := ret.Get(0).(func([]*graphql.DocumentInput) []*model.DocumentInput); ok {
+	if rf, ok := ret.Get(0).(func([]*externalschema.DocumentInput) []*model.DocumentInput); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
@@ -25,7 +27,7 @@ func (_m *DocumentConverter) MultipleInputFromGraphQL(in []*graphql.DocumentInpu
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]*graphql.DocumentInput) error); ok {
+	if rf, ok := ret.Get(1).(func([]*externalschema.DocumentInput) error); ok {
 		r1 = rf(in)
 	} else {
 		r1 = ret.Error(1)
@@ -35,15 +37,15 @@ func (_m *DocumentConverter) MultipleInputFromGraphQL(in []*graphql.DocumentInpu
 }
 
 // MultipleToGraphQL provides a mock function with given fields: in
-func (_m *DocumentConverter) MultipleToGraphQL(in []*model.Document) []*graphql.Document {
+func (_m *DocumentConverter) MultipleToGraphQL(in []*model.Document) []*externalschema.Document {
 	ret := _m.Called(in)
 
-	var r0 []*graphql.Document
-	if rf, ok := ret.Get(0).(func([]*model.Document) []*graphql.Document); ok {
+	var r0 []*externalschema.Document
+	if rf, ok := ret.Get(0).(func([]*model.Document) []*externalschema.Document); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*graphql.Document)
+			r0 = ret.Get(0).([]*externalschema.Document)
 		}
 	}
 
@@ -51,15 +53,15 @@ func (_m *DocumentConverter) MultipleToGraphQL(in []*model.Document) []*graphql.
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *DocumentConverter) ToGraphQL(in *model.Document) *graphql.Document {
+func (_m *DocumentConverter) ToGraphQL(in *model.Document) *externalschema.Document {
 	ret := _m.Called(in)
 
-	var r0 *graphql.Document
-	if rf, ok := ret.Get(0).(func(*model.Document) *graphql.Document); ok {
+	var r0 *externalschema.Document
+	if rf, ok := ret.Get(0).(func(*model.Document) *externalschema.Document); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.Document)
+			r0 = ret.Get(0).(*externalschema.Document)
 		}
 	}
 

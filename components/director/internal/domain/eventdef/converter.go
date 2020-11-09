@@ -4,15 +4,15 @@ import (
 	"github.com/kyma-incubator/compass/components/director/internal/domain/version"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 	"github.com/kyma-incubator/compass/components/director/internal/repo"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	"github.com/kyma-incubator/compass/components/director/pkg/str"
 	"github.com/pkg/errors"
 )
 
 //go:generate mockery -name=VersionConverter -output=automock -outpkg=automock -case=underscore
 type VersionConverter interface {
-	ToGraphQL(in *model.Version) *graphql.Version
-	InputFromGraphQL(in *graphql.VersionInput) *model.VersionInput
+	ToGraphQL(in *model.Version) *externalschema.Version
+	InputFromGraphQL(in *externalschema.VersionInput) *model.VersionInput
 	FromEntity(version version.Version) *model.Version
 	ToEntity(version model.Version) version.Version
 }
@@ -26,12 +26,12 @@ func NewConverter(fr FetchRequestConverter, vc VersionConverter) *converter {
 	return &converter{fr: fr, vc: vc}
 }
 
-func (c *converter) ToGraphQL(in *model.EventDefinition) *graphql.EventDefinition {
+func (c *converter) ToGraphQL(in *model.EventDefinition) *externalschema.EventDefinition {
 	if in == nil {
 		return nil
 	}
 
-	return &graphql.EventDefinition{
+	return &externalschema.EventDefinition{
 		ID:          in.ID,
 		PackageID:   in.PackageID,
 		Name:        in.Name,
@@ -42,8 +42,8 @@ func (c *converter) ToGraphQL(in *model.EventDefinition) *graphql.EventDefinitio
 	}
 }
 
-func (c *converter) MultipleToGraphQL(in []*model.EventDefinition) []*graphql.EventDefinition {
-	var apis []*graphql.EventDefinition
+func (c *converter) MultipleToGraphQL(in []*model.EventDefinition) []*externalschema.EventDefinition {
+	var apis []*externalschema.EventDefinition
 	for _, a := range in {
 		if a == nil {
 			continue
@@ -54,7 +54,7 @@ func (c *converter) MultipleToGraphQL(in []*model.EventDefinition) []*graphql.Ev
 	return apis
 }
 
-func (c *converter) MultipleInputFromGraphQL(in []*graphql.EventDefinitionInput) ([]*model.EventDefinitionInput, error) {
+func (c *converter) MultipleInputFromGraphQL(in []*externalschema.EventDefinitionInput) ([]*model.EventDefinitionInput, error) {
 	var arr []*model.EventDefinitionInput
 	for _, item := range in {
 		api, err := c.InputFromGraphQL(item)
@@ -68,7 +68,7 @@ func (c *converter) MultipleInputFromGraphQL(in []*graphql.EventDefinitionInput)
 	return arr, nil
 }
 
-func (c *converter) InputFromGraphQL(in *graphql.EventDefinitionInput) (*model.EventDefinitionInput, error) {
+func (c *converter) InputFromGraphQL(in *externalschema.EventDefinitionInput) (*model.EventDefinitionInput, error) {
 	if in == nil {
 		return nil, nil
 	}
@@ -87,26 +87,26 @@ func (c *converter) InputFromGraphQL(in *graphql.EventDefinitionInput) (*model.E
 	}, nil
 }
 
-func (c *converter) eventAPISpecToGraphQL(definitionID string, in *model.EventSpec) *graphql.EventSpec {
+func (c *converter) eventAPISpecToGraphQL(definitionID string, in *model.EventSpec) *externalschema.EventSpec {
 	if in == nil {
 		return nil
 	}
 
-	var data *graphql.CLOB
+	var data *externalschema.CLOB
 	if in.Data != nil {
-		tmp := graphql.CLOB(*in.Data)
+		tmp := externalschema.CLOB(*in.Data)
 		data = &tmp
 	}
 
-	return &graphql.EventSpec{
+	return &externalschema.EventSpec{
 		Data:         data,
-		Type:         graphql.EventSpecType(in.Type),
-		Format:       graphql.SpecFormat(in.Format),
+		Type:         externalschema.EventSpecType(in.Type),
+		Format:       externalschema.SpecFormat(in.Format),
 		DefinitionID: definitionID,
 	}
 }
 
-func (c *converter) eventAPISpecInputFromGraphQL(in *graphql.EventSpecInput) (*model.EventSpecInput, error) {
+func (c *converter) eventAPISpecInputFromGraphQL(in *externalschema.EventSpecInput) (*model.EventSpecInput, error) {
 	if in == nil {
 		return nil, nil
 	}

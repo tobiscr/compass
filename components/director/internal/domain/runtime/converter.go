@@ -3,8 +3,9 @@ package runtime
 import (
 	"time"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 )
 
 type converter struct{}
@@ -13,12 +14,12 @@ func NewConverter() *converter {
 	return &converter{}
 }
 
-func (c *converter) ToGraphQL(in *model.Runtime) *graphql.Runtime {
+func (c *converter) ToGraphQL(in *model.Runtime) *externalschema.Runtime {
 	if in == nil {
 		return nil
 	}
 
-	return &graphql.Runtime{
+	return &externalschema.Runtime{
 		ID:          in.ID,
 		Status:      c.statusToGraphQL(in.Status),
 		Name:        in.Name,
@@ -27,8 +28,8 @@ func (c *converter) ToGraphQL(in *model.Runtime) *graphql.Runtime {
 	}
 }
 
-func (c *converter) MultipleToGraphQL(in []*model.Runtime) []*graphql.Runtime {
-	var runtimes []*graphql.Runtime
+func (c *converter) MultipleToGraphQL(in []*model.Runtime) []*externalschema.Runtime {
+	var runtimes []*externalschema.Runtime
 	for _, r := range in {
 		if r == nil {
 			continue
@@ -40,7 +41,7 @@ func (c *converter) MultipleToGraphQL(in []*model.Runtime) []*graphql.Runtime {
 	return runtimes
 }
 
-func (c *converter) InputFromGraphQL(in graphql.RuntimeInput) model.RuntimeInput {
+func (c *converter) InputFromGraphQL(in externalschema.RuntimeInput) model.RuntimeInput {
 	var labels map[string]interface{}
 	if in.Labels != nil {
 		labels = *in.Labels
@@ -54,54 +55,54 @@ func (c *converter) InputFromGraphQL(in graphql.RuntimeInput) model.RuntimeInput
 	}
 }
 
-func (c *converter) statusToGraphQL(in *model.RuntimeStatus) *graphql.RuntimeStatus {
+func (c *converter) statusToGraphQL(in *model.RuntimeStatus) *externalschema.RuntimeStatus {
 	if in == nil {
-		return &graphql.RuntimeStatus{
-			Condition: graphql.RuntimeStatusConditionInitial,
+		return &externalschema.RuntimeStatus{
+			Condition: externalschema.RuntimeStatusConditionInitial,
 		}
 	}
 
-	var condition graphql.RuntimeStatusCondition
+	var condition externalschema.RuntimeStatusCondition
 
 	switch in.Condition {
 	case model.RuntimeStatusConditionInitial:
-		condition = graphql.RuntimeStatusConditionInitial
+		condition = externalschema.RuntimeStatusConditionInitial
 	case model.RuntimeStatusConditionProvisioning:
-		condition = graphql.RuntimeStatusConditionProvisioning
+		condition = externalschema.RuntimeStatusConditionProvisioning
 	case model.RuntimeStatusConditionFailed:
-		condition = graphql.RuntimeStatusConditionFailed
+		condition = externalschema.RuntimeStatusConditionFailed
 	case model.RuntimeStatusConditionConnected:
-		condition = graphql.RuntimeStatusConditionConnected
+		condition = externalschema.RuntimeStatusConditionConnected
 	default:
-		condition = graphql.RuntimeStatusConditionInitial
+		condition = externalschema.RuntimeStatusConditionInitial
 	}
 
-	return &graphql.RuntimeStatus{
+	return &externalschema.RuntimeStatus{
 		Condition: condition,
-		Timestamp: graphql.Timestamp(in.Timestamp),
+		Timestamp: externalschema.Timestamp(in.Timestamp),
 	}
 }
 
-func (c *converter) metadataToGraphQL(creationTimestamp time.Time) *graphql.RuntimeMetadata {
-	return &graphql.RuntimeMetadata{
-		CreationTimestamp: graphql.Timestamp(creationTimestamp),
+func (c *converter) metadataToGraphQL(creationTimestamp time.Time) *externalschema.RuntimeMetadata {
+	return &externalschema.RuntimeMetadata{
+		CreationTimestamp: externalschema.Timestamp(creationTimestamp),
 	}
 }
 
-func (c *converter) statusConditionToModel(in *graphql.RuntimeStatusCondition) *model.RuntimeStatusCondition {
+func (c *converter) statusConditionToModel(in *externalschema.RuntimeStatusCondition) *model.RuntimeStatusCondition {
 	if in == nil {
 		return nil
 	}
 
 	var condition model.RuntimeStatusCondition
 	switch *in {
-	case graphql.RuntimeStatusConditionConnected:
+	case externalschema.RuntimeStatusConditionConnected:
 		condition = model.RuntimeStatusConditionConnected
-	case graphql.RuntimeStatusConditionFailed:
+	case externalschema.RuntimeStatusConditionFailed:
 		condition = model.RuntimeStatusConditionFailed
-	case graphql.RuntimeStatusConditionProvisioning:
+	case externalschema.RuntimeStatusConditionProvisioning:
 		condition = model.RuntimeStatusConditionProvisioning
-	case graphql.RuntimeStatusConditionInitial:
+	case externalschema.RuntimeStatusConditionInitial:
 		fallthrough
 	default:
 		condition = model.RuntimeStatusConditionInitial

@@ -6,10 +6,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	mp_package "github.com/kyma-incubator/compass/components/director/internal/domain/package"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/pagination"
 )
 
@@ -23,8 +24,8 @@ func fixModelAPIDefinition(id string, pkgID string, name, description string, gr
 	}
 }
 
-func fixGQLAPIDefinition(id string, pkgID string, name, description string, group string) *graphql.APIDefinition {
-	return &graphql.APIDefinition{
+func fixGQLAPIDefinition(id string, pkgID string, name, description string, group string) *externalschema.APIDefinition {
+	return &externalschema.APIDefinition{
 		ID:          id,
 		PackageID:   pkgID,
 		Name:        name,
@@ -45,10 +46,10 @@ func fixAPIDefinitionPage(apiDefinitions []*model.APIDefinition) *model.APIDefin
 	}
 }
 
-func fixGQLAPIDefinitionPage(apiDefinitions []*graphql.APIDefinition) *graphql.APIDefinitionPage {
-	return &graphql.APIDefinitionPage{
+func fixGQLAPIDefinitionPage(apiDefinitions []*externalschema.APIDefinition) *externalschema.APIDefinitionPage {
+	return &externalschema.APIDefinitionPage{
 		Data: apiDefinitions,
-		PageInfo: &graphql.PageInfo{
+		PageInfo: &externalschema.PageInfo{
 			StartCursor: "start",
 			EndCursor:   "end",
 			HasNextPage: false,
@@ -70,8 +71,8 @@ func fixMinModelEventAPIDefinition(id, placeholder string) *model.EventDefinitio
 	return &model.EventDefinition{ID: id, Tenant: "ttttttttt-tttt-tttt-tttt-tttttttttttt",
 		PackageID: "ppppppppp-pppp-pppp-pppp-pppppppppppp", Name: placeholder}
 }
-func fixGQLEventDefinition(id string, packageID string, name, description string, group string) *graphql.EventDefinition {
-	return &graphql.EventDefinition{
+func fixGQLEventDefinition(id string, packageID string, name, description string, group string) *externalschema.EventDefinition {
+	return &externalschema.EventDefinition{
 		ID:          id,
 		PackageID:   packageID,
 		Name:        name,
@@ -92,10 +93,10 @@ func fixEventAPIDefinitionPage(eventAPIDefinitions []*model.EventDefinition) *mo
 	}
 }
 
-func fixGQLEventDefinitionPage(eventAPIDefinitions []*graphql.EventDefinition) *graphql.EventDefinitionPage {
-	return &graphql.EventDefinitionPage{
+func fixGQLEventDefinitionPage(eventAPIDefinitions []*externalschema.EventDefinition) *externalschema.EventDefinitionPage {
+	return &externalschema.EventDefinitionPage{
 		Data: eventAPIDefinitions,
-		PageInfo: &graphql.PageInfo{
+		PageInfo: &externalschema.PageInfo{
 			StartCursor: "start",
 			EndCursor:   "end",
 			HasNextPage: false,
@@ -108,7 +109,7 @@ var (
 	docKind  = "fookind"
 	docTitle = "footitle"
 	docData  = "foodata"
-	docCLOB  = graphql.CLOB(docData)
+	docCLOB  = externalschema.CLOB(docData)
 	desc     = "Lorem Ipsum"
 )
 
@@ -135,20 +136,20 @@ func fixModelDocumentPage(documents []*model.Document) *model.DocumentPage {
 	}
 }
 
-func fixGQLDocument(id string) *graphql.Document {
-	return &graphql.Document{
+func fixGQLDocument(id string) *externalschema.Document {
+	return &externalschema.Document{
 		ID:     id,
 		Title:  docTitle,
-		Format: graphql.DocumentFormatMarkdown,
+		Format: externalschema.DocumentFormatMarkdown,
 		Kind:   &docKind,
 		Data:   &docCLOB,
 	}
 }
 
-func fixGQLDocumentPage(documents []*graphql.Document) *graphql.DocumentPage {
-	return &graphql.DocumentPage{
+func fixGQLDocumentPage(documents []*externalschema.Document) *externalschema.DocumentPage {
+	return &externalschema.DocumentPage{
 		Data: documents,
-		PageInfo: &graphql.PageInfo{
+		PageInfo: &externalschema.PageInfo{
 			StartCursor: "start",
 			EndCursor:   "end",
 			HasNextPage: false,
@@ -176,9 +177,9 @@ func fixPackageModel(t *testing.T, name, desc string) *model.Package {
 	}
 }
 
-func fixGQLPackage(id, name, desc string) *graphql.Package {
-	schema := graphql.JSONSchema(`{"$id":"https://example.com/person.schema.json","$schema":"http://json-schema.org/draft-07/schema#","properties":{"age":{"description":"Age in years which must be equal to or greater than zero.","minimum":0,"type":"integer"},"firstName":{"description":"The person's first name.","type":"string"},"lastName":{"description":"The person's last name.","type":"string"}},"title":"Person","type":"object"}`)
-	return &graphql.Package{
+func fixGQLPackage(id, name, desc string) *externalschema.Package {
+	schema := externalschema.JSONSchema(`{"$id":"https://example.com/person.schema.json","$schema":"http://json-schema.org/draft-07/schema#","properties":{"age":{"description":"Age in years which must be equal to or greater than zero.","minimum":0,"type":"integer"},"firstName":{"description":"The person's first name.","type":"string"},"lastName":{"description":"The person's last name.","type":"string"}},"title":"Person","type":"object"}`)
+	return &externalschema.Package{
 		ID:                             id,
 		Name:                           name,
 		Description:                    &desc,
@@ -187,31 +188,31 @@ func fixGQLPackage(id, name, desc string) *graphql.Package {
 	}
 }
 
-func fixGQLPackageCreateInput(name, description string) graphql.PackageCreateInput {
-	basicCredentialDataInput := graphql.BasicCredentialDataInput{
+func fixGQLPackageCreateInput(name, description string) externalschema.PackageCreateInput {
+	basicCredentialDataInput := externalschema.BasicCredentialDataInput{
 		Username: "test",
 		Password: "pwd",
 	}
 
-	credentialDataInput := graphql.CredentialDataInput{Basic: &basicCredentialDataInput}
-	defaultAuth := graphql.AuthInput{
+	credentialDataInput := externalschema.CredentialDataInput{Basic: &basicCredentialDataInput}
+	defaultAuth := externalschema.AuthInput{
 		Credential: &credentialDataInput,
 	}
 
-	return graphql.PackageCreateInput{
+	return externalschema.PackageCreateInput{
 		Name:                           name,
 		Description:                    &description,
 		InstanceAuthRequestInputSchema: fixBasicInputSchema(),
 		DefaultInstanceAuth:            &defaultAuth,
-		APIDefinitions: []*graphql.APIDefinitionInput{
+		APIDefinitions: []*externalschema.APIDefinitionInput{
 			{Name: "api1", TargetURL: "foo.bar"},
 			{Name: "api2", TargetURL: "foo.bar2"},
 		},
-		EventDefinitions: []*graphql.EventDefinitionInput{
+		EventDefinitions: []*externalschema.EventDefinitionInput{
 			{Name: "event1", Description: &desc},
 			{Name: "event2", Description: &desc},
 		},
-		Documents: []*graphql.DocumentInput{
+		Documents: []*externalschema.DocumentInput{
 			{DisplayName: "doc1", Kind: &docKind},
 			{DisplayName: "doc2", Kind: &docKind},
 		},
@@ -247,18 +248,18 @@ func fixModelPackageCreateInput(name, description string) model.PackageCreateInp
 	}
 }
 
-func fixGQLPackageUpdateInput(name, description string) graphql.PackageUpdateInput {
-	basicCredentialDataInput := graphql.BasicCredentialDataInput{
+func fixGQLPackageUpdateInput(name, description string) externalschema.PackageUpdateInput {
+	basicCredentialDataInput := externalschema.BasicCredentialDataInput{
 		Username: "test",
 		Password: "pwd",
 	}
 
-	credentialDataInput := graphql.CredentialDataInput{Basic: &basicCredentialDataInput}
-	defaultAuth := graphql.AuthInput{
+	credentialDataInput := externalschema.CredentialDataInput{Basic: &basicCredentialDataInput}
+	defaultAuth := externalschema.AuthInput{
 		Credential: &credentialDataInput,
 	}
 
-	return graphql.PackageUpdateInput{
+	return externalschema.PackageUpdateInput{
 		Name:                           name,
 		Description:                    &description,
 		InstanceAuthRequestInputSchema: fixBasicInputSchema(),
@@ -315,23 +316,23 @@ func fixModelAuth() *model.Auth {
 	}
 }
 
-func fixGQLAuth() *graphql.Auth {
-	return &graphql.Auth{
-		Credential: &graphql.BasicCredentialData{
+func fixGQLAuth() *externalschema.Auth {
+	return &externalschema.Auth{
+		Credential: &externalschema.BasicCredentialData{
 			Username: "foo",
 			Password: "bar",
 		},
-		AdditionalHeaders:     &graphql.HttpHeaders{"test": {"foo", "bar"}},
-		AdditionalQueryParams: &graphql.QueryParams{"test": {"foo", "bar"}},
-		RequestAuth: &graphql.CredentialRequestAuth{
-			Csrf: &graphql.CSRFTokenCredentialRequestAuth{
+		AdditionalHeaders:     &externalschema.HttpHeaders{"test": {"foo", "bar"}},
+		AdditionalQueryParams: &externalschema.QueryParams{"test": {"foo", "bar"}},
+		RequestAuth: &externalschema.CredentialRequestAuth{
+			Csrf: &externalschema.CSRFTokenCredentialRequestAuth{
 				TokenEndpointURL: "foo.url",
-				Credential: &graphql.BasicCredentialData{
+				Credential: &externalschema.BasicCredentialData{
 					Username: "boo",
 					Password: "far",
 				},
-				AdditionalHeaders:     &graphql.HttpHeaders{"test": {"foo", "bar"}},
-				AdditionalQueryParams: &graphql.QueryParams{"test": {"foo", "bar"}},
+				AdditionalHeaders:     &externalschema.HttpHeaders{"test": {"foo", "bar"}},
+				AdditionalQueryParams: &externalschema.QueryParams{"test": {"foo", "bar"}},
 			},
 		},
 	}
@@ -379,9 +380,9 @@ func inputSchemaString() string {
 	return `{"$id":"https://example.com/person.schema.json","$schema":"http://json-schema.org/draft-07/schema#","properties":{"age":{"description":"Age in years which must be equal to or greater than zero.","minimum":0,"type":"integer"},"firstName":{"description":"The person's first name.","type":"string"},"lastName":{"description":"The person's last name.","type":"string"}},"title":"Person","type":"object"}`
 }
 
-func fixBasicInputSchema() *graphql.JSONSchema {
+func fixBasicInputSchema() *externalschema.JSONSchema {
 	sch := inputSchemaString()
-	jsonSchema := graphql.JSONSchema(sch)
+	jsonSchema := externalschema.JSONSchema(sch)
 	return &jsonSchema
 }
 
@@ -415,19 +416,19 @@ func fixModelPackageInstanceAuth(id string) *model.PackageInstanceAuth {
 	}
 }
 
-func fixGQLPackageInstanceAuth(id string) *graphql.PackageInstanceAuth {
+func fixGQLPackageInstanceAuth(id string) *externalschema.PackageInstanceAuth {
 	msg := "test-message"
 	reason := "test-reason"
-	status := graphql.PackageInstanceAuthStatus{
-		Condition: graphql.PackageInstanceAuthStatusConditionPending,
-		Timestamp: graphql.Timestamp{},
+	status := externalschema.PackageInstanceAuthStatus{
+		Condition: externalschema.PackageInstanceAuthStatusConditionPending,
+		Timestamp: externalschema.Timestamp{},
 		Message:   msg,
 		Reason:    reason,
 	}
 
-	params := graphql.JSON("test-param")
-	ctx := graphql.JSON("ctx")
-	return &graphql.PackageInstanceAuth{
+	params := externalschema.JSON("test-param")
+	ctx := externalschema.JSON("ctx")
+	return &externalschema.PackageInstanceAuth{
 		ID:          id,
 		Context:     &ctx,
 		InputParams: &params,

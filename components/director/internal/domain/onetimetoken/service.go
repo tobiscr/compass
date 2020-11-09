@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/avast/retry-go"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/kyma-incubator/compass/components/director/pkg/pairing"
 	gcli "github.com/machinebox/graphql"
 	"github.com/pkg/errors"
@@ -42,7 +43,7 @@ type SystemAuthService interface {
 
 //go:generate mockery -name=ApplicationConverter -output=automock -outpkg=automock -case=underscore
 type ApplicationConverter interface {
-	ToGraphQL(in *model.Application) *graphql.Application
+	ToGraphQL(in *model.Application) *externalschema.Application
 }
 
 //go:generate mockery -name=ApplicationService -output=automock -outpkg=automock -case=underscore

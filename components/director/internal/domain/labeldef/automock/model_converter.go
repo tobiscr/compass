@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
@@ -13,18 +15,18 @@ type ModelConverter struct {
 }
 
 // FromGraphQL provides a mock function with given fields: input, tenant
-func (_m *ModelConverter) FromGraphQL(input graphql.LabelDefinitionInput, tenant string) (model.LabelDefinition, error) {
+func (_m *ModelConverter) FromGraphQL(input externalschema.LabelDefinitionInput, tenant string) (model.LabelDefinition, error) {
 	ret := _m.Called(input, tenant)
 
 	var r0 model.LabelDefinition
-	if rf, ok := ret.Get(0).(func(graphql.LabelDefinitionInput, string) model.LabelDefinition); ok {
+	if rf, ok := ret.Get(0).(func(externalschema.LabelDefinitionInput, string) model.LabelDefinition); ok {
 		r0 = rf(input, tenant)
 	} else {
 		r0 = ret.Get(0).(model.LabelDefinition)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(graphql.LabelDefinitionInput, string) error); ok {
+	if rf, ok := ret.Get(1).(func(externalschema.LabelDefinitionInput, string) error); ok {
 		r1 = rf(input, tenant)
 	} else {
 		r1 = ret.Error(1)
@@ -34,14 +36,14 @@ func (_m *ModelConverter) FromGraphQL(input graphql.LabelDefinitionInput, tenant
 }
 
 // ToGraphQL provides a mock function with given fields: definition
-func (_m *ModelConverter) ToGraphQL(definition model.LabelDefinition) (graphql.LabelDefinition, error) {
+func (_m *ModelConverter) ToGraphQL(definition model.LabelDefinition) (externalschema.LabelDefinition, error) {
 	ret := _m.Called(definition)
 
-	var r0 graphql.LabelDefinition
-	if rf, ok := ret.Get(0).(func(model.LabelDefinition) graphql.LabelDefinition); ok {
+	var r0 externalschema.LabelDefinition
+	if rf, ok := ret.Get(0).(func(model.LabelDefinition) externalschema.LabelDefinition); ok {
 		r0 = rf(definition)
 	} else {
-		r0 = ret.Get(0).(graphql.LabelDefinition)
+		r0 = ret.Get(0).(externalschema.LabelDefinition)
 	}
 
 	var r1 error

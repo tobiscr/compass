@@ -4,12 +4,13 @@ import (
 	"context"
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/stretchr/testify/require"
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/systemauth"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/systemauth/automock"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	persistenceautomock "github.com/kyma-incubator/compass/components/director/pkg/persistence/automock"
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence/txtest"
 	"github.com/pkg/errors"
@@ -44,7 +45,7 @@ func TestResolver_GenericDeleteSystemAuth(t *testing.T) {
 		ServiceFn          func() *automock.SystemAuthService
 		OAuthServiceFn     func() *automock.OAuth20Service
 		ConverterFn        func() *automock.SystemAuthConverter
-		ExpectedSystemAuth *graphql.SystemAuth
+		ExpectedSystemAuth *externalschema.SystemAuth
 		ExpectedErr        error
 	}{
 		{

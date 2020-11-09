@@ -6,10 +6,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/fetchrequest"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/require"
 )
 
@@ -29,18 +30,18 @@ func fixModelFetchRequest(t *testing.T, url, filter string) *model.FetchRequest 
 	}
 }
 
-func fixGQLFetchRequest(t *testing.T, url, filter string) *graphql.FetchRequest {
+func fixGQLFetchRequest(t *testing.T, url, filter string) *externalschema.FetchRequest {
 	time, err := time.Parse(time.RFC3339, "2002-10-02T10:00:00-05:00")
 	require.NoError(t, err)
 
-	return &graphql.FetchRequest{
+	return &externalschema.FetchRequest{
 		URL:    url,
-		Auth:   &graphql.Auth{},
-		Mode:   graphql.FetchModeSingle,
+		Auth:   &externalschema.Auth{},
+		Mode:   externalschema.FetchModeSingle,
 		Filter: &filter,
-		Status: &graphql.FetchRequestStatus{
-			Condition: graphql.FetchRequestStatusConditionInitial,
-			Timestamp: graphql.Timestamp(time),
+		Status: &externalschema.FetchRequestStatus{
+			Condition: externalschema.FetchRequestStatusConditionInitial,
+			Timestamp: externalschema.Timestamp(time),
 		},
 	}
 }
@@ -56,12 +57,12 @@ func fixModelFetchRequestInput(url, filter string) *model.FetchRequestInput {
 	}
 }
 
-func fixGQLFetchRequestInput(url, filter string) *graphql.FetchRequestInput {
-	mode := graphql.FetchModeSingle
+func fixGQLFetchRequestInput(url, filter string) *externalschema.FetchRequestInput {
+	mode := externalschema.FetchModeSingle
 
-	return &graphql.FetchRequestInput{
+	return &externalschema.FetchRequestInput{
 		URL:    url,
-		Auth:   &graphql.AuthInput{},
+		Auth:   &externalschema.AuthInput{},
 		Mode:   &mode,
 		Filter: &filter,
 	}

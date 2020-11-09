@@ -4,6 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/consumer"
 	log "github.com/sirupsen/logrus"
 
@@ -14,8 +16,6 @@ import (
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 
 	"github.com/kyma-incubator/compass/components/director/internal/labelfilter"
-
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 )
 
 //go:generate mockery -name=RuntimeContextService -output=automock -outpkg=automock -case=underscore
@@ -30,9 +30,9 @@ type RuntimeContextService interface {
 
 //go:generate mockery -name=RuntimeContextConverter -output=automock -outpkg=automock -case=underscore
 type RuntimeContextConverter interface {
-	ToGraphQL(in *model.RuntimeContext) *graphql.RuntimeContext
-	MultipleToGraphQL(in []*model.RuntimeContext) []*graphql.RuntimeContext
-	InputFromGraphQL(in graphql.RuntimeContextInput, runtimeID string) model.RuntimeContextInput
+	ToGraphQL(in *model.RuntimeContext) *externalschema.RuntimeContext
+	MultipleToGraphQL(in []*model.RuntimeContext) []*externalschema.RuntimeContext
+	InputFromGraphQL(in externalschema.RuntimeContextInput, runtimeID string) model.RuntimeContextInput
 }
 
 type Resolver struct {
@@ -49,7 +49,7 @@ func NewResolver(transact persistence.Transactioner, runtimeContextService Runti
 	}
 }
 
-func (r *Resolver) RuntimeContexts(ctx context.Context, filter []*graphql.LabelFilter, first *int, after *graphql.PageCursor) (*graphql.RuntimeContextPage, error) {
+func (r *Resolver) RuntimeContexts(ctx context.Context, filter []*externalschema.LabelFilter, first *int, after *externalschema.PageCursor) (*externalschema.RuntimeContextPage, error) {
 	runtimeID, err := r.getRuntimeID(ctx)
 	if err != nil {
 		return nil, err
@@ -86,18 +86,18 @@ func (r *Resolver) RuntimeContexts(ctx context.Context, filter []*graphql.LabelF
 
 	gqlRuntimeContexts := r.converter.MultipleToGraphQL(runtimeContextsPage.Data)
 
-	return &graphql.RuntimeContextPage{
+	return &externalschema.RuntimeContextPage{
 		Data:       gqlRuntimeContexts,
 		TotalCount: runtimeContextsPage.TotalCount,
-		PageInfo: &graphql.PageInfo{
-			StartCursor: graphql.PageCursor(runtimeContextsPage.PageInfo.StartCursor),
-			EndCursor:   graphql.PageCursor(runtimeContextsPage.PageInfo.EndCursor),
+		PageInfo: &externalschema.PageInfo{
+			StartCursor: externalschema.PageCursor(runtimeContextsPage.PageInfo.StartCursor),
+			EndCursor:   externalschema.PageCursor(runtimeContextsPage.PageInfo.EndCursor),
 			HasNextPage: runtimeContextsPage.PageInfo.HasNextPage,
 		},
 	}, nil
 }
 
-func (r *Resolver) RuntimeContext(ctx context.Context, id string) (*graphql.RuntimeContext, error) {
+func (r *Resolver) RuntimeContext(ctx context.Context, id string) (*externalschema.RuntimeContext, error) {
 	runtimeID, err := r.getRuntimeID(ctx)
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func (r *Resolver) RuntimeContext(ctx context.Context, id string) (*graphql.Runt
 	return r.converter.ToGraphQL(runtimeContext), nil
 }
 
-func (r *Resolver) RegisterRuntimeContext(ctx context.Context, in graphql.RuntimeContextInput) (*graphql.RuntimeContext, error) {
+func (r *Resolver) RegisterRuntimeContext(ctx context.Context, in externalschema.RuntimeContextInput) (*externalschema.RuntimeContext, error) {
 	runtimeID, err := r.getRuntimeID(ctx)
 	if err != nil {
 		return nil, err
@@ -168,7 +168,7 @@ func (r *Resolver) RegisterRuntimeContext(ctx context.Context, in graphql.Runtim
 	return gqlRuntimeContext, nil
 }
 
-func (r *Resolver) UpdateRuntimeContext(ctx context.Context, id string, in graphql.RuntimeContextInput) (*graphql.RuntimeContext, error) {
+func (r *Resolver) UpdateRuntimeContext(ctx context.Context, id string, in externalschema.RuntimeContextInput) (*externalschema.RuntimeContext, error) {
 	runtimeID, err := r.getRuntimeID(ctx)
 	if err != nil {
 		return nil, err
@@ -209,7 +209,7 @@ func (r *Resolver) UpdateRuntimeContext(ctx context.Context, id string, in graph
 	return gqlRuntimeContext, nil
 }
 
-func (r *Resolver) DeleteRuntimeContext(ctx context.Context, id string) (*graphql.RuntimeContext, error) {
+func (r *Resolver) DeleteRuntimeContext(ctx context.Context, id string) (*externalschema.RuntimeContext, error) {
 	runtimeID, err := r.getRuntimeID(ctx)
 	if err != nil {
 		return nil, err
@@ -264,7 +264,7 @@ func (r *Resolver) DeleteRuntimeContext(ctx context.Context, id string) (*graphq
 	return deletedRuntimeContext, nil
 }
 
-func (r *Resolver) Labels(ctx context.Context, obj *graphql.RuntimeContext, key *string) (*graphql.Labels, error) {
+func (r *Resolver) Labels(ctx context.Context, obj *externalschema.RuntimeContext, key *string) (*externalschema.Labels, error) {
 	if obj == nil {
 		return nil, apperrors.NewInternalError("Runtime Context cannot be empty")
 	}
@@ -298,7 +298,7 @@ func (r *Resolver) Labels(ctx context.Context, obj *graphql.RuntimeContext, key 
 		}
 	}
 
-	var gqlLabels graphql.Labels = resultLabels
+	var gqlLabels externalschema.Labels = resultLabels
 	return &gqlLabels, nil
 }
 

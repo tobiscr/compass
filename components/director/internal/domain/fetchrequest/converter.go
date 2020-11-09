@@ -5,18 +5,19 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 	"github.com/kyma-incubator/compass/components/director/internal/repo"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/pkg/errors"
 )
 
 //go:generate mockery -name=AuthConverter -output=automock -outpkg=automock -case=underscore
 type AuthConverter interface {
-	ToGraphQL(in *model.Auth) (*graphql.Auth, error)
-	InputFromGraphQL(in *graphql.AuthInput) (*model.AuthInput, error)
+	ToGraphQL(in *model.Auth) (*externalschema.Auth, error)
+	InputFromGraphQL(in *externalschema.AuthInput) (*model.AuthInput, error)
 }
 
 type converter struct {
@@ -27,7 +28,7 @@ func NewConverter(authConverter AuthConverter) *converter {
 	return &converter{authConverter: authConverter}
 }
 
-func (c *converter) ToGraphQL(in *model.FetchRequest) (*graphql.FetchRequest, error) {
+func (c *converter) ToGraphQL(in *model.FetchRequest) (*externalschema.FetchRequest, error) {
 	if in == nil {
 		return nil, nil
 	}
@@ -37,16 +38,16 @@ func (c *converter) ToGraphQL(in *model.FetchRequest) (*graphql.FetchRequest, er
 		return nil, errors.Wrap(err, "while converting Auth to GraphQL")
 	}
 
-	return &graphql.FetchRequest{
+	return &externalschema.FetchRequest{
 		URL:    in.URL,
 		Auth:   auth,
-		Mode:   graphql.FetchMode(in.Mode),
+		Mode:   externalschema.FetchMode(in.Mode),
 		Filter: in.Filter,
 		Status: c.statusToGraphQL(in.Status),
 	}, nil
 }
 
-func (c *converter) InputFromGraphQL(in *graphql.FetchRequestInput) (*model.FetchRequestInput, error) {
+func (c *converter) InputFromGraphQL(in *externalschema.FetchRequestInput) (*model.FetchRequestInput, error) {
 	if in == nil {
 		return nil, nil
 	}
@@ -139,29 +140,29 @@ func (c *converter) FromEntity(in Entity) (model.FetchRequest, error) {
 	}, nil
 }
 
-func (c *converter) statusToGraphQL(in *model.FetchRequestStatus) *graphql.FetchRequestStatus {
+func (c *converter) statusToGraphQL(in *model.FetchRequestStatus) *externalschema.FetchRequestStatus {
 	if in == nil {
-		return &graphql.FetchRequestStatus{
-			Condition: graphql.FetchRequestStatusConditionInitial,
+		return &externalschema.FetchRequestStatus{
+			Condition: externalschema.FetchRequestStatusConditionInitial,
 		}
 	}
 
-	var condition graphql.FetchRequestStatusCondition
+	var condition externalschema.FetchRequestStatusCondition
 	switch in.Condition {
 	case model.FetchRequestStatusConditionInitial:
-		condition = graphql.FetchRequestStatusConditionInitial
+		condition = externalschema.FetchRequestStatusConditionInitial
 	case model.FetchRequestStatusConditionFailed:
-		condition = graphql.FetchRequestStatusConditionFailed
+		condition = externalschema.FetchRequestStatusConditionFailed
 	case model.FetchRequestStatusConditionSucceeded:
-		condition = graphql.FetchRequestStatusConditionSucceeded
+		condition = externalschema.FetchRequestStatusConditionSucceeded
 	default:
-		condition = graphql.FetchRequestStatusConditionInitial
+		condition = externalschema.FetchRequestStatusConditionInitial
 	}
 
-	return &graphql.FetchRequestStatus{
+	return &externalschema.FetchRequestStatus{
 		Condition: condition,
 		Message:   in.Message,
-		Timestamp: graphql.Timestamp(in.Timestamp),
+		Timestamp: externalschema.Timestamp(in.Timestamp),
 	}
 }
 

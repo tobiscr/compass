@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
 
@@ -12,11 +14,11 @@ type ApplicationTemplateConverter struct {
 }
 
 // ApplicationFromTemplateInputFromGraphQL provides a mock function with given fields: in
-func (_m *ApplicationTemplateConverter) ApplicationFromTemplateInputFromGraphQL(in graphql.ApplicationFromTemplateInput) model.ApplicationFromTemplateInput {
+func (_m *ApplicationTemplateConverter) ApplicationFromTemplateInputFromGraphQL(in externalschema.ApplicationFromTemplateInput) model.ApplicationFromTemplateInput {
 	ret := _m.Called(in)
 
 	var r0 model.ApplicationFromTemplateInput
-	if rf, ok := ret.Get(0).(func(graphql.ApplicationFromTemplateInput) model.ApplicationFromTemplateInput); ok {
+	if rf, ok := ret.Get(0).(func(externalschema.ApplicationFromTemplateInput) model.ApplicationFromTemplateInput); ok {
 		r0 = rf(in)
 	} else {
 		r0 = ret.Get(0).(model.ApplicationFromTemplateInput)
@@ -26,18 +28,18 @@ func (_m *ApplicationTemplateConverter) ApplicationFromTemplateInputFromGraphQL(
 }
 
 // InputFromGraphQL provides a mock function with given fields: in
-func (_m *ApplicationTemplateConverter) InputFromGraphQL(in graphql.ApplicationTemplateInput) (model.ApplicationTemplateInput, error) {
+func (_m *ApplicationTemplateConverter) InputFromGraphQL(in externalschema.ApplicationTemplateInput) (model.ApplicationTemplateInput, error) {
 	ret := _m.Called(in)
 
 	var r0 model.ApplicationTemplateInput
-	if rf, ok := ret.Get(0).(func(graphql.ApplicationTemplateInput) model.ApplicationTemplateInput); ok {
+	if rf, ok := ret.Get(0).(func(externalschema.ApplicationTemplateInput) model.ApplicationTemplateInput); ok {
 		r0 = rf(in)
 	} else {
 		r0 = ret.Get(0).(model.ApplicationTemplateInput)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(graphql.ApplicationTemplateInput) error); ok {
+	if rf, ok := ret.Get(1).(func(externalschema.ApplicationTemplateInput) error); ok {
 		r1 = rf(in)
 	} else {
 		r1 = ret.Error(1)
@@ -47,15 +49,15 @@ func (_m *ApplicationTemplateConverter) InputFromGraphQL(in graphql.ApplicationT
 }
 
 // MultipleToGraphQL provides a mock function with given fields: in
-func (_m *ApplicationTemplateConverter) MultipleToGraphQL(in []*model.ApplicationTemplate) ([]*graphql.ApplicationTemplate, error) {
+func (_m *ApplicationTemplateConverter) MultipleToGraphQL(in []*model.ApplicationTemplate) ([]*externalschema.ApplicationTemplate, error) {
 	ret := _m.Called(in)
 
-	var r0 []*graphql.ApplicationTemplate
-	if rf, ok := ret.Get(0).(func([]*model.ApplicationTemplate) []*graphql.ApplicationTemplate); ok {
+	var r0 []*externalschema.ApplicationTemplate
+	if rf, ok := ret.Get(0).(func([]*model.ApplicationTemplate) []*externalschema.ApplicationTemplate); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*graphql.ApplicationTemplate)
+			r0 = ret.Get(0).([]*externalschema.ApplicationTemplate)
 		}
 	}
 
@@ -70,15 +72,15 @@ func (_m *ApplicationTemplateConverter) MultipleToGraphQL(in []*model.Applicatio
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *ApplicationTemplateConverter) ToGraphQL(in *model.ApplicationTemplate) (*graphql.ApplicationTemplate, error) {
+func (_m *ApplicationTemplateConverter) ToGraphQL(in *model.ApplicationTemplate) (*externalschema.ApplicationTemplate, error) {
 	ret := _m.Called(in)
 
-	var r0 *graphql.ApplicationTemplate
-	if rf, ok := ret.Get(0).(func(*model.ApplicationTemplate) *graphql.ApplicationTemplate); ok {
+	var r0 *externalschema.ApplicationTemplate
+	if rf, ok := ret.Get(0).(func(*model.ApplicationTemplate) *externalschema.ApplicationTemplate); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.ApplicationTemplate)
+			r0 = ret.Get(0).(*externalschema.ApplicationTemplate)
 		}
 	}
 

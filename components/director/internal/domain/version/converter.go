@@ -3,7 +3,7 @@ package version
 import (
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 	"github.com/kyma-incubator/compass/components/director/internal/repo"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 )
 
 type converter struct{}
@@ -12,12 +12,12 @@ func NewConverter() *converter {
 	return &converter{}
 }
 
-func (c *converter) ToGraphQL(in *model.Version) *graphql.Version {
+func (c *converter) ToGraphQL(in *model.Version) *externalschema.Version {
 	if in == nil {
 		return nil
 	}
 
-	return &graphql.Version{
+	return &externalschema.Version{
 		Value:           in.Value,
 		Deprecated:      in.Deprecated,
 		DeprecatedSince: in.DeprecatedSince,
@@ -25,7 +25,7 @@ func (c *converter) ToGraphQL(in *model.Version) *graphql.Version {
 	}
 }
 
-func (c *converter) InputFromGraphQL(in *graphql.VersionInput) *model.VersionInput {
+func (c *converter) InputFromGraphQL(in *externalschema.VersionInput) *model.VersionInput {
 	if in == nil {
 		return nil
 	}

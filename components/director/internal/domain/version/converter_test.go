@@ -3,13 +3,14 @@ package version_test
 import (
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/repo/testdb"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/version"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,7 +19,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 	testCases := []struct {
 		Name     string
 		Input    *model.Version
-		Expected *graphql.Version
+		Expected *externalschema.Version
 	}{
 		{
 			Name:     "All properties given",
@@ -28,7 +29,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 		{
 			Name:     "Empty",
 			Input:    &model.Version{},
-			Expected: &graphql.Version{},
+			Expected: &externalschema.Version{},
 		},
 		{
 			Name:     "Nil",
@@ -54,7 +55,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 	// given
 	testCases := []struct {
 		Name     string
-		Input    *graphql.VersionInput
+		Input    *externalschema.VersionInput
 		Expected *model.VersionInput
 	}{
 		{
@@ -64,7 +65,7 @@ func TestConverter_InputFromGraphQL(t *testing.T) {
 		},
 		{
 			Name:     "Empty",
-			Input:    &graphql.VersionInput{},
+			Input:    &externalschema.VersionInput{},
 			Expected: &model.VersionInput{},
 		},
 		{

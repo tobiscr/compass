@@ -3,6 +3,8 @@ package application_test
 import (
 	"testing"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/google/uuid"
 
 	"github.com/stretchr/testify/require"
@@ -12,7 +14,6 @@ import (
 	"github.com/kyma-incubator/compass/components/director/internal/domain/application"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/application/automock"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,7 +22,7 @@ func TestConverter_ToGraphQL(t *testing.T) {
 	testCases := []struct {
 		Name     string
 		Input    *model.Application
-		Expected *graphql.Application
+		Expected *externalschema.Application
 	}{
 		{
 			Name:     "All properties given",
@@ -31,9 +32,9 @@ func TestConverter_ToGraphQL(t *testing.T) {
 		{
 			Name:  "Empty",
 			Input: &model.Application{},
-			Expected: &graphql.Application{
-				Status: &graphql.ApplicationStatus{
-					Condition: graphql.ApplicationStatusConditionInitial,
+			Expected: &externalschema.Application{
+				Status: &externalschema.ApplicationStatus{
+					Condition: externalschema.ApplicationStatusConditionInitial,
 				},
 			},
 		},
@@ -64,12 +65,12 @@ func TestConverter_MultipleToGraphQL(t *testing.T) {
 		{},
 		nil,
 	}
-	expected := []*graphql.Application{
+	expected := []*externalschema.Application{
 		fixGQLApplication("foo", "Foo", "Lorem ipsum"),
 		fixGQLApplication("bar", "Bar", "Dolor sit amet"),
 		{
-			Status: &graphql.ApplicationStatus{
-				Condition: graphql.ApplicationStatusConditionInitial,
+			Status: &externalschema.ApplicationStatus{
+				Condition: externalschema.ApplicationStatusConditionInitial,
 			},
 		},
 	}
@@ -89,7 +90,7 @@ func TestConverter_CreateInputFromGraphQL(t *testing.T) {
 	// given
 	testCases := []struct {
 		Name               string
-		Input              graphql.ApplicationRegisterInput
+		Input              externalschema.ApplicationRegisterInput
 		Expected           model.ApplicationRegisterInput
 		WebhookConverterFn func() *automock.WebhookConverter
 		PackageConverterFn func() *automock.PackageConverter
@@ -111,16 +112,16 @@ func TestConverter_CreateInputFromGraphQL(t *testing.T) {
 		},
 		{
 			Name:     "Empty",
-			Input:    graphql.ApplicationRegisterInput{},
+			Input:    externalschema.ApplicationRegisterInput{},
 			Expected: model.ApplicationRegisterInput{},
 			WebhookConverterFn: func() *automock.WebhookConverter {
 				conv := &automock.WebhookConverter{}
-				conv.On("MultipleInputFromGraphQL", []*graphql.WebhookInput(nil)).Return(nil, nil)
+				conv.On("MultipleInputFromGraphQL", []*externalschema.WebhookInput(nil)).Return(nil, nil)
 				return conv
 			},
 			PackageConverterFn: func() *automock.PackageConverter {
 				conv := &automock.PackageConverter{}
-				conv.On("MultipleCreateInputFromGraphQL", []*graphql.PackageCreateInput(nil)).Return(nil, nil)
+				conv.On("MultipleCreateInputFromGraphQL", []*externalschema.PackageCreateInput(nil)).Return(nil, nil)
 				return conv
 			},
 		},
@@ -145,29 +146,29 @@ func TestConverter_CreateInputFromGraphQL(t *testing.T) {
 func TestConverter_UpdateInputFromGraphQL_StatusCondition(t *testing.T) {
 	testCases := []struct {
 		Name           string
-		CondtionGQL    graphql.ApplicationStatusCondition
+		CondtionGQL    externalschema.ApplicationStatusCondition
 		ConditionModel model.ApplicationStatusCondition
 	}{
 		{
 			Name:           "When status condition is FAILED",
-			CondtionGQL:    graphql.ApplicationStatusConditionFailed,
+			CondtionGQL:    externalschema.ApplicationStatusConditionFailed,
 			ConditionModel: model.ApplicationStatusConditionFailed,
 		},
 		{
 			Name:           "When status condition is CONNECTED",
-			CondtionGQL:    graphql.ApplicationStatusConditionConnected,
+			CondtionGQL:    externalschema.ApplicationStatusConditionConnected,
 			ConditionModel: model.ApplicationStatusConditionConnected,
 		},
 		{
 			Name:           "When status condition is INITIAL",
-			CondtionGQL:    graphql.ApplicationStatusConditionInitial,
+			CondtionGQL:    externalschema.ApplicationStatusConditionInitial,
 			ConditionModel: model.ApplicationStatusConditionInitial,
 		},
 	}
 
 	for _, testCase := range testCases {
 		t.Run(testCase.Name, func(t *testing.T) {
-			gqlApp := graphql.ApplicationUpdateInput{StatusCondition: &testCase.CondtionGQL}
+			gqlApp := externalschema.ApplicationUpdateInput{StatusCondition: &testCase.CondtionGQL}
 
 			converter := application.NewConverter(nil, nil)
 			modelApp := converter.UpdateInputFromGraphQL(gqlApp)
@@ -178,13 +179,13 @@ func TestConverter_UpdateInputFromGraphQL_StatusCondition(t *testing.T) {
 }
 
 func TestConverter_UpdateInputFromGraphQL(t *testing.T) {
-	allPropsInput := fixGQLApplicationUpdateInput("foo", "Lorem ipsum", testURL, graphql.ApplicationStatusConditionConnected)
+	allPropsInput := fixGQLApplicationUpdateInput("foo", "Lorem ipsum", testURL, externalschema.ApplicationStatusConditionConnected)
 	allPropsExpected := fixModelApplicationUpdateInput("foo", "Lorem ipsum", testURL, model.ApplicationStatusConditionConnected)
 
 	// given
 	testCases := []struct {
 		Name     string
-		Input    graphql.ApplicationUpdateInput
+		Input    externalschema.ApplicationUpdateInput
 		Expected model.ApplicationUpdateInput
 	}{
 		{
@@ -194,7 +195,7 @@ func TestConverter_UpdateInputFromGraphQL(t *testing.T) {
 		},
 		{
 			Name:     "Empty",
-			Input:    graphql.ApplicationUpdateInput{},
+			Input:    externalschema.ApplicationUpdateInput{},
 			Expected: model.ApplicationUpdateInput{},
 		},
 	}
@@ -291,7 +292,7 @@ func TestConverter_CreateInputGQLJSONConversion(t *testing.T) {
 
 	t.Run("Successful two-way conversion", func(t *testing.T) {
 		inputGQL := fixGQLApplicationRegisterInput("name", "description")
-		inputGQL.Labels = &graphql.Labels{"test": "test"}
+		inputGQL.Labels = &externalschema.Labels{"test": "test"}
 
 		// WHEN
 		// GQL -> JSON
@@ -334,14 +335,14 @@ func TestConverter_ConvertToModel(t *testing.T) {
 
 	t.Run("Success empty model", func(t *testing.T) {
 		//GIVEN
-		appGraphql := &graphql.Application{}
+		appGraphql := &externalschema.Application{}
 
 		//WHEN
 		appModel := conv.GraphQLToModel(appGraphql, uuid.New().String())
 		outputGraphql := conv.ToGraphQL(appModel)
 
 		//THEN
-		appGraphql.Status = &graphql.ApplicationStatus{Condition: graphql.ApplicationStatusConditionInitial}
+		appGraphql.Status = &externalschema.ApplicationStatus{Condition: externalschema.ApplicationStatusConditionInitial}
 		assert.Equal(t, appGraphql, outputGraphql)
 	})
 

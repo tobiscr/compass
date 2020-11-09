@@ -7,6 +7,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/api"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/document"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/eventdef"
@@ -58,7 +60,6 @@ import (
 
 	"github.com/99designs/gqlgen/handler"
 	"github.com/gorilla/mux"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/vrischmann/envconfig"
@@ -128,7 +129,7 @@ func main() {
 	pairingAdapters, err := getPairingAdaptersMapping(cfg.PairingAdapterSrc)
 	exitOnError(err, "Error while reading Pairing Adapters Configuration")
 
-	gqlCfg := graphql.Config{
+	gqlCfg := externalschema.Config{
 		Resolvers: domain.NewRootResolver(
 			transact,
 			cfgProvider,
@@ -139,14 +140,14 @@ func main() {
 			metricsCollector,
 			cfg.ClientTimeout,
 		),
-		Directives: graphql.DirectiveRoot{
+		Directives: externalschema.DirectiveRoot{
 			HasScenario: scenario.NewDirective(transact, label.NewRepository(label.NewConverter()), defaultPackageRepo(), defaultPackageInstanceAuthRepo()).HasScenario,
 			HasScopes:   scope.NewDirective(cfgProvider).VerifyScopes,
 			Validate:    inputvalidation.NewDirective().Validate,
 		},
 	}
 
-	executableSchema := graphql.NewExecutableSchema(gqlCfg)
+	executableSchema := externalschema.NewExecutableSchema(gqlCfg)
 
 	log.Infof("Registering GraphQL endpoint on %s...", cfg.APIEndpoint)
 	authMiddleware := authenticator.New(cfg.JWKSEndpoint, cfg.AllowJWTSigningNone)

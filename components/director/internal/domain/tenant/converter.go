@@ -2,7 +2,7 @@ package tenant
 
 import (
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 	"github.com/kyma-incubator/compass/components/director/pkg/str"
 )
 
@@ -39,12 +39,12 @@ func (c *converter) FromEntity(in *Entity) *model.BusinessTenantMapping {
 	}
 }
 
-func (c *converter) ToGraphQL(in *model.BusinessTenantMapping) *graphql.Tenant {
+func (c *converter) ToGraphQL(in *model.BusinessTenantMapping) *externalschema.Tenant {
 	if in == nil {
 		return nil
 	}
 
-	return &graphql.Tenant{
+	return &externalschema.Tenant{
 		ID:          in.ExternalTenant,
 		InternalID:  in.ID,
 		Name:        str.Ptr(in.Name),
@@ -53,8 +53,8 @@ func (c *converter) ToGraphQL(in *model.BusinessTenantMapping) *graphql.Tenant {
 
 }
 
-func (c *converter) MultipleToGraphQL(in []*model.BusinessTenantMapping) []*graphql.Tenant {
-	var tenants []*graphql.Tenant
+func (c *converter) MultipleToGraphQL(in []*model.BusinessTenantMapping) []*externalschema.Tenant {
+	var tenants []*externalschema.Tenant
 	for _, r := range in {
 		if r == nil {
 			continue

@@ -2,7 +2,9 @@
 
 package automock
 
-import graphql "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+import (
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+)
 import mock "github.com/stretchr/testify/mock"
 import model "github.com/kyma-incubator/compass/components/director/internal/model"
 
@@ -12,11 +14,11 @@ type PackageConverter struct {
 }
 
 // MultipleCreateInputFromGraphQL provides a mock function with given fields: in
-func (_m *PackageConverter) MultipleCreateInputFromGraphQL(in []*graphql.PackageCreateInput) ([]*model.PackageCreateInput, error) {
+func (_m *PackageConverter) MultipleCreateInputFromGraphQL(in []*externalschema.PackageCreateInput) ([]*model.PackageCreateInput, error) {
 	ret := _m.Called(in)
 
 	var r0 []*model.PackageCreateInput
-	if rf, ok := ret.Get(0).(func([]*graphql.PackageCreateInput) []*model.PackageCreateInput); ok {
+	if rf, ok := ret.Get(0).(func([]*externalschema.PackageCreateInput) []*model.PackageCreateInput); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
@@ -25,7 +27,7 @@ func (_m *PackageConverter) MultipleCreateInputFromGraphQL(in []*graphql.Package
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]*graphql.PackageCreateInput) error); ok {
+	if rf, ok := ret.Get(1).(func([]*externalschema.PackageCreateInput) error); ok {
 		r1 = rf(in)
 	} else {
 		r1 = ret.Error(1)
@@ -35,15 +37,15 @@ func (_m *PackageConverter) MultipleCreateInputFromGraphQL(in []*graphql.Package
 }
 
 // MultipleToGraphQL provides a mock function with given fields: in
-func (_m *PackageConverter) MultipleToGraphQL(in []*model.Package) ([]*graphql.Package, error) {
+func (_m *PackageConverter) MultipleToGraphQL(in []*model.Package) ([]*externalschema.Package, error) {
 	ret := _m.Called(in)
 
-	var r0 []*graphql.Package
-	if rf, ok := ret.Get(0).(func([]*model.Package) []*graphql.Package); ok {
+	var r0 []*externalschema.Package
+	if rf, ok := ret.Get(0).(func([]*model.Package) []*externalschema.Package); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*graphql.Package)
+			r0 = ret.Get(0).([]*externalschema.Package)
 		}
 	}
 
@@ -58,15 +60,15 @@ func (_m *PackageConverter) MultipleToGraphQL(in []*model.Package) ([]*graphql.P
 }
 
 // ToGraphQL provides a mock function with given fields: in
-func (_m *PackageConverter) ToGraphQL(in *model.Package) (*graphql.Package, error) {
+func (_m *PackageConverter) ToGraphQL(in *model.Package) (*externalschema.Package, error) {
 	ret := _m.Called(in)
 
-	var r0 *graphql.Package
-	if rf, ok := ret.Get(0).(func(*model.Package) *graphql.Package); ok {
+	var r0 *externalschema.Package
+	if rf, ok := ret.Get(0).(func(*model.Package) *externalschema.Package); ok {
 		r0 = rf(in)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*graphql.Package)
+			r0 = ret.Get(0).(*externalschema.Package)
 		}
 	}
 

@@ -3,14 +3,14 @@ package systemauth_test
 import (
 	"database/sql/driver"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/pkg/errors"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/systemauth"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
 	"github.com/kyma-incubator/compass/components/director/internal/repo"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
-
-	"github.com/DATA-DOG/go-sqlmock"
 )
 
 var (
@@ -22,8 +22,8 @@ var (
 
 var testTableColumns = []string{"id", "tenant_id", "app_id", "runtime_id", "integration_system_id", "value"}
 
-func fixGQLSystemAuth(id string, auth *graphql.Auth) *graphql.SystemAuth {
-	return &graphql.SystemAuth{
+func fixGQLSystemAuth(id string, auth *externalschema.Auth) *externalschema.SystemAuth {
+	return &externalschema.SystemAuth{
 		ID:   id,
 		Auth: auth,
 	}
@@ -76,23 +76,23 @@ func fixModelAuthInput() model.AuthInput {
 	}
 }
 
-func fixGQLAuth() *graphql.Auth {
-	return &graphql.Auth{
-		Credential: &graphql.BasicCredentialData{
+func fixGQLAuth() *externalschema.Auth {
+	return &externalschema.Auth{
+		Credential: &externalschema.BasicCredentialData{
 			Username: "foo",
 			Password: "bar",
 		},
-		AdditionalHeaders:     &graphql.HttpHeaders{"test": {"foo", "bar"}},
-		AdditionalQueryParams: &graphql.QueryParams{"test": {"foo", "bar"}},
-		RequestAuth: &graphql.CredentialRequestAuth{
-			Csrf: &graphql.CSRFTokenCredentialRequestAuth{
+		AdditionalHeaders:     &externalschema.HttpHeaders{"test": {"foo", "bar"}},
+		AdditionalQueryParams: &externalschema.QueryParams{"test": {"foo", "bar"}},
+		RequestAuth: &externalschema.CredentialRequestAuth{
+			Csrf: &externalschema.CSRFTokenCredentialRequestAuth{
 				TokenEndpointURL: "foo.url",
-				Credential: &graphql.BasicCredentialData{
+				Credential: &externalschema.BasicCredentialData{
 					Username: "boo",
 					Password: "far",
 				},
-				AdditionalHeaders:     &graphql.HttpHeaders{"test": {"foo", "bar"}},
-				AdditionalQueryParams: &graphql.QueryParams{"test": {"foo", "bar"}},
+				AdditionalHeaders:     &externalschema.HttpHeaders{"test": {"foo", "bar"}},
+				AdditionalQueryParams: &externalschema.QueryParams{"test": {"foo", "bar"}},
 			},
 		},
 	}

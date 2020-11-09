@@ -3,6 +3,8 @@ package eventdef
 import (
 	"context"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
@@ -11,8 +13,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 )
 
 //go:generate mockery -name=EventDefService -output=automock -outpkg=automock -case=underscore
@@ -27,16 +27,16 @@ type EventDefService interface {
 
 //go:generate mockery -name=EventDefConverter -output=automock -outpkg=automock -case=underscore
 type EventDefConverter interface {
-	ToGraphQL(in *model.EventDefinition) *graphql.EventDefinition
-	MultipleToGraphQL(in []*model.EventDefinition) []*graphql.EventDefinition
-	MultipleInputFromGraphQL(in []*graphql.EventDefinitionInput) ([]*model.EventDefinitionInput, error)
-	InputFromGraphQL(in *graphql.EventDefinitionInput) (*model.EventDefinitionInput, error)
+	ToGraphQL(in *model.EventDefinition) *externalschema.EventDefinition
+	MultipleToGraphQL(in []*model.EventDefinition) []*externalschema.EventDefinition
+	MultipleInputFromGraphQL(in []*externalschema.EventDefinitionInput) ([]*model.EventDefinitionInput, error)
+	InputFromGraphQL(in *externalschema.EventDefinitionInput) (*model.EventDefinitionInput, error)
 }
 
 //go:generate mockery -name=FetchRequestConverter -output=automock -outpkg=automock -case=underscore
 type FetchRequestConverter interface {
-	ToGraphQL(in *model.FetchRequest) (*graphql.FetchRequest, error)
-	InputFromGraphQL(in *graphql.FetchRequestInput) (*model.FetchRequestInput, error)
+	ToGraphQL(in *model.FetchRequest) (*externalschema.FetchRequest, error)
+	InputFromGraphQL(in *externalschema.FetchRequestInput) (*model.FetchRequestInput, error)
 }
 
 //go:generate mockery -name=ApplicationService -output=automock -outpkg=automock -case=underscore
@@ -69,7 +69,7 @@ func NewResolver(transact persistence.Transactioner, svc EventDefService, appSvc
 	}
 }
 
-func (r *Resolver) AddEventDefinitionToPackage(ctx context.Context, packageID string, in graphql.EventDefinitionInput) (*graphql.EventDefinition, error) {
+func (r *Resolver) AddEventDefinitionToPackage(ctx context.Context, packageID string, in externalschema.EventDefinitionInput) (*externalschema.EventDefinition, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -115,7 +115,7 @@ func (r *Resolver) AddEventDefinitionToPackage(ctx context.Context, packageID st
 	return gqlAPI, nil
 }
 
-func (r *Resolver) UpdateEventDefinition(ctx context.Context, id string, in graphql.EventDefinitionInput) (*graphql.EventDefinition, error) {
+func (r *Resolver) UpdateEventDefinition(ctx context.Context, id string, in externalschema.EventDefinitionInput) (*externalschema.EventDefinition, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -152,7 +152,7 @@ func (r *Resolver) UpdateEventDefinition(ctx context.Context, id string, in grap
 	return gqlAPI, nil
 }
 
-func (r *Resolver) DeleteEventDefinition(ctx context.Context, id string) (*graphql.EventDefinition, error) {
+func (r *Resolver) DeleteEventDefinition(ctx context.Context, id string) (*externalschema.EventDefinition, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -184,7 +184,7 @@ func (r *Resolver) DeleteEventDefinition(ctx context.Context, id string) (*graph
 	return deletedAPI, nil
 }
 
-func (r *Resolver) RefetchEventDefinitionSpec(ctx context.Context, eventID string) (*graphql.EventSpec, error) {
+func (r *Resolver) RefetchEventDefinitionSpec(ctx context.Context, eventID string) (*externalschema.EventSpec, error) {
 	tx, err := r.transact.Begin()
 	if err != nil {
 		return nil, err
@@ -211,7 +211,7 @@ func (r *Resolver) RefetchEventDefinitionSpec(ctx context.Context, eventID strin
 	return convertedOut.Spec, nil
 }
 
-func (r *Resolver) FetchRequest(ctx context.Context, obj *graphql.EventSpec) (*graphql.FetchRequest, error) {
+func (r *Resolver) FetchRequest(ctx context.Context, obj *externalschema.EventSpec) (*externalschema.FetchRequest, error) {
 	if obj == nil {
 		return nil, apperrors.NewInternalError("Event Spec cannot be empty")
 	}

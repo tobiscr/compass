@@ -4,12 +4,13 @@ import (
 	"database/sql/driver"
 	"errors"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/pagination"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/integrationsystem"
 	"github.com/kyma-incubator/compass/components/director/internal/model"
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
 )
 
 const (
@@ -35,8 +36,8 @@ func fixModelIntegrationSystem(id, name string) *model.IntegrationSystem {
 	}
 }
 
-func fixGQLIntegrationSystem(id, name string) *graphql.IntegrationSystem {
-	return &graphql.IntegrationSystem{
+func fixGQLIntegrationSystem(id, name string) *externalschema.IntegrationSystem {
+	return &externalschema.IntegrationSystem{
 		ID:          id,
 		Name:        name,
 		Description: &testDescription,
@@ -50,8 +51,8 @@ func fixModelIntegrationSystemInput(name string) model.IntegrationSystemInput {
 	}
 }
 
-func fixGQLIntegrationSystemInput(name string) graphql.IntegrationSystemInput {
-	return graphql.IntegrationSystemInput{
+func fixGQLIntegrationSystemInput(name string) externalschema.IntegrationSystemInput {
+	return externalschema.IntegrationSystemInput{
 		Name:        name,
 		Description: &testDescription,
 	}
@@ -95,10 +96,10 @@ func fixModelIntegrationSystemPage(intSystems []*model.IntegrationSystem) model.
 	}
 }
 
-func fixGQLIntegrationSystemPage(intSystems []*graphql.IntegrationSystem) graphql.IntegrationSystemPage {
-	return graphql.IntegrationSystemPage{
+func fixGQLIntegrationSystemPage(intSystems []*externalschema.IntegrationSystem) externalschema.IntegrationSystemPage {
+	return externalschema.IntegrationSystemPage{
 		Data: intSystems,
-		PageInfo: &graphql.PageInfo{
+		PageInfo: &externalschema.PageInfo{
 			StartCursor: "start",
 			EndCursor:   "end",
 			HasNextPage: false,
@@ -133,23 +134,23 @@ func fixModelAuth() *model.Auth {
 	}
 }
 
-func fixGQLAuth() *graphql.Auth {
-	return &graphql.Auth{
-		Credential: &graphql.BasicCredentialData{
+func fixGQLAuth() *externalschema.Auth {
+	return &externalschema.Auth{
+		Credential: &externalschema.BasicCredentialData{
 			Username: "foo",
 			Password: "bar",
 		},
-		AdditionalHeaders:     &graphql.HttpHeaders{"test": {"foo", "bar"}},
-		AdditionalQueryParams: &graphql.QueryParams{"test": {"foo", "bar"}},
-		RequestAuth: &graphql.CredentialRequestAuth{
-			Csrf: &graphql.CSRFTokenCredentialRequestAuth{
+		AdditionalHeaders:     &externalschema.HttpHeaders{"test": {"foo", "bar"}},
+		AdditionalQueryParams: &externalschema.QueryParams{"test": {"foo", "bar"}},
+		RequestAuth: &externalschema.CredentialRequestAuth{
+			Csrf: &externalschema.CSRFTokenCredentialRequestAuth{
 				TokenEndpointURL: "foo.url",
-				Credential: &graphql.BasicCredentialData{
+				Credential: &externalschema.BasicCredentialData{
 					Username: "boo",
 					Password: "far",
 				},
-				AdditionalHeaders:     &graphql.HttpHeaders{"test": {"foo", "bar"}},
-				AdditionalQueryParams: &graphql.QueryParams{"test": {"foo", "bar"}},
+				AdditionalHeaders:     &externalschema.HttpHeaders{"test": {"foo", "bar"}},
+				AdditionalQueryParams: &externalschema.QueryParams{"test": {"foo", "bar"}},
 			},
 		},
 	}
@@ -164,8 +165,8 @@ func fixModelSystemAuth(id, intSysID string, auth *model.Auth) model.SystemAuth 
 	}
 }
 
-func fixGQLSystemAuth(id string, auth *graphql.Auth) *graphql.SystemAuth {
-	return &graphql.SystemAuth{
+func fixGQLSystemAuth(id string, auth *externalschema.Auth) *externalschema.SystemAuth {
+	return &externalschema.SystemAuth{
 		ID:   id,
 		Auth: auth,
 	}

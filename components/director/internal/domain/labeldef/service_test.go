@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/pagination"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/pagination"
 
 	"github.com/kyma-incubator/compass/components/director/internal/domain/labeldef"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/labeldef/automock"
@@ -738,7 +738,7 @@ func fixUUID() string {
 	return "003a0855-4eb0-486d-8fc6-3ab2f2312ca0"
 }
 
-func fixBasicInputSchema() *graphql.JSONSchema {
+func fixBasicInputSchema() *externalschema.JSONSchema {
 	sch := `{
 		"$id": "https://example.com/person.schema.json",
   		"$schema": "http://json-schema.org/draft-07/schema#",
@@ -760,7 +760,7 @@ func fixBasicInputSchema() *graphql.JSONSchema {
   		  }
   		}
 	  }`
-	jsonSchema := graphql.JSONSchema(sch)
+	jsonSchema := externalschema.JSONSchema(sch)
 	return &jsonSchema
 }
 
