@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 
 	"github.com/kyma-incubator/compass/components/pairing-adapter/internal/adapter"
 	"github.com/kyma-incubator/compass/components/pairing-adapter/internal/adapter/automock"
@@ -27,7 +27,7 @@ func TestClient(t *testing.T) {
 		// GIVEN
 		givenRequestData := adapter.RequestData{
 			Tenant: fixTenant(),
-			Application: graphql.Application{
+			Application: externalschema.Application{
 				ID:   fixAppID(),
 				Name: fixAppName(),
 			},
@@ -146,7 +146,7 @@ func TestClient(t *testing.T) {
 		// WHEN
 		_, err := cli.Do(nil, adapter.RequestData{
 			Tenant: fixTenant(),
-			Application: graphql.Application{
+			Application: externalschema.Application{
 				ID:   fixAppID(),
 				Name: fixAppName(),
 			},
@@ -169,7 +169,7 @@ func TestClient(t *testing.T) {
 		// WHEN
 		_, err := cli.Do(nil, adapter.RequestData{
 			Tenant: fixTenant(),
-			Application: graphql.Application{
+			Application: externalschema.Application{
 				ID:   fixAppID(),
 				Name: fixAppName(),
 			},

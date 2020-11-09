@@ -69,7 +69,7 @@
           "$ref": "#/definitions/ApplicationStatus"
         }
       },
-      "x-go-package": "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+      "x-go-package": "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
     },
     "ApplicationStatus": {
       "type": "object",
@@ -81,16 +81,16 @@
           "$ref": "#/definitions/Timestamp"
         }
       },
-      "x-go-package": "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+      "x-go-package": "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
     },
     "ApplicationStatusCondition": {
       "type": "string",
-      "x-go-package": "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+      "x-go-package": "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
     },
     "Timestamp": {
       "type": "string",
       "format": "date-time",
-      "x-go-package": "github.com/kyma-incubator/compass/components/director/pkg/graphql"
+      "x-go-package": "github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
     }
   },
   "responses": {

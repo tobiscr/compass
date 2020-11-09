@@ -3,7 +3,7 @@ package adapter
 import (
 	"time"
 
-	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
+	"github.com/kyma-incubator/compass/components/director/pkg/graphql/externalschema"
 )
 
 const (
@@ -46,7 +46,7 @@ type ExternalToken struct {
 // swagger:parameters adapter
 type RequestData struct {
 	// in: body
-	Application graphql.Application
+	Application externalschema.Application
 	// in: body
 	Tenant string
 }
