@@ -162,5 +162,10 @@ func (a *RuntimeLabelNotificationHandler) handle(ctx context.Context, label Labe
 		}
 	}
 
+	if err := syncServiceEntries(ctx, a.ScriptRunner, appNames); err != nil {
+		log.C(ctx).Errorf("unable to sync service entries for applications as part of runtime label event: %s", err)
+		return err
+	}
+
 	return nil
 }

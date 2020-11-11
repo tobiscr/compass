@@ -39,6 +39,14 @@ func (r *Runner) DeleteDependency(ctx context.Context, dep string, remote1, remo
 	return r.Run(ctx, "dependency_cleaner.sh", dep, remote1, remote2)
 }
 
+func (r *Runner) ApplyResource(ctx context.Context, resourceFile string) error {
+	return r.Run(ctx, "resource_applier.sh", resourceFile)
+}
+
+func (r *Runner) DeleteResource(ctx context.Context, resourceFile string) error {
+	return r.Run(ctx, "resource_cleaner.sh", resourceFile)
+}
+
 func (r *Runner) RegisterRuntime(ctx context.Context, remote string) error {
 	return r.Run(ctx, "register_consumer_cluster.sh", remote)
 }

@@ -157,11 +157,36 @@ func (a *AppLabelNotificationHandler) handle(ctx context.Context, label Label) e
 				return err
 			}
 		}
+
+		if err := syncServiceEntries(ctx, a.ScriptRunner, appNames); err != nil {
+			log.C(ctx).Errorf("unable to sync service entries for applications as part of application label event: %s", err)
+			return err
+		}
 	}
 
 	err = tx.Commit()
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func syncServiceEntries(ctx context.Context, scriptRunner script.Runner, appNames []string) error {
+	// delete unnecessary svc entries
+	if err := scriptRunner.DeleteResource(ctx, "service-entries/"); err != nil {
+		return err
+	}
+
+	// apply all new svc entries
+	for _, appName := range appNames {
+		if appName == "commerce-mock" || appName == "salesdata" {
+			continue
+		}
+
+		if err := scriptRunner.ApplyResource(ctx, fmt.Sprintf("service-entries/%s.yml", appName)); err != nil {
+			return err
+		}
 	}
 
 	return nil

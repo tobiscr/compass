@@ -1,0 +1,13 @@
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: vpce-0d8ab5e023cbcc41c-rhql7t5u.vpce-svc-0d37651630ce64e09.eu-central-1.vpce.amazonaws.com
+  namespace: default
+spec:
+  hosts:
+    - vpce-0d8ab5e023cbcc41c-rhql7t5u.vpce-svc-0d37651630ce64e09.eu-central-1.vpce.amazonaws.com
+  location: MESH_EXTERNAL
+  ports:
+    - name: http
+      number: 8080
+  resolution: DNS
