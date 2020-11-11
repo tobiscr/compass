@@ -68,6 +68,40 @@ func (a *RuntimeLabelNotificationHandler) HandleDelete(ctx context.Context, labe
 		return err
 	}
 
+	// TODO: this logic might need rethinking - if runtime is removed from scenario then this logic here might not get the right apps necessary to remove the service entries
+	parsedID, err := uuid.Parse(runtime.ID)
+	if err != nil {
+		return err
+	}
+
+	appsList, err := a.AppLister.ListByRuntimeID(ctx, parsedID, 100, "")
+	if err != nil {
+		return err
+	}
+
+	appNames := make([]string, 0, appsList.TotalCount)
+	for _, app := range appsList.Data {
+		scenarioLabel, err := a.AppLabelGetter.GetLabel(ctx, app.ID, "scenarios")
+		if err != nil {
+			if apperrors.IsNotFoundError(err) {
+				log.C(ctx).Warnf("app with id %s does not have scenarios label, skipping", label.AppID)
+				continue
+			}
+			return err
+		}
+		scenarioLabelSlice := scenarioLabel.Value.([]interface{})
+		if len(scenarioLabelSlice) == 1 && scenarioLabelSlice[0] == "DEFAULT" {
+			log.C(ctx).Warnf("app with id %s is only in the DEFAULT scenario, skipping", label.AppID)
+			continue
+		}
+		appNames = append(appNames, app.Name)
+	}
+
+	if err := cleanupServiceEntries(ctx, a.ScriptRunner); err != nil {
+		log.C(ctx).Errorf("unable to cleanup service entries for applications as part of runtime label event: %s", err)
+		return err
+	}
+
 	return nil
 }
 

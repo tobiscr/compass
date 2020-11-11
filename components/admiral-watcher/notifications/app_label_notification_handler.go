@@ -174,7 +174,7 @@ func (a *AppLabelNotificationHandler) handle(ctx context.Context, label Label) e
 
 func syncServiceEntries(ctx context.Context, scriptRunner script.Runner, appNames []string) error {
 	// delete unnecessary svc entries
-	if err := scriptRunner.DeleteResource(ctx, "service-entries/"); err != nil {
+	if err := cleanupServiceEntries(ctx, scriptRunner); err != nil {
 		return err
 	}
 
@@ -191,4 +191,8 @@ func syncServiceEntries(ctx context.Context, scriptRunner script.Runner, appName
 	}
 
 	return nil
+}
+
+func cleanupServiceEntries(ctx context.Context, scriptRunner script.Runner) error {
+	return scriptRunner.DeleteResource(ctx, "service-entries/")
 }

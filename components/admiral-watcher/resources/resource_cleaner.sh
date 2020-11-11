@@ -14,7 +14,7 @@ if [ "$#" -gt "0" ]; then
   RESOURCE_PATH=$1
 fi
 
-admiral_cluster=${ROOT_PATH}/kubeconfigs/admiral.yaml
+admiral_cluster=${ROOT_PATH}/kubeconfigs/runtime.yaml
 
 export KUBECONFIG=$admiral_cluster
 
