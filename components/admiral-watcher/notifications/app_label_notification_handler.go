@@ -181,6 +181,7 @@ func syncServiceEntries(ctx context.Context, scriptRunner script.Runner, appName
 	// apply all new svc entries
 	for _, appName := range appNames {
 		if appName == "commerce-mock" || appName == "salesdata" {
+			log.C(ctx).Infof("service entries won't be edited for the %q application", appName)
 			continue
 		}
 
