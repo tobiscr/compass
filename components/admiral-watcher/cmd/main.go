@@ -18,7 +18,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/kyma-incubator/compass/components/admiral-watcher/notifications"
 	"github.com/kyma-incubator/compass/components/admiral-watcher/script"
 	"github.com/kyma-incubator/compass/components/admiral-watcher/templates"
@@ -123,7 +122,7 @@ func main() {
 	}()
 
 	runner := script.Runner{
-		ScriptsLocation: fmt.Sprintf("%s/../resources", basepath),
+		ScriptsLocation: ".",
 		Resolver:        templates.Resolver{},
 	}
 

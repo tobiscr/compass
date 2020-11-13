@@ -14,7 +14,7 @@ WORKDIR /app
 RUN apk --no-cache add curl ca-certificates git
 
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.16.3/bin/linux/amd64/kubectl
-RUN chmod u+x kubectl && mv kubectl /bin/kubectl
+RUN chmod a+x kubectl && mv kubectl /bin/kubectl
 
 COPY --from=builder /app /app
 COPY --from=builder /go/src/github.com/kyma-incubator/compass/components/admiral-watcher/resources /app/

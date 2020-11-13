@@ -21,8 +21,8 @@ export KUBECONFIG=$admiral_cluster
 
 echo $dep
 
-cat <<EOF > dep.yaml
+cat <<EOF | kubectl apply -f -
 $dep
 EOF
 
-kubectl apply -f dep.yaml
+#kubectl apply -f dep.yaml

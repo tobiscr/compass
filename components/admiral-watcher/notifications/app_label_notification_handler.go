@@ -129,6 +129,7 @@ func (a *AppLabelNotificationHandler) handle(ctx context.Context, label Label) e
 			appNames = append(appNames, app.Name)
 		}
 
+		log.C(ctx).Infof("Number of applications in scenario with test runtime: %d", len(appNames))
 		if len(appNames) == 0 {
 			if err := a.ScriptRunner.DeleteDependency(ctx, "dep-rt-"+runtime.ID, "admiral.yaml", "runtime.yaml"); err != nil {
 				return err
@@ -175,7 +176,7 @@ func (a *AppLabelNotificationHandler) handle(ctx context.Context, label Label) e
 func syncServiceEntries(ctx context.Context, scriptRunner script.Runner, appNames []string) error {
 	// delete unnecessary svc entries
 	if err := cleanupServiceEntries(ctx, scriptRunner); err != nil {
-		return err
+		log.C(ctx).Error("Error during service entry cleanup: ", err) // todo: should return, rather than continue, but set +e doesn't seem to work
 	}
 
 	// apply all new svc entries
@@ -185,7 +186,7 @@ func syncServiceEntries(ctx context.Context, scriptRunner script.Runner, appName
 			continue
 		}
 
-		if err := scriptRunner.ApplyResource(ctx, fmt.Sprintf("service-entries/%s.yml", appName)); err != nil {
+		if err := scriptRunner.ApplyResource(ctx, fmt.Sprintf("service-entries/%s.yaml", appName)); err != nil {
 			return err
 		}
 	}
