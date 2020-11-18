@@ -34,7 +34,7 @@ metadata:
   namespace: default
 spec:
   hosts:
-  - successfactors.default.svc.cluster.local
+  - success-factors.default.svc.cluster.local
   http:
   - match:
     - port: 80
