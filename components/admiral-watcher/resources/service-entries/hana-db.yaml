@@ -5,62 +5,9 @@ metadata:
   namespace: default
 spec:
   selector:
-    none: does-not-exist
+    application: db-client
   ports:
     - protocol: TCP
-      port: 5432
+      port: 8080
       name: http
-      targetPort: 5432
----
-apiVersion: networking.istio.io/v1beta1
-kind: ServiceEntry
-metadata:
-  name: hana-db-se
-  namespace: default
-spec:
-  hosts:
-  - jdbc.localhost
-  location: MESH_EXTERNAL
-  ports:
-  - name: http
-    number: 5432
-    protocol: tcp
-  resolution: DNS
----
-apiVersion: networking.istio.io/v1beta1
-kind: VirtualService
-metadata:
-  name: hana-db-vs
-  namespace: default
-spec:
-  hosts:
-  - hana-db.default.svc.cluster.local
-  http:
-  - match:
-    - port: 5432
-    rewrite:
-        authority: jdbc.localhost
-    route:
-    - destination:
-        host: jdbc.localhost
-        subset: tls-origination
-        port:
-          number: 5432
----
-apiVersion: networking.istio.io/v1beta1
-kind: DestinationRule
-metadata:
-  name: hana-db-dr
-  namespace: default
-spec:
-  host: jdbc.localhost
-  subsets:
-  - name: tls-origination
-    trafficPolicy:
-      loadBalancer:
-        simple: ROUND_ROBIN
-      portLevelSettings:
-      - port:
-          number: 5432
-        tls:
-          mode: SIMPLE
+      targetPort: 8080
