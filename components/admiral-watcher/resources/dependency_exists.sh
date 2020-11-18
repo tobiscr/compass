@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# set -e
+set -e
 
 function cleanup() {
   export KUBECONFIG=
@@ -11,11 +11,11 @@ trap cleanup EXIT
 ROOT_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 if [ "$#" -gt "0" ]; then
-  RESOURCE_PATH=$1
+  dep_name=$1
 fi
 
-runtime_cluster=${ROOT_PATH}/kubeconfigs/runtime.yaml
+admiral_cluster=${ROOT_PATH}/kubeconfigs/admiral.yaml
 
-export KUBECONFIG=$runtime_cluster
+export KUBECONFIG=$admiral_cluster
 
-kubectl delete -f $RESOURCE_PATH
+kubectl get dependency $1 --ignore-not-found

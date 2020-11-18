@@ -130,32 +130,45 @@ func (a *AppLabelNotificationHandler) handle(ctx context.Context, label Label) e
 		}
 
 		log.C(ctx).Infof("Number of applications in scenario with test runtime: %d", len(appNames))
+		dependencyName := "dep-rt-" + runtime.ID
 		if len(appNames) == 0 {
-			if err := a.ScriptRunner.DeleteDependency(ctx, "dep-rt-"+runtime.ID, "admiral.yaml", "runtime.yaml"); err != nil {
+			if err := a.ScriptRunner.DeleteDependency(ctx, dependencyName, "admiral.yaml", "runtime.yaml"); err != nil {
 				return err
 			}
 		} else {
-			dep := types.Dependency{
-				TypeMeta: types.TypeMeta{
-					Kind:       "Dependency",
-					APIVersion: "admiral.io/v1alpha1",
-				},
-				ObjectMeta: types.ObjectMeta{
-					Name:      "dep-rt-" + runtime.ID,
-					Namespace: "admiral",
-				},
-				Spec: types.MDependency{
-					//Source:        "webapp-rt-" + runtime.ID,
-					Source:        "webapp",
-					IdentityLabel: "identity",
-					Destinations:  appNames,
-				},
-			}
-			if err := a.ScriptRunner.DeleteDependency(ctx, "dep-rt-"+runtime.ID, "admiral.yaml", "runtime.yaml"); err != nil {
+			exists, err := a.ScriptRunner.DependencyExists(ctx, dependencyName)
+			if err != nil {
+				log.C(ctx).Errorf("unable to determine existance of %q dependency: %s", dependencyName, err)
 				return err
 			}
-			if err := a.ScriptRunner.ApplyDependency(ctx, dep, "admiral.yaml"); err != nil {
-				return err
+
+			shouldCreateDep := stringsAnyEquals(appNames, "commerce-mock")
+
+			if shouldCreateDep && !exists {
+				dep := types.Dependency{
+					TypeMeta: types.TypeMeta{
+						Kind:       "Dependency",
+						APIVersion: "admiral.io/v1alpha1",
+					},
+					ObjectMeta: types.ObjectMeta{
+						Name:      dependencyName,
+						Namespace: "admiral",
+					},
+					Spec: types.MDependency{
+						//Source:        "webapp-rt-" + runtime.ID,
+						Source:        "webapp",
+						IdentityLabel: "identity",
+						Destinations:  []string{"commerce-mock"},
+					},
+				}
+
+				if err := a.ScriptRunner.ApplyDependency(ctx, dep, "admiral.yaml"); err != nil {
+					return err
+				}
+			} else if !shouldCreateDep && exists {
+				if err := a.ScriptRunner.DeleteDependency(ctx, dependencyName, "admiral.yaml", "runtime.yaml"); err != nil {
+					return err
+				}
 			}
 		}
 

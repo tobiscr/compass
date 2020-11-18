@@ -7,62 +7,9 @@ metadata:
     app: admiral-watcher
 spec:
   selector:
-    none: does-not-exist
+    app: connectivity-proxy
   ports:
     - protocol: TCP
       port: 80
       name: http
-      targetPort: 443
----
-apiVersion: networking.istio.io/v1beta1
-kind: ServiceEntry
-metadata:
-  name: sales-data-se
-  namespace: default
-spec:
-  hosts:
-  - sales-data.localhost
-  location: MESH_EXTERNAL
-  ports:
-  - name: https
-    number: 443
-    protocol: TLS
-  resolution: DNS
----
-apiVersion: networking.istio.io/v1beta1
-kind: VirtualService
-metadata:
-  name: sales-data-vs
-  namespace: default
-spec:
-  hosts:
-  - sales-data.default.svc.cluster.local
-  http:
-  - match:
-    - port: 80
-    rewrite:
-        authority: sales-data.localhost
-    route:
-    - destination:
-        host: sales-data.localhost
-        subset: tls-origination
-        port:
-          number: 443
----
-apiVersion: networking.istio.io/v1beta1
-kind: DestinationRule
-metadata:
-  name: sales-data-dr
-  namespace: default
-spec:
-  host: sales-data.localhost
-  subsets:
-  - name: tls-origination
-    trafficPolicy:
-      loadBalancer:
-        simple: ROUND_ROBIN
-      portLevelSettings:
-      - port:
-          number: 443
-        tls:
-          mode: SIMPLE
+      targetPort: 20003

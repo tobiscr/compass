@@ -34,7 +34,7 @@ func (r *Runner) RunWithOutput(ctx context.Context, scriptName string, args ...s
 	}
 
 	output := string(outputBytes)
-	log.C(ctx).Infof("[== %s ==]", output)
+	log.C(ctx).Infof("[=== %s ===]", output)
 
 	return output, nil
 }
@@ -83,4 +83,13 @@ func (r *Runner) GetExistingServices(ctx context.Context) ([]string, error) {
 	}
 
 	return strings.Split(output, " "), nil
+}
+
+func (r *Runner) DependencyExists(ctx context.Context, dep string) (bool, error) {
+	output, err := r.RunWithOutput(ctx, "dependency_exists.sh", dep)
+	if err != nil {
+		return false, err
+	}
+
+	return strings.Contains(output, dep), nil
 }
