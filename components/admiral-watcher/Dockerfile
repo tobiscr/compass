@@ -11,7 +11,7 @@ FROM alpine:edge
 LABEL source = git@github.com:kyma-incubator/compass.git
 WORKDIR /app
 
-RUN apk --no-cache add curl ca-certificates git
+RUN apk --no-cache add bash curl ca-certificates git jq
 
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.16.3/bin/linux/amd64/kubectl
 RUN chmod a+x kubectl && mv kubectl /bin/kubectl

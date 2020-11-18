@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: audit-log-service
   namespace: default
+  labels:
+    app: admiral-watcher
 spec:
   selector:
     none: does-not-exist
@@ -23,7 +25,7 @@ spec:
   location: MESH_EXTERNAL
   ports:
   - name: https
-    number: 443
+    number: 8081
     protocol: TLS
   resolution: DNS
 ---
@@ -45,7 +47,7 @@ spec:
         host: api.auditlog.cf.sap.hana.ondemand.com
         subset: tls-origination
         port:
-          number: 443
+          number: 8081
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
@@ -61,6 +63,6 @@ spec:
         simple: ROUND_ROBIN
       portLevelSettings:
       - port:
-          number: 443
+          number: 8081
         tls:
           mode: SIMPLE

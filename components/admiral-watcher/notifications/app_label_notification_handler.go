@@ -173,16 +173,46 @@ func (a *AppLabelNotificationHandler) handle(ctx context.Context, label Label) e
 	return nil
 }
 
-func syncServiceEntries(ctx context.Context, scriptRunner script.Runner, appNames []string) error {
-	// delete unnecessary svc entries
-	if err := cleanupServiceEntries(ctx, scriptRunner); err != nil {
-		log.C(ctx).Error("Error during service entry cleanup: ", err) // todo: should return, rather than continue, but set +e doesn't seem to work
+func syncServiceEntries(ctx context.Context, scriptRunner script.Runner, expectedAppNames []string) error {
+	existingAppNames, err := scriptRunner.GetExistingServices(ctx)
+	if err != nil {
+		return err
 	}
 
-	// apply all new svc entries
-	for _, appName := range appNames {
-		if appName == "commerce-mock" || appName == "salesdata" {
-			log.C(ctx).Infof("service entries won't be edited for the %q application", appName)
+	appsToDelete := make([]string, 0)
+	for _, app := range existingAppNames {
+		if stringsAnyEquals(expectedAppNames, app) {
+			continue
+		} else {
+			appsToDelete = append(appsToDelete, app)
+		}
+	}
+
+	appsToCreate := make([]string, 0)
+	for _, app := range expectedAppNames {
+		if stringsAnyEquals(existingAppNames, app) {
+			continue
+		} else {
+			appsToCreate = append(appsToCreate, app)
+		}
+	}
+
+	// delete all resources for systems removed from scenario
+	for _, appName := range appsToDelete {
+		if appName == "commerce-mock" {
+			log.C(ctx).Infof("service resources won't be edited for the %q application", appName)
+			continue
+		}
+
+		if err := scriptRunner.DeleteResource(ctx, fmt.Sprintf("service-entries/%s.yaml", appName)); err != nil {
+			return err
+		}
+	}
+
+	// apply resources for systems added to scenario
+	for _, appName := range appsToCreate {
+		if appName == "commerce-mock" {
+			log.C(ctx).Infof("service resources won't be edited for the %q application", appName)
 			continue
 		}
 
@@ -196,4 +226,14 @@ func syncServiceEntries(ctx context.Context, scriptRunner script.Runner, appName
 
 func cleanupServiceEntries(ctx context.Context, scriptRunner script.Runner) error {
 	return scriptRunner.DeleteResource(ctx, "service-entries/")
+}
+
+// stringsAnyEquals returns true if any of the strings in the slice equal the given string.
+func stringsAnyEquals(stringSlice []string, str string) bool {
+	for _, v := range stringSlice {
+		if v == str {
+			return true
+		}
+	}
+	return false
 }

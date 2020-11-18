@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: report-generator
   namespace: default
+  labels:
+    app: admiral-watcher
 spec:
   selector:
     none: does-not-exist
