@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: report-generator
+  name: alert-notification-service
   namespace: default
 spec:
   selector:
@@ -15,11 +15,11 @@ spec:
 apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
-  name: report-generator-se
+  name: alert-notification-service-se
   namespace: default
 spec:
   hosts:
-  - vpce-0d8ab5e023cbcc41c-rhql7t5u.vpce-svc-0d37651630ce64e09.eu-central-1.vpce.amazonaws.com
+  - clm-sl-ans-live-ans-service-api.cfapps.eu10.hana.ondemand.com
   location: MESH_EXTERNAL
   ports:
   - name: https
@@ -30,19 +30,19 @@ spec:
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: report-generator-vs
+  name: alert-notification-service-vs
   namespace: default
 spec:
   hosts:
-  - report-generator.default.svc.cluster.local
+  - alert-notification-service.default.svc.cluster.local
   http:
   - match:
     - port: 80
     rewrite:
-        authority: vpce-0d8ab5e023cbcc41c-rhql7t5u.vpce-svc-0d37651630ce64e09.eu-central-1.vpce.amazonaws.com
+        authority: clm-sl-ans-live-ans-service-api.cfapps.eu10.hana.ondemand.com
     route:
     - destination:
-        host: vpce-0d8ab5e023cbcc41c-rhql7t5u.vpce-svc-0d37651630ce64e09.eu-central-1.vpce.amazonaws.com
+        host: clm-sl-ans-live-ans-service-api.cfapps.eu10.hana.ondemand.com
         subset: tls-origination
         port:
           number: 443
@@ -50,10 +50,10 @@ spec:
 apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
-  name: report-generator-dr
+  name: alert-notification-service-dr
   namespace: default
 spec:
-  host: vpce-0d8ab5e023cbcc41c-rhql7t5u.vpce-svc-0d37651630ce64e09.eu-central-1.vpce.amazonaws.com
+  host: clm-sl-ans-live-ans-service-api.cfapps.eu10.hana.ondemand.com
   subsets:
   - name: tls-origination
     trafficPolicy:

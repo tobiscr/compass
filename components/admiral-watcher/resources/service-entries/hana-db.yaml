@@ -1,59 +1,59 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: report-generator
+  name: hana-db
   namespace: default
 spec:
   selector:
     none: does-not-exist
   ports:
     - protocol: TCP
-      port: 80
+      port: 5432
       name: http
-      targetPort: 443
+      targetPort: 5432
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
-  name: report-generator-se
+  name: hana-db-se
   namespace: default
 spec:
   hosts:
-  - vpce-0d8ab5e023cbcc41c-rhql7t5u.vpce-svc-0d37651630ce64e09.eu-central-1.vpce.amazonaws.com
+  - jdbc.localhost
   location: MESH_EXTERNAL
   ports:
-  - name: https
-    number: 443
-    protocol: TLS
+  - name: http
+    number: 5432
+    protocol: tcp
   resolution: DNS
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: report-generator-vs
+  name: hana-db-vs
   namespace: default
 spec:
   hosts:
-  - report-generator.default.svc.cluster.local
+  - hana-db.default.svc.cluster.local
   http:
   - match:
-    - port: 80
+    - port: 5432
     rewrite:
-        authority: vpce-0d8ab5e023cbcc41c-rhql7t5u.vpce-svc-0d37651630ce64e09.eu-central-1.vpce.amazonaws.com
+        authority: jdbc.localhost
     route:
     - destination:
-        host: vpce-0d8ab5e023cbcc41c-rhql7t5u.vpce-svc-0d37651630ce64e09.eu-central-1.vpce.amazonaws.com
+        host: jdbc.localhost
         subset: tls-origination
         port:
-          number: 443
+          number: 5432
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
-  name: report-generator-dr
+  name: hana-db-dr
   namespace: default
 spec:
-  host: vpce-0d8ab5e023cbcc41c-rhql7t5u.vpce-svc-0d37651630ce64e09.eu-central-1.vpce.amazonaws.com
+  host: jdbc.localhost
   subsets:
   - name: tls-origination
     trafficPolicy:
@@ -61,6 +61,6 @@ spec:
         simple: ROUND_ROBIN
       portLevelSettings:
       - port:
-          number: 443
+          number: 5432
         tls:
           mode: SIMPLE
