@@ -24,9 +24,9 @@ spec:
   - vpce-0d8ab5e023cbcc41c-rhql7t5u.vpce-svc-0d37651630ce64e09.eu-central-1.vpce.amazonaws.com
   location: MESH_EXTERNAL
   ports:
-  - name: https
-    number: 443
-    protocol: TLS
+  - name: http
+    number: 8080
+    protocol: HTTP
   resolution: DNS
 ---
 apiVersion: networking.istio.io/v1beta1
@@ -45,24 +45,5 @@ spec:
     route:
     - destination:
         host: vpce-0d8ab5e023cbcc41c-rhql7t5u.vpce-svc-0d37651630ce64e09.eu-central-1.vpce.amazonaws.com
-        subset: tls-origination
         port:
-          number: 443
----
-apiVersion: networking.istio.io/v1beta1
-kind: DestinationRule
-metadata:
-  name: report-generator-dr
-  namespace: default
-spec:
-  host: vpce-0d8ab5e023cbcc41c-rhql7t5u.vpce-svc-0d37651630ce64e09.eu-central-1.vpce.amazonaws.com
-  subsets:
-  - name: tls-origination
-    trafficPolicy:
-      loadBalancer:
-        simple: ROUND_ROBIN
-      portLevelSettings:
-      - port:
-          number: 443
-        tls:
-          mode: SIMPLE
+          number: 8080
