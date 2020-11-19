@@ -59,8 +59,8 @@ func (a *RuntimeLabelNotificationHandler) HandleDelete(ctx context.Context, labe
 		return err
 	}
 
-	if runtime.Name != "runtime-poc" {
-		log.C(ctx).Infof("event is not for the test runtime %s but for %s, skipping", "runtime-poc", runtime.Name)
+	if runtime.Name != runtimeName {
+		log.C(ctx).Infof("event is not for the test runtime %s but for %s, skipping", runtimeName, runtime.Name)
 		return nil
 	}
 
@@ -136,8 +136,8 @@ func (a *RuntimeLabelNotificationHandler) handle(ctx context.Context, label Labe
 		return err
 	}
 
-	if runtime.Name != "runtime-poc" {
-		log.C(ctx).Infof("event is not for the test runtime %s but for %s, skipping", "runtime-poc", runtime.Name)
+	if runtime.Name != runtimeName {
+		log.C(ctx).Infof("event is not for the test runtime %s but for %s, skipping", runtimeName, runtime.Name)
 		return nil
 	}
 
@@ -175,24 +175,28 @@ func (a *RuntimeLabelNotificationHandler) handle(ctx context.Context, label Labe
 	}
 
 	if len(appNames) != 0 {
-		dep := types.Dependency{
-			TypeMeta: types.TypeMeta{
-				Kind:       "Dependency",
-				APIVersion: "admiral.io/v1alpha1",
-			},
-			ObjectMeta: types.ObjectMeta{
-				Name:      "dep-rt-" + label.RuntimeID,
-				Namespace: "admiral",
-			},
-			Spec: types.MDependency{
-				//Source:        "webapp-rt-" + label.RuntimeID,
-				Source:        "webapp",
-				IdentityLabel: "identity",
-				Destinations:  appNames,
-			},
-		}
-		if err := a.ScriptRunner.ApplyDependency(ctx, dep, "admiral.yaml"); err != nil {
-			return err
+		shouldCreateDep := stringsAnyEquals(appNames, commerceMockName)
+
+		if shouldCreateDep {
+			dep := types.Dependency{
+				TypeMeta: types.TypeMeta{
+					Kind:       "Dependency",
+					APIVersion: "admiral.io/v1alpha1",
+				},
+				ObjectMeta: types.ObjectMeta{
+					Name:      "dep-rt-" + label.RuntimeID,
+					Namespace: "admiral",
+				},
+				Spec: types.MDependency{
+					//Source:        "webapp-rt-" + label.RuntimeID,
+					Source:        "webapp",
+					IdentityLabel: "identity",
+					Destinations:  []string{commerceMockName},
+				},
+			}
+			if err := a.ScriptRunner.ApplyDependency(ctx, dep, "admiral.yaml"); err != nil {
+				return err
+			}
 		}
 	}
 

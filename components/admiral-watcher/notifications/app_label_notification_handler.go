@@ -15,6 +15,9 @@ import (
 	"strings"
 )
 
+const runtimeName = "runtime-poc"
+const commerceMockName = "commerce-mock"
+
 type AppLabelNotificationHandler struct {
 	RuntimeLister      RuntimeLister
 	AppLister          ApplicationLister
@@ -69,8 +72,8 @@ func (a *AppLabelNotificationHandler) handle(ctx context.Context, label Label) e
 		return err
 	}
 	for _, runtime := range runtimesList.Data {
-		if runtime.Name != "runtime-poc" {
-			log.C(ctx).Infof("event is not for the test runtime %s but for %s, skipping", "runtime-poc", runtime.Name)
+		if runtime.Name != runtimeName {
+			log.C(ctx).Infof("event is not for the test runtime %s but for %s, skipping", runtimeName, runtime.Name)
 			continue
 		}
 
@@ -142,7 +145,7 @@ func (a *AppLabelNotificationHandler) handle(ctx context.Context, label Label) e
 				return err
 			}
 
-			shouldCreateDep := stringsAnyEquals(appNames, "commerce-mock")
+			shouldCreateDep := stringsAnyEquals(appNames, commerceMockName)
 
 			if shouldCreateDep && !exists {
 				dep := types.Dependency{
@@ -158,7 +161,7 @@ func (a *AppLabelNotificationHandler) handle(ctx context.Context, label Label) e
 						//Source:        "webapp-rt-" + runtime.ID,
 						Source:        "webapp",
 						IdentityLabel: "identity",
-						Destinations:  []string{"commerce-mock"},
+						Destinations:  []string{commerceMockName},
 					},
 				}
 
@@ -212,7 +215,7 @@ func syncServiceEntries(ctx context.Context, scriptRunner script.Runner, expecte
 
 	// delete all resources for systems removed from scenario
 	for _, appName := range appsToDelete {
-		if appName == "commerce-mock" {
+		if appName == commerceMockName {
 			log.C(ctx).Infof("service resources won't be edited for the %q application", appName)
 			continue
 		}
@@ -224,7 +227,7 @@ func syncServiceEntries(ctx context.Context, scriptRunner script.Runner, expecte
 
 	// apply resources for systems added to scenario
 	for _, appName := range appsToCreate {
-		if appName == "commerce-mock" {
+		if appName == commerceMockName {
 			log.C(ctx).Infof("service resources won't be edited for the %q application", appName)
 			continue
 		}
