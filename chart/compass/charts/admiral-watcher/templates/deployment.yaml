@@ -25,7 +25,7 @@ spec:
         {{- toYaml .Values.deployment.nodeSelector | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
-          image: eu.gcr.io/sap-cp-cmp-dev/admiral_watcher:2-entries
+          image: eu.gcr.io/sap-cp-cmp-dev/admiral_watcher:3-entries
           imagePullPolicy: Always
           ports:
             - name: http
