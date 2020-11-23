@@ -126,6 +126,7 @@ github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORN
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
+github.com/kyma-incubator/compass v0.0.0-20201123100504-8408fe755023 h1:1/sehbYw1n1RCWN8MXhHvRJvMNEu4jobFqHpHFOQdIw=
 github.com/kyma-incubator/compass/components/director v0.0.0-20200601120504-6e1e3182c9bd/go.mod h1:LOyA6g4YWEGNfhhLygUdmZ+3SKRmZQVRVvJcAje40B8=
 github.com/kyma-incubator/compass/components/director v0.0.0-20200608084054-64f737ad7e1d h1:w2GLbsqvK5DKMA99fHrY6gJQnPeZHTx2tepENECFjzA=
 github.com/kyma-incubator/compass/components/director v0.0.0-20200608084054-64f737ad7e1d/go.mod h1:LOyA6g4YWEGNfhhLygUdmZ+3SKRmZQVRVvJcAje40B8=

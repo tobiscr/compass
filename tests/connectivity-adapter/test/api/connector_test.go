@@ -9,11 +9,11 @@ import (
 	"github.com/kyma-incubator/compass/tests/director/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/kyma-incubator/compass/tests/connectivity-adapter/test/testkit/director"
+	"github.com/kyma-incubator/compass/tests/test/testkit/director"
 
 	directorSchema "github.com/kyma-incubator/compass/components/director/pkg/graphql"
-	"github.com/kyma-incubator/compass/tests/connectivity-adapter/test/testkit"
-	"github.com/kyma-incubator/compass/tests/connectivity-adapter/test/testkit/connector"
+	"github.com/kyma-incubator/compass/tests/testkit"
+	"github.com/kyma-incubator/compass/tests/testkit/connector"
 	"github.com/stretchr/testify/require"
 )
 
