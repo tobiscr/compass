@@ -3,6 +3,7 @@ package tenantfetcher
 import (
 	"context"
 	v1 "k8s.io/api/core/v1"
+	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
@@ -25,10 +26,10 @@ import (
 )
 
 type TenantFieldMapping struct {
-	TotalPagesField   string `envconfig:"APP_TENANT_TOTAL_PAGES_FIELD"`
-	TotalResultsField string `envconfig:"APP_TENANT_TOTAL_RESULTS_FIELD"`
-	EventsField       string `envconfig:"APP_TENANT_EVENTS_FIELD"`
-
+	TotalPagesField    string `envconfig:"APP_TENANT_TOTAL_PAGES_FIELD"`
+	TotalResultsField  string `envconfig:"APP_TENANT_TOTAL_RESULTS_FIELD"`
+	EventsField        string `envconfig:"APP_TENANT_EVENTS_FIELD"`
+	TimestampField     string `envconfig:"APP_TENANT_TIMESTAMP_FIELD"`
 	NameField          string `envconfig:"default=name,APP_MAPPING_FIELD_NAME"`
 	IDField            string `envconfig:"default=id,APP_MAPPING_FIELD_ID"`
 	DetailsField       string `envconfig:"default=details,APP_MAPPING_FIELD_DETAILS"`
@@ -47,11 +48,11 @@ type QueryConfig struct {
 }
 
 type KubernetesClientConfig struct {
-	PollInterval 	time.Duration `envconfig:"default=2s"`
-	PollTimeout 	time.Duration `envconfig:"default=1m"`
-	Timeout     	time.Duration `envconfig:"default=95s"`
-	Namespace		string `envconfig:"default=compass-system"`
-	ConfigMapName	string
+	PollInterval  time.Duration `envconfig:"default=2s"`
+	PollTimeout   time.Duration `envconfig:"default=1m"`
+	Timeout       time.Duration `envconfig:"default=95s"`
+	Namespace     string        `envconfig:"default=compass-system"`
+	ConfigMapName string
 }
 
 //go:generate mockery -name=TenantStorageService -output=automock -outpkg=automock -case=underscore
@@ -72,13 +73,13 @@ const (
 )
 
 type Service struct {
-	queryConfig          QueryConfig
+	queryConfig            QueryConfig
 	kubernetesClientConfig KubernetesClientConfig
-	transact             persistence.Transactioner
-	eventAPIClient       EventAPIClient
-	tenantStorageService TenantStorageService
-	providerName         string
-	fieldMapping         TenantFieldMapping
+	transact               persistence.Transactioner
+	eventAPIClient         EventAPIClient
+	tenantStorageService   TenantStorageService
+	providerName           string
+	fieldMapping           TenantFieldMapping
 
 	retryAttempts uint
 }
@@ -98,6 +99,7 @@ func NewService(queryConfig QueryConfig, transact persistence.Transactioner, fie
 
 func (s Service) SyncTenants() error {
 	ctx := context.Background()
+	// create k8s client instance
 	k8sClientSet, err := newK8SClientSet(ctx, s.kubernetesClientConfig.PollInterval, s.kubernetesClientConfig.PollTimeout, s.kubernetesClientConfig.Timeout)
 
 	tenantsToCreate, err := s.getTenantsToCreate()
@@ -211,14 +213,46 @@ func newK8SClientSet(ctx context.Context, interval, pollingTimeout, timeout time
 	return k8sClientSet, nil
 }
 
-func getTimestampFromConfigMap(ctx context.Context, namespace string, configMapName string, k8sClientSet *kubernetes.Clientset) (string, error) {
-	configMap, err := k8sClientSet.CoreV1().ConfigMaps(namespace).Get(configMapName, metav1.GetOptions{})
-	if err != nil {
-		log.Debugf("Failed to fetch Config Map: %s", err.Error())
-		return "", err
+func getOrCreateTimestampFromConfigMap(namespace string, configMapName string, k8sClientSet *kubernetes.Clientset, defaultTimestamp int64) string {
+	configMapData := make(map[string]string, 0)
+	configMapData["timestamp"] = strconv.FormatInt(defaultTimestamp, 10)
+
+	// may not be needed to create a configmap
+	newConfigMap := v1.ConfigMap{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ConfigMap",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      configMapName,
+			Namespace: namespace,
+		},
+		Data: configMapData,
 	}
 
+	configMap, err := k8sClientSet.CoreV1().ConfigMaps(namespace).Get(configMapName, metav1.GetOptions{})
 
+	if k8sErrors.IsNotFound(err) {
+		k8sClientSet.CoreV1().ConfigMaps(namespace).Create(&newConfigMap)
+		return strconv.FormatInt(defaultTimestamp, 10)
+	}
+
+	return configMap.Data["timestamp"]
+}
+
+func updateTimestampInConfigMap(namespace string, configMapName string, k8sClientSet *kubernetes.Clientset, timestamp time.Time) error {
+	configMap, err := k8sClientSet.CoreV1().ConfigMaps(namespace).Get(configMapName, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	configMapData := make(map[string]string, 0)
+	configMapData["timestamp"] = timestamp.String()
+	configMap.Data = configMapData
+
+	k8sClientSet.CoreV1().ConfigMaps(namespace).Update(configMap)
+
+	return nil
 }
 
 func (s Service) getTenantsToCreate() ([]model.BusinessTenantMappingInput, error) {
@@ -288,6 +322,7 @@ func (s Service) fetchTenants(eventsType EventsType) ([]model.BusinessTenantMapp
 		if err != nil {
 			return nil, errors.Wrap(err, "while fetching tenant events page")
 		}
+
 		if res == nil {
 			return nil, apperrors.NewInternalError("next page was expected but response was empty")
 		}
@@ -295,6 +330,8 @@ func (s Service) fetchTenants(eventsType EventsType) ([]model.BusinessTenantMapp
 			return nil, apperrors.NewInternalError("total results number changed during fetching consecutive events pages")
 		}
 		tenants = append(tenants, s.extractTenantMappings(eventsType, res)...)
+
+		// extract last event timestamp -> in configmap
 	}
 
 	return tenants, nil

@@ -88,6 +88,8 @@ spec:
                 value: {{ $config.fieldMapping.nameField }}
               - name: APP_MAPPING_FIELD_DISCRIMINATOR
                 value: {{ $config.fieldMapping.discriminatorField }}
+              - name: APP_TENANT_TIMESTAMP_FIELD
+                value: {{ $config.fieldMapping.timestampField }}
               - name: APP_MAPPING_VALUE_DISCRIMINATOR
                 value: {{ $config.fieldMapping.discriminatorValue }}
               - name: APP_MAPPING_FIELD_DETAILS
