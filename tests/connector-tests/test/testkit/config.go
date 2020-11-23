@@ -8,7 +8,6 @@ import (
 )
 
 type TestConfig struct {
-	ExternalConnectorURL         string `envconfig:"default=http://compass-connector:3000/graphql"`
 	InternalConnectorURL         string `envconfig:"default=http://compass-connector:3001/graphql"`
 	HydratorURL                  string `envconfig:"default=http://compass-connector:8080"`
 	ConnectorURL                 string
