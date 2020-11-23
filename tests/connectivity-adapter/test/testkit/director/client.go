@@ -196,7 +196,6 @@ func (c client) SetDefaultEventing(runtimeID string, appID string, eventsBaseURL
 }
 
 func (c client) GetOneTimeTokenUrl(appID string) (string, string, error) {
-
 	query := getOneTimeTokenQuery(appID)
 	var response OneTimeTokenResponse
 
@@ -255,7 +254,6 @@ func (c client) executeWithRetries(query string, res interface{}) error {
 }
 
 func getClient(url string, tenant string, scopes []string) (*gcli.Client, error) {
-
 	token, err := getToken(tenant, scopes)
 	if err != nil {
 		return nil, err

@@ -10,17 +10,17 @@ import (
 )
 
 func TestOathkeeperSecurity(t *testing.T) {
-	appID := "54f83a73-b340-418d-b653-d95b5e347d74"
+	appSystemAuthID := "54f83a73-b340-418d-b653-d95b5e347d74"
 
-	certResult, configuration := generateCertificate(t, appID, clientKey)
+	certResult, configuration := generateCertificate(t, appSystemAuthID, clientKey)
 	certChain := testkit.DecodeCertChain(t, certResult.CertificateChain)
 	securedClient := connector.NewCertificateSecuredConnectorClient(*configuration.ManagementPlaneInfo.CertificateSecuredConnectorURL, clientKey, certChain...)
 
 	t.Run("client id headers should be stripped when calling token-secured api", func(t *testing.T) {
 		// given
 		forbiddenHeaders := map[string][]string{
-			oathkeeper.ClientIdFromTokenHeader:       {appID},
-			oathkeeper.ClientIdFromCertificateHeader: {appID},
+			oathkeeper.ClientIdFromTokenHeader:       {appSystemAuthID},
+			oathkeeper.ClientIdFromCertificateHeader: {appSystemAuthID},
 		}
 
 		csr, err := testkit.CreateCsr(configuration.CertificateSigningRequestInfo.Subject, clientKey)
@@ -40,9 +40,9 @@ func TestOathkeeperSecurity(t *testing.T) {
 
 	t.Run("certificate data header should be stripped", func(t *testing.T) {
 		// given
-		changedAppID := "aaabbbcc-b340-418d-b653-d95b5e347d74"
+		changedAppSystemAuthID := "aaabbbcc-b340-418d-b653-d95b5e347d74"
 
-		newSubject := changeCommonName(configuration.CertificateSigningRequestInfo.Subject, changedAppID)
+		newSubject := changeCommonName(configuration.CertificateSigningRequestInfo.Subject, changedAppSystemAuthID)
 		certDataHeader := createCertDataHeader("df6ab69b34100a1808ddc6211010fa289518f14606d0c8eaa03a0f53ecba578a", newSubject)
 
 		forbiddenHeaders := map[string][]string{

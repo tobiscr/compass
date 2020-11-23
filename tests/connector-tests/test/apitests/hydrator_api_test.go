@@ -11,9 +11,8 @@ import (
 )
 
 func TestHydrators(t *testing.T) {
-
-	appID := "54f83a73-b340-418d-b653-d25b5ed47d75"
-	runtimeID := "75f42q66-b340-418d-b653-d25b5ed47d75"
+	appSystemAuthID := "54f83a73-b340-418d-b653-d25b5ed47d75"
+	runtimeSystemAuthID := "75f42q66-b340-418d-b653-d25b5ed47d75"
 
 	hash := "df6ab69b34100a1808ddc6211010fa289518f14606d0c8eaa03a0f53ecba578a"
 
@@ -26,25 +25,25 @@ func TestHydrators(t *testing.T) {
 	}{
 		{
 			clientType:          "Application",
-			clientId:            appID,
+			clientId:            appSystemAuthID,
 			tokenGenerationFunc: internalClient.GenerateApplicationToken,
 			expectedTokenHeaders: http.Header{
-				oathkeeper.ClientIdFromTokenHeader: []string{appID},
+				oathkeeper.ClientIdFromTokenHeader: []string{appSystemAuthID},
 			},
 			expectedCertsHeaders: http.Header{
-				oathkeeper.ClientIdFromCertificateHeader: []string{appID},
+				oathkeeper.ClientIdFromCertificateHeader: []string{appSystemAuthID},
 				oathkeeper.ClientCertificateHashHeader:   []string{hash},
 			},
 		},
 		{
 			clientType:          "Runtime",
-			clientId:            runtimeID,
+			clientId:            runtimeSystemAuthID,
 			tokenGenerationFunc: internalClient.GenerateRuntimeToken,
 			expectedTokenHeaders: http.Header{
-				oathkeeper.ClientIdFromTokenHeader: []string{runtimeID},
+				oathkeeper.ClientIdFromTokenHeader: []string{runtimeSystemAuthID},
 			},
 			expectedCertsHeaders: http.Header{
-				oathkeeper.ClientIdFromCertificateHeader: []string{runtimeID},
+				oathkeeper.ClientIdFromCertificateHeader: []string{runtimeSystemAuthID},
 				oathkeeper.ClientCertificateHashHeader:   []string{hash},
 			},
 		},

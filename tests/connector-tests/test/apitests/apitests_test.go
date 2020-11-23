@@ -13,12 +13,12 @@ import (
 )
 
 func TestTokens(t *testing.T) {
-	appID := "54f83a73-b340-418d-b653-d25b5ed47d75"
-	runtimeID := "75f42q66-b340-418d-b653-d25b5ed47d75"
+	appSystemAuthID := "54f83a73-b340-418d-b653-d25b5ed47d75"
+	runtimeSystemAuthID := "75f42q66-b340-418d-b653-d25b5ed47d75"
 
 	t.Run("should return valid response on Configuration query for Application token", func(t *testing.T) {
 		//when
-		token, e := internalClient.GenerateApplicationToken(appID)
+		token, e := internalClient.GenerateApplicationToken(appSystemAuthID)
 
 		//then
 		require.NoError(t, e)
@@ -33,7 +33,7 @@ func TestTokens(t *testing.T) {
 
 	t.Run("should return valid response on Configuration query for Runtime token", func(t *testing.T) {
 		//when
-		token, e := internalClient.GenerateRuntimeToken(runtimeID)
+		token, e := internalClient.GenerateRuntimeToken(runtimeSystemAuthID)
 
 		//then
 		require.NoError(t, e)
@@ -69,7 +69,7 @@ func TestTokens(t *testing.T) {
 
 	t.Run("should return error for previously used token on Configuration query", func(t *testing.T) {
 		//when
-		token, e := internalClient.GenerateApplicationToken(appID)
+		token, e := internalClient.GenerateApplicationToken(appSystemAuthID)
 
 		//then
 		require.NoError(t, e)
@@ -90,11 +90,11 @@ func TestTokens(t *testing.T) {
 }
 
 func TestCertificateGeneration(t *testing.T) {
-	appID := "54f83a73-b340-418d-b653-d95b5e347d74"
+	systemAuthAppID := "54f83a73-b340-418d-b653-d95b5e347d74"
 
 	t.Run("should return client certificate with valid subject and signed with CA certificate", func(t *testing.T) {
 		// when
-		certResult, configuration := generateCertificate(t, appID, clientKey)
+		certResult, configuration := generateCertificate(t, systemAuthAppID, clientKey)
 
 		// then
 		assertCertificate(t, configuration.CertificateSigningRequestInfo.Subject, certResult)
@@ -102,7 +102,7 @@ func TestCertificateGeneration(t *testing.T) {
 
 	t.Run("should return error when CSR subject is invalid", func(t *testing.T) {
 		// given
-		configuration := getConfiguration(t, appID)
+		configuration := getConfiguration(t, systemAuthAppID)
 
 		certToken := configuration.Token.Token
 		wrongSubject := "subject=OU=Test,O=Test,L=Wrong,ST=Wrong,C=PL,CN=Wrong"
@@ -120,10 +120,11 @@ func TestCertificateGeneration(t *testing.T) {
 
 	t.Run("should return error when different Common Name provided", func(t *testing.T) {
 		// given
-		configuration := getConfiguration(t, appID)
+		configuration := getConfiguration(t, systemAuthAppID)
 
+		invalidCN := "12y36g45-b340-418d-b653-d95b5e347d74"
 		certToken := configuration.Token.Token
-		differentSubject := changeCommonName(configuration.CertificateSigningRequestInfo.Subject, "12y36g45-b340-418d-b653-d95b5e347d74")
+		differentSubject := changeCommonName(configuration.CertificateSigningRequestInfo.Subject, invalidCN)
 
 		csr, e := testkit.CreateCsr(differentSubject, clientKey)
 		require.NoError(t, e)
@@ -138,7 +139,7 @@ func TestCertificateGeneration(t *testing.T) {
 
 	t.Run("should return error when signing certificate with invalid token", func(t *testing.T) {
 		// given
-		configuration := getConfiguration(t, appID)
+		configuration := getConfiguration(t, systemAuthAppID)
 		certInfo := configuration.CertificateSigningRequestInfo
 
 		csr, e := testkit.CreateCsr(certInfo.Subject, clientKey)
@@ -156,7 +157,7 @@ func TestCertificateGeneration(t *testing.T) {
 
 	t.Run("should return error when signing certificate with already used token", func(t *testing.T) {
 		// given
-		configuration := getConfiguration(t, appID)
+		configuration := getConfiguration(t, systemAuthAppID)
 		certInfo := configuration.CertificateSigningRequestInfo
 
 		csr, err := testkit.CreateCsr(certInfo.Subject, clientKey)
@@ -176,7 +177,7 @@ func TestCertificateGeneration(t *testing.T) {
 
 	t.Run("should return error when invalid CSR provided for signing", func(t *testing.T) {
 		// given
-		configuration := getConfiguration(t, appID)
+		configuration := getConfiguration(t, systemAuthAppID)
 		certToken := configuration.Token.Token
 		wrongCSR := "wrongCSR"
 
@@ -190,10 +191,10 @@ func TestCertificateGeneration(t *testing.T) {
 }
 
 func TestFullConnectorFlow(t *testing.T) {
-	appID := "54f83a73-b340-418d-b653-d95b5e347d76"
+	systemAuthAppID := "54f83a73-b340-418d-b653-d95b5e347d76"
 
 	t.Log("Generating certificate...")
-	certificationResult, configuration := generateCertificate(t, appID, clientKey)
+	certificationResult, configuration := generateCertificate(t, systemAuthAppID, clientKey)
 	assertCertificate(t, configuration.CertificateSigningRequestInfo.Subject, certificationResult)
 
 	defer cleanup(t, certificationResult)
@@ -211,12 +212,12 @@ func TestFullConnectorFlow(t *testing.T) {
 	csr, err := testkit.CreateCsr(configWithCert.CertificateSigningRequestInfo.Subject, clientKey)
 	require.NoError(t, err)
 
+	t.Log("Renewing certificate...")
 	renewalResult, err := securedClient.SignCSR(csr)
 	require.NoError(t, err)
 	assertCertificate(t, configWithCert.CertificateSigningRequestInfo.Subject, renewalResult)
 
-	t.Log("Renewing certificate...")
-	renewedCertChain := testkit.DecodeCertChain(t, certificationResult.CertificateChain)
+	renewedCertChain := testkit.DecodeCertChain(t, renewalResult.CertificateChain)
 	securedClientWithRenewedCert := connector.NewCertificateSecuredConnectorClient(*configuration.ManagementPlaneInfo.CertificateSecuredConnectorURL, clientKey, renewedCertChain...)
 
 	t.Log("Certificate renewed. Fetching configuration with renewed certificate...")

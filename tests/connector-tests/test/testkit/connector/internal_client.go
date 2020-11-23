@@ -32,13 +32,13 @@ func NewInternalClient(endpoint string) *InternalClient {
 	}
 }
 
-func (c *InternalClient) GenerateApplicationToken(appID string) (externalschema.Token, error) {
-	query := c.queryProvider.generateApplicationToken(appID)
+func (c *InternalClient) GenerateApplicationToken(appSystemAuthID string) (externalschema.Token, error) {
+	query := c.queryProvider.generateApplicationToken(appSystemAuthID)
 	return c.generateToken(query)
 }
 
-func (c *InternalClient) GenerateRuntimeToken(runtimeID string) (externalschema.Token, error) {
-	query := c.queryProvider.generateRuntimeToken(runtimeID)
+func (c *InternalClient) GenerateRuntimeToken(runtimeSystemAuthID string) (externalschema.Token, error) {
+	query := c.queryProvider.generateRuntimeToken(runtimeSystemAuthID)
 	return c.generateToken(query)
 }
 
