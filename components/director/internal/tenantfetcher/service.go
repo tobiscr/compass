@@ -2,6 +2,14 @@ package tenantfetcher
 
 import (
 	"context"
+	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/client-go/kubernetes"
+	restclient "k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -35,6 +43,15 @@ type QueryConfig struct {
 	TimestampField string `envconfig:"default=timestamp,APP_QUERY_TIMESTAMP_FIELD"`
 	PageStartValue string `envconfig:"default=0,APP_QUERY_PAGE_START"`
 	PageSizeValue  string `envconfig:"default=150,APP_QUERY_PAGE_SIZE"`
+	TimestampValue string `envconfig:"default=1"`
+}
+
+type KubernetesClientConfig struct {
+	PollInterval 	time.Duration `envconfig:"default=2s"`
+	PollTimeout 	time.Duration `envconfig:"default=1m"`
+	Timeout     	time.Duration `envconfig:"default=95s"`
+	Namespace		string `envconfig:"default=compass-system"`
+	ConfigMapName	string
 }
 
 //go:generate mockery -name=TenantStorageService -output=automock -outpkg=automock -case=underscore
@@ -56,6 +73,7 @@ const (
 
 type Service struct {
 	queryConfig          QueryConfig
+	kubernetesClientConfig KubernetesClientConfig
 	transact             persistence.Transactioner
 	eventAPIClient       EventAPIClient
 	tenantStorageService TenantStorageService
@@ -79,6 +97,9 @@ func NewService(queryConfig QueryConfig, transact persistence.Transactioner, fie
 }
 
 func (s Service) SyncTenants() error {
+	ctx := context.Background()
+	k8sClientSet, err := newK8SClientSet(ctx, s.kubernetesClientConfig.PollInterval, s.kubernetesClientConfig.PollTimeout, s.kubernetesClientConfig.Timeout)
+
 	tenantsToCreate, err := s.getTenantsToCreate()
 	if err != nil {
 		return err
@@ -106,7 +127,7 @@ func (s Service) SyncTenants() error {
 		return err
 	}
 	defer s.transact.RollbackUnlessCommitted(tx)
-	ctx := context.Background()
+
 	ctx = persistence.SaveToContext(ctx, tx)
 
 	currentTenants, err := s.tenantStorageService.List(ctx)
@@ -147,6 +168,57 @@ func (s Service) SyncTenants() error {
 	}
 
 	return nil
+}
+
+func newK8SClientSet(ctx context.Context, interval, pollingTimeout, timeout time.Duration) (*kubernetes.Clientset, error) {
+	k8sConfig, err := restclient.InClusterConfig()
+	if err != nil {
+		log.WithError(err).Warn("Failed to read in cluster Config")
+		log.Info("Trying to initialize with local Config")
+		home := homedir.HomeDir()
+		k8sConfPath := filepath.Join(home, ".kube", "Config")
+		k8sConfig, err = clientcmd.BuildConfigFromFlags("", k8sConfPath)
+		if err != nil {
+			return nil, errors.Errorf("failed to read k8s in-cluster configuration, %s", err.Error())
+		}
+	}
+
+	k8sConfig.Timeout = timeout
+
+	k8sClientSet, err := kubernetes.NewForConfig(k8sConfig)
+	if err != nil {
+		return nil, errors.Errorf("failed to create k8s core client, %s", err.Error())
+	}
+
+	err = wait.PollImmediate(interval, pollingTimeout, func() (bool, error) {
+		select {
+		case <-ctx.Done():
+			return true, nil
+		default:
+		}
+		_, err := k8sClientSet.ServerVersion()
+		if err != nil {
+			log.Debugf("Failed to access API Server: %s", err.Error())
+			return false, nil
+		}
+		return true, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	log.Info("Successfully initialized kubernetes client")
+	return k8sClientSet, nil
+}
+
+func getTimestampFromConfigMap(ctx context.Context, namespace string, configMapName string, k8sClientSet *kubernetes.Clientset) (string, error) {
+	configMap, err := k8sClientSet.CoreV1().ConfigMaps(namespace).Get(configMapName, metav1.GetOptions{})
+	if err != nil {
+		log.Debugf("Failed to fetch Config Map: %s", err.Error())
+		return "", err
+	}
+
+
 }
 
 func (s Service) getTenantsToCreate() ([]model.BusinessTenantMappingInput, error) {
@@ -191,7 +263,7 @@ func (s Service) fetchTenants(eventsType EventsType) ([]model.BusinessTenantMapp
 	params := QueryParams{
 		s.queryConfig.PageNumField:   s.queryConfig.PageStartValue,
 		s.queryConfig.PageSizeField:  s.queryConfig.PageSizeValue,
-		s.queryConfig.TimestampField: strconv.FormatInt(1, 10),
+		s.queryConfig.TimestampField: s.queryConfig.TimestampValue,
 	}
 	firstPage, err := s.eventAPIClient.FetchTenantEventsPage(eventsType, params)
 	if err != nil {
