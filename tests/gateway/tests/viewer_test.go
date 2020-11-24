@@ -1,14 +1,14 @@
-package gateway_integration
+package tests
 
 import (
 	"context"
 	"fmt"
 	"testing"
 
-	"github.com/kyma-incubator/compass/tests/director/pkg/idtokenprovider"
+	"github.com/kyma-incubator/compass/tests/pkg/idtokenprovider"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/graphql"
-	"github.com/kyma-incubator/compass/tests/director/pkg/gql"
+	"github.com/kyma-incubator/compass/tests/pkg/gql"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

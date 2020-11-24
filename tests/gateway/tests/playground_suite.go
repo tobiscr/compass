@@ -1,4 +1,4 @@
-package gateway_integration
+package tests
 
 import (
 	"crypto/tls"
