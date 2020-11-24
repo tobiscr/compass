@@ -265,7 +265,7 @@ func getClient(url string, tenant string, scopes []string) (*gcli.Client, error)
 }
 
 func getToken(tenant string, scopes []string) (string, error) {
-	token, err := jwtbuilder.Do(tenant, scopes)
+	token, err := jwtbuilder.Build(tenant, scopes, nil)
 	if err != nil {
 		return "", err
 	}
