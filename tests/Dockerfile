@@ -7,7 +7,8 @@ WORKDIR ${BASE_TEST_DIR}
 COPY . ${BASE_TEST_DIR}
 
 RUN CGO_ENABLED=0 go test -c ./connectivity-adapter/tests -o connectivity-adapter.test && \
-    CGO_ENABLED=0 go test -c ./gateway/tests -o gateway.test
+    CGO_ENABLED=0 go test -c ./gateway/tests -o gateway.test && \
+    CGO_ENABLED=0 go test -c ./external-services-mock/tests -o external-services-mock.test
 # add other test components
 
 FROM alpine:3.12.0
@@ -16,11 +17,12 @@ RUN apk add --no-cache curl
 
 LABEL source=git@github.com:kyma-incubator/compass.git
 
-COPY --from=builder /go/src/github.com/kyma-incubator/compass/tests/director/wait-for-director.sh .
+#COPY --from=builder /go/src/github.com/kyma-incubator/compass/tests/director/wait-for-director.sh .
 #COPY --from=builder /go/src/github.com/kyma-incubator/compass/tests/director/api.test .
 #COPY --from=builder /go/src/github.com/kyma-incubator/compass/tests/director/gateway-integration.test .
 #COPY --from=builder /go/src/github.com/kyma-incubator/compass/tests/director/external-services-mock-integration.test .
 #COPY --from=builder /go/src/github.com/kyma-incubator/compass/tests/director/licenses ./licenses
 COPY --from=builder /go/src/github.com/kyma-incubator/compass/tests/connectivity-adapter.test .
 COPY --from=builder /go/src/github.com/kyma-incubator/compass/tests/gateway.test .
+COPY --from=builder /go/src/github.com/kyma-incubator/compass/tests/external-services-mock.test .
 
