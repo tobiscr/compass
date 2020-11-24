@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/kyma-incubator/compass/components/connector/pkg/graphql/externalschema"
-	"github.com/kyma-incubator/compass/tests/connector-tests/test/testkit"
-	"github.com/kyma-incubator/compass/tests/connector-tests/test/testkit/connector"
+	"github.com/kyma-incubator/compass/tests/pkg/testkit-connector"
+	"github.com/kyma-incubator/compass/tests/pkg/testkit-connector/connector"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -107,7 +107,7 @@ func TestCertificateGeneration(t *testing.T) {
 		certToken := configuration.Token.Token
 		wrongSubject := "subject=OU=Test,O=Test,L=Wrong,ST=Wrong,C=PL,CN=Wrong"
 
-		csr, e := testkit.CreateCsr(wrongSubject, clientKey)
+		csr, e := testkit_connector.CreateCsr(wrongSubject, clientKey)
 		require.NoError(t, e)
 
 		// when
@@ -125,7 +125,7 @@ func TestCertificateGeneration(t *testing.T) {
 		certToken := configuration.Token.Token
 		differentSubject := changeCommonName(configuration.CertificateSigningRequestInfo.Subject, "12y36g45-b340-418d-b653-d95b5e347d74")
 
-		csr, e := testkit.CreateCsr(differentSubject, clientKey)
+		csr, e := testkit_connector.CreateCsr(differentSubject, clientKey)
 		require.NoError(t, e)
 
 		// when
@@ -141,7 +141,7 @@ func TestCertificateGeneration(t *testing.T) {
 		configuration := getConfiguration(t, appID)
 		certInfo := configuration.CertificateSigningRequestInfo
 
-		csr, e := testkit.CreateCsr(certInfo.Subject, clientKey)
+		csr, e := testkit_connector.CreateCsr(certInfo.Subject, clientKey)
 		require.NoError(t, e)
 
 		wrongToken := "wrongToken"
@@ -159,7 +159,7 @@ func TestCertificateGeneration(t *testing.T) {
 		configuration := getConfiguration(t, appID)
 		certInfo := configuration.CertificateSigningRequestInfo
 
-		csr, err := testkit.CreateCsr(certInfo.Subject, clientKey)
+		csr, err := testkit_connector.CreateCsr(certInfo.Subject, clientKey)
 		require.NoError(t, err)
 
 		cert, err := connectorClient.SignCSR(csr, configuration.Token.Token)
@@ -199,7 +199,7 @@ func TestFullConnectorFlow(t *testing.T) {
 	defer cleanup(t, certificationResult)
 
 	t.Log("Certificate generated. Creating secured client...")
-	certChain := testkit.DecodeCertChain(t, certificationResult.CertificateChain)
+	certChain := testkit_connector.DecodeCertChain(t, certificationResult.CertificateChain)
 	securedClient := connector.NewCertificateSecuredConnectorClient(*configuration.ManagementPlaneInfo.CertificateSecuredConnectorURL, clientKey, certChain...)
 
 	t.Log("Fetching configuration with certificate...")
@@ -208,7 +208,7 @@ func TestFullConnectorFlow(t *testing.T) {
 	require.Equal(t, configuration.ManagementPlaneInfo, configWithCert.ManagementPlaneInfo)
 	require.Equal(t, configuration.CertificateSigningRequestInfo, configWithCert.CertificateSigningRequestInfo)
 
-	csr, err := testkit.CreateCsr(configWithCert.CertificateSigningRequestInfo.Subject, clientKey)
+	csr, err := testkit_connector.CreateCsr(configWithCert.CertificateSigningRequestInfo.Subject, clientKey)
 	require.NoError(t, err)
 
 	renewalResult, err := securedClient.SignCSR(csr)
@@ -216,7 +216,7 @@ func TestFullConnectorFlow(t *testing.T) {
 	assertCertificate(t, configWithCert.CertificateSigningRequestInfo.Subject, renewalResult)
 
 	t.Log("Renewing certificate...")
-	renewedCertChain := testkit.DecodeCertChain(t, certificationResult.CertificateChain)
+	renewedCertChain := testkit_connector.DecodeCertChain(t, certificationResult.CertificateChain)
 	securedClientWithRenewedCert := connector.NewCertificateSecuredConnectorClient(*configuration.ManagementPlaneInfo.CertificateSecuredConnectorURL, clientKey, renewedCertChain...)
 
 	t.Log("Certificate renewed. Fetching configuration with renewed certificate...")
@@ -264,7 +264,7 @@ func generateCertificateForToken(t *testing.T, token string, clientKey *rsa.Priv
 	certToken := configuration.Token.Token
 	subject := configuration.CertificateSigningRequestInfo.Subject
 
-	csr, err := testkit.CreateCsr(subject, clientKey)
+	csr, err := testkit_connector.CreateCsr(subject, clientKey)
 	require.NoError(t, err)
 
 	result, err := connectorClient.SignCSR(csr, certToken)
@@ -278,7 +278,7 @@ func assertConfiguration(t *testing.T, configuration externalschema.Configuratio
 	require.NotNil(t, configuration.ManagementPlaneInfo.CertificateSecuredConnectorURL)
 	require.NotNil(t, configuration.ManagementPlaneInfo.DirectorURL)
 
-	require.Equal(t, testkit.RSAKey, configuration.CertificateSigningRequestInfo.KeyAlgorithm)
+	require.Equal(t, testkit_connector.RSAKey, configuration.CertificateSigningRequestInfo.KeyAlgorithm)
 }
 
 func assertCertificate(t *testing.T, expectedSubject string, certificationResult externalschema.CertificationResult) {
@@ -290,14 +290,14 @@ func assertCertificate(t *testing.T, expectedSubject string, certificationResult
 	require.NotEmpty(t, certChain)
 	require.NotEmpty(t, caCert)
 
-	testkit.CheckIfSubjectEquals(t, expectedSubject, clientCert)
-	testkit.CheckIfChainContainsTwoCertificates(t, certChain)
-	testkit.CheckCertificateChainOrder(t, certChain)
-	testkit.CheckIfCertIsSigned(t, clientCert, caCert)
+	testkit_connector.CheckIfSubjectEquals(t, expectedSubject, clientCert)
+	testkit_connector.CheckIfChainContainsTwoCertificates(t, certChain)
+	testkit_connector.CheckCertificateChainOrder(t, certChain)
+	testkit_connector.CheckIfCertIsSigned(t, clientCert, caCert)
 }
 
 func changeCommonName(subject, commonName string) string {
-	splitSubject := testkit.ParseSubject(subject)
+	splitSubject := testkit_connector.ParseSubject(subject)
 
 	splitSubject.CommonName = commonName
 
@@ -309,7 +309,7 @@ func createCertDataHeader(subject, hash string) string {
 }
 
 func cleanup(t *testing.T, certificationResult externalschema.CertificationResult) {
-	hash := testkit.GetCertificateHash(t, certificationResult.ClientCertificate)
+	hash := testkit_connector.GetCertificateHash(t, certificationResult.ClientCertificate)
 	err := configmapCleaner.CleanRevocationList(hash)
 	assert.NoError(t, err)
 }

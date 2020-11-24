@@ -12,13 +12,13 @@ import (
 	"github.com/pkg/errors"
 	v1 "k8s.io/client-go/kubernetes/typed/core/v1"
 
-	"github.com/kyma-incubator/compass/tests/connector-tests/test/testkit/connector"
+	"github.com/kyma-incubator/compass/tests/pkg/testkit-connector/connector"
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 
-	"github.com/kyma-incubator/compass/tests/connector-tests/test/testkit"
+	"github.com/kyma-incubator/compass/tests/pkg/testkit-connector"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,11 +28,11 @@ const (
 )
 
 var (
-	config           testkit.TestConfig
+	config           testkit_connector.TestConfig
 	internalClient   *connector.InternalClient
 	hydratorClient   *connector.HydratorClient
 	connectorClient  *connector.TokenSecuredClient
-	configmapCleaner *testkit.ConfigmapCleaner
+	configmapCleaner *testkit_connector.ConfigmapCleaner
 
 	clientKey *rsa.PrivateKey
 )
@@ -40,14 +40,14 @@ var (
 func TestMain(m *testing.M) {
 	logrus.Info("Starting Connector Test")
 
-	cfg, err := testkit.ReadConfig()
+	cfg, err := testkit_connector.ReadConfig()
 	if err != nil {
 		logrus.Errorf("Failed to read config: %s", err.Error())
 		os.Exit(1)
 	}
 
 	config = cfg
-	clientKey, err = testkit.GenerateKey()
+	clientKey, err = testkit_connector.GenerateKey()
 	if err != nil {
 		logrus.Errorf("Failed to generate private key: %s", err.Error())
 		os.Exit(1)
@@ -61,11 +61,11 @@ func TestMain(m *testing.M) {
 		logrus.Errorf("Failed to create config map interface: %s", err.Error())
 		os.Exit(1)
 	}
-	configmapCleaner = testkit.NewConfigMapCleaner(configmapInterface, config.RevocationConfigMapName)
+	configmapCleaner = testkit_connector.NewConfigMapCleaner(configmapInterface, config.RevocationConfigMapName)
 
 	// Wait for sidecar to initialize
 	logrus.Infoln("Waiting for sidecar to initialize and access to API...")
-	err = testkit.WaitForFunction(apiAccessInterval, apiAccessTimeout, func() bool {
+	err = testkit_connector.WaitForFunction(apiAccessInterval, apiAccessTimeout, func() bool {
 		resp, err := http.Get(fmt.Sprintf("%s/%s", config.HydratorURL, "health"))
 		if err != nil {
 			logrus.Infof("Failed to access health endpoint, retrying in %f: %s", apiAccessInterval.Seconds(), err.Error())

@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/kyma-incubator/compass/components/connector/pkg/oathkeeper"
-	"github.com/kyma-incubator/compass/tests/connector-tests/test/testkit"
-	"github.com/kyma-incubator/compass/tests/connector-tests/test/testkit/connector"
+	"github.com/kyma-incubator/compass/tests/pkg/testkit-connector"
+	"github.com/kyma-incubator/compass/tests/pkg/testkit-connector/connector"
 	"github.com/stretchr/testify/require"
 )
 
@@ -13,7 +13,7 @@ func TestOathkeeperSecurity(t *testing.T) {
 	appID := "54f83a73-b340-418d-b653-d95b5e347d74"
 
 	certResult, configuration := generateCertificate(t, appID, clientKey)
-	certChain := testkit.DecodeCertChain(t, certResult.CertificateChain)
+	certChain := testkit_connector.DecodeCertChain(t, certResult.CertificateChain)
 	securedClient := connector.NewCertificateSecuredConnectorClient(*configuration.ManagementPlaneInfo.CertificateSecuredConnectorURL, clientKey, certChain...)
 
 	t.Run("client id headers should be stripped when calling token-secured api", func(t *testing.T) {
@@ -23,7 +23,7 @@ func TestOathkeeperSecurity(t *testing.T) {
 			oathkeeper.ClientIdFromCertificateHeader: {appID},
 		}
 
-		csr, err := testkit.CreateCsr(configuration.CertificateSigningRequestInfo.Subject, clientKey)
+		csr, err := testkit_connector.CreateCsr(configuration.CertificateSigningRequestInfo.Subject, clientKey)
 
 		// when
 		_, err = connectorClient.Configuration("", forbiddenHeaders)
@@ -49,7 +49,7 @@ func TestOathkeeperSecurity(t *testing.T) {
 			config.CertificateDataHeader: {certDataHeader},
 		}
 
-		csr, err := testkit.CreateCsr(newSubject, clientKey)
+		csr, err := testkit_connector.CreateCsr(newSubject, clientKey)
 
 		t.Run("when calling token-secured API", func(t *testing.T) {
 			// when
