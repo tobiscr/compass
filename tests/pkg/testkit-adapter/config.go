@@ -1,4 +1,4 @@
-package testkit
+package testkit_adapter
 
 import (
 	"github.com/sirupsen/logrus"

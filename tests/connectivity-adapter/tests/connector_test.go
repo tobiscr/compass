@@ -9,11 +9,11 @@ import (
 	"github.com/kyma-incubator/compass/tests/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/kyma-incubator/compass/tests/testkit/director"
+	"github.com/kyma-incubator/compass/tests/pkg/testkit-adapter/director"
 
 	directorSchema "github.com/kyma-incubator/compass/components/director/pkg/graphql"
-	"github.com/kyma-incubator/compass/tests/testkit"
-	"github.com/kyma-incubator/compass/tests/testkit/connector"
+	"github.com/kyma-incubator/compass/tests/pkg/testkit-adapter"
+	"github.com/kyma-incubator/compass/tests/pkg/testkit-adapter/connector"
 	"github.com/stretchr/testify/require"
 )
 
@@ -42,7 +42,7 @@ func TestConnector(t *testing.T) {
 		},
 	}
 
-	config, err := testkit.ReadConfiguration()
+	config, err := testkit_adapter.ReadConfiguration()
 	require.NoError(t, err)
 
 	client, err := director.NewClient(
@@ -81,7 +81,7 @@ func TestConnector(t *testing.T) {
 	})
 }
 
-func certificateGenerationSuite(t *testing.T, directorClient director.Client, appID string, config testkit.Configuration) {
+func certificateGenerationSuite(t *testing.T, directorClient director.Client, appID string, config testkit_adapter.Configuration) {
 	client := connector.NewConnectorClient(directorClient, appID, config.Tenant, config.SkipSslVerify)
 
 	clientKey := connector.CreateKey(t)
@@ -259,7 +259,7 @@ func certificateGenerationSuite(t *testing.T, directorClient director.Client, ap
 
 }
 
-func appCsrInfoEndpointSuite(t *testing.T, directorClient director.Client, appID string, config testkit.Configuration, appName string) {
+func appCsrInfoEndpointSuite(t *testing.T, directorClient director.Client, appID string, config testkit_adapter.Configuration, appName string) {
 	t.Run("should use default values to build CSR info response", func(t *testing.T) {
 		// given
 		client := connector.NewConnectorClient(directorClient, appID, config.Tenant, config.SkipSslVerify)
@@ -286,7 +286,7 @@ func appCsrInfoEndpointSuite(t *testing.T, directorClient director.Client, appID
 	})
 }
 
-func appMgmInfoEndpointSuite(t *testing.T, directorClient director.Client, appID string, config testkit.Configuration, appName string) {
+func appMgmInfoEndpointSuite(t *testing.T, directorClient director.Client, appID string, config testkit_adapter.Configuration, appName string) {
 	client := connector.NewConnectorClient(directorClient, appID, config.Tenant, config.SkipSslVerify)
 
 	clientKey := connector.CreateKey(t)
@@ -328,7 +328,7 @@ func appMgmInfoEndpointSuite(t *testing.T, directorClient director.Client, appID
 	})
 }
 
-func certificateRotationSuite(t *testing.T, directorClient director.Client, appID string, config testkit.Configuration) {
+func certificateRotationSuite(t *testing.T, directorClient director.Client, appID string, config testkit_adapter.Configuration) {
 	client := connector.NewConnectorClient(directorClient, appID, config.Tenant, config.SkipSslVerify)
 
 	clientKey := connector.CreateKey(t)
