@@ -8,7 +8,7 @@ import (
 	"net/http/httputil"
 	"testing"
 
-	"github.com/kyma-incubator/compass/tests/connectivity-adapter/test/testkit/director"
+	"github.com/kyma-incubator/compass/tests/testkit/director"
 
 	"github.com/stretchr/testify/require"
 )
