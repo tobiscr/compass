@@ -24,5 +24,6 @@ type ApplicationExt struct {
 	Auths                 []*SystemAuth                    `json:"auths"`
 	Package               PackageExt                       `json:"package"`
 	Packages              PackagePageExt                   `json:"packages"`
+	PackagesNoPaging      []*PackageExt                    `json:"packagesNoPaging"`
 	EventingConfiguration ApplicationEventingConfiguration `json:"eventingConfiguration"`
 }

@@ -19,6 +19,8 @@ type EventAPIRepository interface {
 	GetForPackage(ctx context.Context, tenant string, id string, packageID string) (*model.EventDefinition, error)
 	Exists(ctx context.Context, tenantID, id string) (bool, error)
 	ListForPackage(ctx context.Context, tenantID string, packageID string, pageSize int, cursor string) (*model.EventDefinitionPage, error)
+	ListAllForPackage(ctx context.Context, tenantID string, packageIDs []string, pageSize int, cursor string) ([]*model.EventDefinitionPage, error)
+	ListAllForPackageNoPaging(ctx context.Context, tenantID string, packageIDs []string) ([][]*model.EventDefinition, error)
 	Create(ctx context.Context, item *model.EventDefinition) error
 	CreateMany(ctx context.Context, items []*model.EventDefinition) error
 	Update(ctx context.Context, item *model.EventDefinition) error
@@ -63,6 +65,28 @@ func (s *service) ListForPackage(ctx context.Context, packageID string, pageSize
 	}
 
 	return s.eventAPIRepo.ListForPackage(ctx, tnt, packageID, pageSize, cursor)
+}
+
+func (s *service) ListAllByPackageIDs(ctx context.Context, packageIDs []string, pageSize int, cursor string) ([]*model.EventDefinitionPage, error) {
+	tnt, err := tenant.LoadFromContext(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "while loading tenant from context")
+	}
+
+	if pageSize < 1 || pageSize > 100 {
+		return nil, apperrors.NewInvalidDataError("page size must be between 1 and 100")
+	}
+
+	return s.eventAPIRepo.ListAllForPackage(ctx, tnt, packageIDs, pageSize, cursor)
+}
+
+func (s *service) ListAllByPackageIDsNoPaging(ctx context.Context, packageIDs []string) ([][]*model.EventDefinition, error) {
+	tnt, err := tenant.LoadFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.eventAPIRepo.ListAllForPackageNoPaging(ctx, tnt, packageIDs)
 }
 
 func (s *service) Get(ctx context.Context, id string) (*model.EventDefinition, error) {

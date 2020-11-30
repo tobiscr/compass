@@ -7,6 +7,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/kyma-incubator/compass/components/director/dataloader"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/api"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/document"
 	"github.com/kyma-incubator/compass/components/director/internal/domain/eventdef"
@@ -128,17 +130,19 @@ func main() {
 	pairingAdapters, err := getPairingAdaptersMapping(cfg.PairingAdapterSrc)
 	exitOnError(err, "Error while reading Pairing Adapters Configuration")
 
+	rootResolver := domain.NewRootResolver(
+		transact,
+		cfgProvider,
+		cfg.OneTimeToken,
+		cfg.OAuth20,
+		pairingAdapters,
+		cfg.Features,
+		metricsCollector,
+		cfg.ClientTimeout,
+	)
+
 	gqlCfg := graphql.Config{
-		Resolvers: domain.NewRootResolver(
-			transact,
-			cfgProvider,
-			cfg.OneTimeToken,
-			cfg.OAuth20,
-			pairingAdapters,
-			cfg.Features,
-			metricsCollector,
-			cfg.ClientTimeout,
-		),
+		Resolvers: rootResolver,
 		Directives: graphql.DirectiveRoot{
 			HasScenario: scenario.NewDirective(transact, label.NewRepository(label.NewConverter()), defaultPackageRepo(), defaultPackageInstanceAuthRepo()).HasScenario,
 			HasScopes:   scope.NewDirective(cfgProvider).VerifyScopes,
@@ -173,6 +177,12 @@ func main() {
 
 	gqlAPIRouter := mainRouter.PathPrefix(cfg.APIEndpoint).Subrouter()
 	gqlAPIRouter.Use(authMiddleware.Handler())
+	gqlAPIRouter.Use(dataloader.Handler(rootResolver.PackagesDataloader))
+	gqlAPIRouter.Use(dataloader.HandlerNoPaging(rootResolver.PackagesDataloaderNoPaging))
+	gqlAPIRouter.Use(dataloader.HandlerApiDef(rootResolver.ApiDefinitionsDataloader))
+	gqlAPIRouter.Use(dataloader.HandlerApiDefNoPaging(rootResolver.APIDefinitionsDataloaderNoPaging))
+	gqlAPIRouter.Use(dataloader.HandlerEventDef(rootResolver.EventDefinitionsDataloader))
+	gqlAPIRouter.Use(dataloader.HandlerEventDefNoPaging(rootResolver.EventDefinitionsDataloaderNoPaging))
 	gqlAPIRouter.Use(statusMiddleware.Handler())
 	gqlAPIRouter.HandleFunc("", metricsCollector.GraphQLHandlerWithInstrumentation(handler.GraphQL(executableSchema,
 		handler.ErrorPresenter(presenter.Do),

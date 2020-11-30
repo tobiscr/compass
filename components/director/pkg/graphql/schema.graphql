@@ -620,6 +620,7 @@ type Application {
 	package(id: ID!): Package
 	auths: [SystemAuth!]
 	eventingConfiguration: ApplicationEventingConfiguration
+	packagesNoPaging: [Package!]
 }
 
 type ApplicationEventingConfiguration {
@@ -830,6 +831,8 @@ type Package {
 	apiDefinition(id: ID!): APIDefinition
 	eventDefinition(id: ID!): EventDefinition
 	document(id: ID!): Document
+	apiDefinitionsNoPaging: [APIDefinition!]
+	eventDefinitionsNoPaging: [EventDefinition!]
 }
 
 type PackageInstanceAuth {

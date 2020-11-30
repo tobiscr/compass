@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/kyma-incubator/compass/components/director/pkg/pagination"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
@@ -38,6 +40,7 @@ type EntityConverter interface {
 type pgRepository struct {
 	existQuerier    repo.ExistQuerier
 	singleGetter    repo.SingleGetter
+	singleLister    repo.Lister
 	deleter         repo.Deleter
 	pageableQuerier repo.PageableQuerier
 	creator         repo.Creator
@@ -49,6 +52,7 @@ func NewRepository(conv EntityConverter) *pgRepository {
 	return &pgRepository{
 		existQuerier:    repo.NewExistQuerier(resource.Package, packageTable, tenantColumn),
 		singleGetter:    repo.NewSingleGetter(resource.Package, packageTable, tenantColumn, packageColumns),
+		singleLister:    repo.NewLister(resource.Package, packageTable, tenantColumn, packageColumns),
 		deleter:         repo.NewDeleter(resource.Package, packageTable, tenantColumn),
 		pageableQuerier: repo.NewPageableQuerier(resource.Package, packageTable, tenantColumn, packageColumns),
 		creator:         repo.NewCreator(resource.Package, packageTable, packageColumns),
@@ -187,4 +191,115 @@ func (r *pgRepository) ListByApplicationID(ctx context.Context, tenantID string,
 		TotalCount: totalCount,
 		PageInfo:   page,
 	}, nil
+}
+
+func (r *pgRepository) ListByApplicationIDs(ctx context.Context, tenantID string, applicationIDs []string, pageSize int, cursor string) ([]*model.PackagePage, error) {
+	persist, err := persistence.FromCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var packageCollection PackageCollection
+	var query string
+	var sb strings.Builder
+	unionQuery := fmt.Sprint("(SELECT name, id, app_id from packages WHERE app_id='%s' and tenant_id='%s' order by id limit %v offset %d)")
+
+	offset, err := pagination.DecodeOffsetCursor(cursor)
+	if err != nil {
+		return nil, errors.Wrap(err, "while decoding page cursor")
+	}
+
+	for i := 0; i < len(applicationIDs); i++ {
+		if i == len(applicationIDs)-1 {
+			sb.WriteString(fmt.Sprintf(unionQuery, applicationIDs[i], tenantID, pageSize, offset))
+			query = sb.String()
+		}
+		sb.WriteString(fmt.Sprintf(unionQuery, applicationIDs[i], tenantID, pageSize, offset) + "union")
+	}
+
+	fmt.Println("[===Executing single union query ===] ", query)
+	err = persist.Select(&packageCollection, query)
+	if err != nil {
+		return nil, err
+	}
+
+	//count logic
+	conditions := repo.Conditions{
+		repo.NewInConditionForStringValues("app_id", applicationIDs),
+	}
+	var packageCollectionCount PackageCollection
+	err = r.singleLister.List(ctx, tenantID, &packageCollectionCount, conditions...)
+	if err != nil {
+		return nil, err
+	}
+
+	pkgsCountByID := map[string][]*model.Package{}
+	for _, pkgEnt := range packageCollectionCount {
+		m, err := r.conv.FromEntity(&pkgEnt)
+		if err != nil {
+			return nil, errors.Wrap(err, "while creating Package model from entity")
+		}
+		pkgsCountByID[pkgEnt.ApplicationID] = append(pkgsCountByID[pkgEnt.ApplicationID], m)
+	}
+	//end
+
+	pkgByID := map[string][]*model.Package{}
+	for _, pkgEnt := range packageCollection {
+		m, err := r.conv.FromEntity(&pkgEnt)
+		if err != nil {
+			return nil, errors.Wrap(err, "while creating Package model from entity")
+		}
+		pkgByID[pkgEnt.ApplicationID] = append(pkgByID[pkgEnt.ApplicationID], m)
+	}
+
+	// map the PackagePage to the current app_id
+	pkgPages := make([]*model.PackagePage, len(applicationIDs))
+	for i, appID := range applicationIDs {
+		totalCount := len(pkgsCountByID[appID])
+		hasNextPage := false
+		endCursor := ""
+		if totalCount > offset+len(pkgByID[appID]) {
+			hasNextPage = true
+			endCursor = pagination.EncodeNextOffsetCursor(offset, pageSize)
+		}
+
+		page := &pagination.Page{
+			StartCursor: cursor,
+			EndCursor:   endCursor,
+			HasNextPage: hasNextPage,
+		}
+
+		pkgPages[i] = &model.PackagePage{Data: pkgByID[appID], TotalCount: totalCount, PageInfo: page}
+	}
+
+	return pkgPages, nil
+}
+
+func (r *pgRepository) ListByApplicationIDsNoPaging(ctx context.Context, tnt string, applicationIDs []string) ([][]*model.Package, error) {
+	conditions := repo.Conditions{
+		repo.NewInConditionForStringValues("app_id", applicationIDs),
+	}
+
+	var packageCollection PackageCollection
+	err := r.singleLister.List(ctx, tnt, &packageCollection, conditions...)
+	if err != nil {
+		return nil, err
+	}
+
+	pkgsByID := map[string][]*model.Package{}
+	for _, pkgEnt := range packageCollection {
+		m, err := r.conv.FromEntity(&pkgEnt)
+		if err != nil {
+			return nil, errors.Wrap(err, "while creating Package model from entity")
+		}
+		pkgsByID[pkgEnt.ApplicationID] = append(pkgsByID[pkgEnt.ApplicationID], m)
+	}
+
+	// map the PackagePage to the current app_id
+	pkgs := make([][]*model.Package, len(applicationIDs))
+	for i, appID := range applicationIDs {
+		pkgs[i] = pkgsByID[appID]
+	}
+
+	return pkgs, nil
 }

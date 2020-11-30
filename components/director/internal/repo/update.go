@@ -91,6 +91,7 @@ func (u *universalUpdater) unsafeUpdateSingle(ctx context.Context, dbEntity inte
 		}
 		stmtBuilder.WriteString(fmt.Sprintf(" %s", strings.Join(preparedIDColumns, " AND ")))
 	}
+	fmt.Println("[===Executing single update query===] ", stmtBuilder.String())
 
 	log.Debugf("Executing DB query: %s", stmtBuilder.String())
 	res, err := persist.NamedExec(stmtBuilder.String(), dbEntity)

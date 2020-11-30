@@ -4,6 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/kyma-incubator/compass/components/director/dataloader"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/inputvalidation"
@@ -94,6 +96,8 @@ type RuntimeService interface {
 type PackageService interface {
 	GetForApplication(ctx context.Context, id string, applicationID string) (*model.Package, error)
 	ListByApplicationID(ctx context.Context, applicationID string, pageSize int, cursor string) (*model.PackagePage, error)
+	ListAllByApplicationIDs(ctx context.Context, applicationIDs []string, pageSize int, cursor string) ([]*model.PackagePage, error)
+	ListAllByApplicationIDsNoPaging(ctx context.Context, applicationIDs []string) ([][]*model.Package, error)
 	CreateMultiple(ctx context.Context, applicationID string, in []*model.PackageCreateInput) error
 }
 
@@ -573,13 +577,33 @@ func (r *Resolver) EventingConfiguration(ctx context.Context, obj *graphql.Appli
 }
 
 func (r *Resolver) Packages(ctx context.Context, obj *graphql.Application, first *int, after *graphql.PageCursor) (*graphql.PackagePage, error) {
-	if obj == nil {
-		return nil, apperrors.NewInternalError("Application cannot be empty")
+	param := dataloader.Param{ID: obj.ID, Ctx: ctx, First: first, After: after}
+	return dataloader.For(ctx).PkgById.Load(param)
+}
+
+func (r *Resolver) PackagesDataLoader(keys []dataloader.Param) ([]*graphql.PackagePage, []error) {
+	if len(keys) == 0 {
+		return nil, []error{apperrors.NewInternalError("No Apps found")}
+	}
+
+	var ctx context.Context
+	var first *int
+	var after *graphql.PageCursor
+
+	applicationIDs := make([]string, len(keys))
+	for i := 0; i < len(keys); i++ {
+		if i == 0 {
+			ctx = keys[i].Ctx
+			first = keys[i].First
+			after = keys[i].After
+			applicationIDs[i] = keys[i].ID
+		}
+		applicationIDs[i] = keys[i].ID
 	}
 
 	tx, err := r.transact.Begin()
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
 	}
 	defer r.transact.RollbackUnlessCommitted(tx)
 
@@ -591,33 +615,87 @@ func (r *Resolver) Packages(ctx context.Context, obj *graphql.Application, first
 	}
 
 	if first == nil {
-		return nil, apperrors.NewInvalidDataError("missing required parameter 'first'")
+		return nil, []error{apperrors.NewInvalidDataError("missing required parameter 'first'")}
 	}
 
-	pkgsPage, err := r.pkgSvc.ListByApplicationID(ctx, obj.ID, *first, cursor)
+	// we expect the order of the pkgs returned to represent the order of the input applicationIDs
+	pkgsPage, err := r.pkgSvc.ListAllByApplicationIDs(ctx, applicationIDs, *first, cursor)
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
 	}
 
-	gqlPkgs, err := r.pkgConv.MultipleToGraphQL(pkgsPage.Data)
+	var gqlPkgs []*graphql.PackagePage
+	for _, crrPkg := range pkgsPage {
+		pkgs, err := r.pkgConv.MultipleToGraphQL(crrPkg.Data)
+		if err != nil {
+			return nil, []error{err}
+		}
+
+		gqlPkgs = append(gqlPkgs, &graphql.PackagePage{Data: pkgs, TotalCount: crrPkg.TotalCount, PageInfo: &graphql.PageInfo{
+			StartCursor: graphql.PageCursor(crrPkg.PageInfo.StartCursor),
+			EndCursor:   graphql.PageCursor(crrPkg.PageInfo.EndCursor),
+			HasNextPage: crrPkg.PageInfo.HasNextPage,
+		}})
+	}
+
+	return gqlPkgs, nil
+}
+
+func (r *Resolver) PackagesNoPaging(ctx context.Context, obj *graphql.Application) ([]*graphql.Package, error) {
+	param := dataloader.ParamNoPaging{ID: obj.ID, Ctx: ctx}
+	return dataloader.ForNoPaging(ctx).PkgByIdNoPaging.Load(param)
+}
+
+func (r *Resolver) PackagesDataLoaderNoPaging(keys []dataloader.ParamNoPaging) ([][]*graphql.Package, []error) {
+	if len(keys) == 0 {
+		return nil, []error{apperrors.NewInternalError("No Apps found")}
+	}
+
+	var ctx context.Context
+
+	applicationIDs := make([]string, len(keys))
+	for i := 0; i < len(keys); i++ {
+		if i == 0 {
+			ctx = keys[i].Ctx
+			applicationIDs[i] = keys[i].ID
+		}
+		applicationIDs[i] = keys[i].ID
+	}
+
+	tx, err := r.transact.Begin()
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
+	}
+	defer r.transact.RollbackUnlessCommitted(tx)
+
+	ctx = persistence.SaveToContext(ctx, tx)
+
+	pkgs, err := r.pkgSvc.ListAllByApplicationIDsNoPaging(ctx, applicationIDs)
+	if err != nil {
+		return nil, []error{err}
 	}
 
-	return &graphql.PackagePage{
-		Data:       gqlPkgs,
-		TotalCount: pkgsPage.TotalCount,
-		PageInfo: &graphql.PageInfo{
-			StartCursor: graphql.PageCursor(pkgsPage.PageInfo.StartCursor),
-			EndCursor:   graphql.PageCursor(pkgsPage.PageInfo.EndCursor),
-			HasNextPage: pkgsPage.PageInfo.HasNextPage,
-		},
-	}, nil
+	err = tx.Commit()
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	gqlPkgs := make([][]*graphql.Package, len(applicationIDs))
+	for i, _ := range pkgs {
+		crrPkgs, err := r.pkgConv.MultipleToGraphQL(pkgs[i])
+		if err != nil {
+			return nil, []error{err}
+		}
+
+		gqlPkgs[i] = crrPkgs
+	}
+
+	return gqlPkgs, nil
 }
 
 func (r *Resolver) Package(ctx context.Context, obj *graphql.Application, id string) (*graphql.Package, error) {

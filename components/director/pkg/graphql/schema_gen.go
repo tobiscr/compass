@@ -92,6 +92,7 @@ type ComplexityRoot struct {
 		Name                  func(childComplexity int) int
 		Package               func(childComplexity int, id string) int
 		Packages              func(childComplexity int, first *int, after *PageCursor) int
+		PackagesNoPaging      func(childComplexity int) int
 		ProviderName          func(childComplexity int) int
 		Status                func(childComplexity int) int
 		Webhooks              func(childComplexity int) int
@@ -338,12 +339,14 @@ type ComplexityRoot struct {
 	Package struct {
 		APIDefinition                  func(childComplexity int, id string) int
 		APIDefinitions                 func(childComplexity int, group *string, first *int, after *PageCursor) int
+		APIDefinitionsNoPaging         func(childComplexity int) int
 		DefaultInstanceAuth            func(childComplexity int) int
 		Description                    func(childComplexity int) int
 		Document                       func(childComplexity int, id string) int
 		Documents                      func(childComplexity int, first *int, after *PageCursor) int
 		EventDefinition                func(childComplexity int, id string) int
 		EventDefinitions               func(childComplexity int, group *string, first *int, after *PageCursor) int
+		EventDefinitionsNoPaging       func(childComplexity int) int
 		ID                             func(childComplexity int) int
 		InstanceAuth                   func(childComplexity int, id string) int
 		InstanceAuthRequestInputSchema func(childComplexity int) int
@@ -493,6 +496,7 @@ type ApplicationResolver interface {
 	Package(ctx context.Context, obj *Application, id string) (*Package, error)
 	Auths(ctx context.Context, obj *Application) ([]*SystemAuth, error)
 	EventingConfiguration(ctx context.Context, obj *Application) (*ApplicationEventingConfiguration, error)
+	PackagesNoPaging(ctx context.Context, obj *Application) ([]*Package, error)
 }
 type DocumentResolver interface {
 	FetchRequest(ctx context.Context, obj *Document) (*FetchRequest, error)
@@ -579,6 +583,8 @@ type PackageResolver interface {
 	APIDefinition(ctx context.Context, obj *Package, id string) (*APIDefinition, error)
 	EventDefinition(ctx context.Context, obj *Package, id string) (*EventDefinition, error)
 	Document(ctx context.Context, obj *Package, id string) (*Document, error)
+	APIDefinitionsNoPaging(ctx context.Context, obj *Package) ([]*APIDefinition, error)
+	EventDefinitionsNoPaging(ctx context.Context, obj *Package) ([]*EventDefinition, error)
 }
 type QueryResolver interface {
 	Applications(ctx context.Context, filter []*LabelFilter, first *int, after *PageCursor) (*ApplicationPage, error)
@@ -808,6 +814,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Application.Packages(childComplexity, args["first"].(*int), args["after"].(*PageCursor)), true
+
+	case "Application.packagesNoPaging":
+		if e.complexity.Application.PackagesNoPaging == nil {
+			break
+		}
+
+		return e.complexity.Application.PackagesNoPaging(childComplexity), true
 
 	case "Application.providerName":
 		if e.complexity.Application.ProviderName == nil {
@@ -2212,6 +2225,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Package.APIDefinitions(childComplexity, args["group"].(*string), args["first"].(*int), args["after"].(*PageCursor)), true
 
+	case "Package.apiDefinitionsNoPaging":
+		if e.complexity.Package.APIDefinitionsNoPaging == nil {
+			break
+		}
+
+		return e.complexity.Package.APIDefinitionsNoPaging(childComplexity), true
+
 	case "Package.defaultInstanceAuth":
 		if e.complexity.Package.DefaultInstanceAuth == nil {
 			break
@@ -2273,6 +2293,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Package.EventDefinitions(childComplexity, args["group"].(*string), args["first"].(*int), args["after"].(*PageCursor)), true
+
+	case "Package.eventDefinitionsNoPaging":
+		if e.complexity.Package.EventDefinitionsNoPaging == nil {
+			break
+		}
+
+		return e.complexity.Package.EventDefinitionsNoPaging(childComplexity), true
 
 	case "Package.id":
 		if e.complexity.Package.ID == nil {
@@ -3613,6 +3640,7 @@ type Application {
 	package(id: ID!): Package
 	auths: [SystemAuth!]
 	eventingConfiguration: ApplicationEventingConfiguration
+	packagesNoPaging: [Package!]
 }
 
 type ApplicationEventingConfiguration {
@@ -3823,6 +3851,8 @@ type Package {
 	apiDefinition(id: ID!): APIDefinition
 	eventDefinition(id: ID!): EventDefinition
 	document(id: ID!): Document
+	apiDefinitionsNoPaging: [APIDefinition!]
+	eventDefinitionsNoPaging: [EventDefinition!]
 }
 
 type PackageInstanceAuth {
@@ -7172,6 +7202,40 @@ func (ec *executionContext) _Application_eventingConfiguration(ctx context.Conte
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalOApplicationEventingConfiguration2ᚖgithubᚗcomᚋkymaᚑincubatorᚋcompassᚋcomponentsᚋdirectorᚋpkgᚋgraphqlᚐApplicationEventingConfiguration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Application_packagesNoPaging(ctx context.Context, field graphql.CollectedField, obj *Application) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Application",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Application().PackagesNoPaging(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*Package)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOPackage2ᚕᚖgithubᚗcomᚋkymaᚑincubatorᚋcompassᚋcomponentsᚋdirectorᚋpkgᚋgraphqlᚐPackage(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ApplicationEventingConfiguration_defaultURL(ctx context.Context, field graphql.CollectedField, obj *ApplicationEventingConfiguration) (ret graphql.Marshaler) {
@@ -14796,6 +14860,74 @@ func (ec *executionContext) _Package_document(ctx context.Context, field graphql
 	return ec.marshalODocument2ᚖgithubᚗcomᚋkymaᚑincubatorᚋcompassᚋcomponentsᚋdirectorᚋpkgᚋgraphqlᚐDocument(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Package_apiDefinitionsNoPaging(ctx context.Context, field graphql.CollectedField, obj *Package) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Package",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Package().APIDefinitionsNoPaging(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*APIDefinition)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOAPIDefinition2ᚕᚖgithubᚗcomᚋkymaᚑincubatorᚋcompassᚋcomponentsᚋdirectorᚋpkgᚋgraphqlᚐAPIDefinition(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Package_eventDefinitionsNoPaging(ctx context.Context, field graphql.CollectedField, obj *Package) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Package",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Package().EventDefinitionsNoPaging(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*EventDefinition)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOEventDefinition2ᚕᚖgithubᚗcomᚋkymaᚑincubatorᚋcompassᚋcomponentsᚋdirectorᚋpkgᚋgraphqlᚐEventDefinition(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _PackageInstanceAuth_id(ctx context.Context, field graphql.CollectedField, obj *PackageInstanceAuth) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
@@ -20672,6 +20804,17 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 				res = ec._Application_eventingConfiguration(ctx, field, obj)
 				return res
 			})
+		case "packagesNoPaging":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Application_packagesNoPaging(ctx, field, obj)
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -22144,6 +22287,28 @@ func (ec *executionContext) _Package(ctx context.Context, sel ast.SelectionSet, 
 					}
 				}()
 				res = ec._Package_document(ctx, field, obj)
+				return res
+			})
+		case "apiDefinitionsNoPaging":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Package_apiDefinitionsNoPaging(ctx, field, obj)
+				return res
+			})
+		case "eventDefinitionsNoPaging":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Package_eventDefinitionsNoPaging(ctx, field, obj)
 				return res
 			})
 		default:
@@ -25001,6 +25166,46 @@ func (ec *executionContext) marshalOAPIDefinition2githubᚗcomᚋkymaᚑincubato
 	return ec._APIDefinition(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalOAPIDefinition2ᚕᚖgithubᚗcomᚋkymaᚑincubatorᚋcompassᚋcomponentsᚋdirectorᚋpkgᚋgraphqlᚐAPIDefinition(ctx context.Context, sel ast.SelectionSet, v []*APIDefinition) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAPIDefinition2ᚖgithubᚗcomᚋkymaᚑincubatorᚋcompassᚋcomponentsᚋdirectorᚋpkgᚋgraphqlᚐAPIDefinition(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
 func (ec *executionContext) marshalOAPIDefinition2ᚖgithubᚗcomᚋkymaᚑincubatorᚋcompassᚋcomponentsᚋdirectorᚋpkgᚋgraphqlᚐAPIDefinition(ctx context.Context, sel ast.SelectionSet, v *APIDefinition) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -25329,6 +25534,46 @@ func (ec *executionContext) marshalODocumentPage2ᚖgithubᚗcomᚋkymaᚑincuba
 
 func (ec *executionContext) marshalOEventDefinition2githubᚗcomᚋkymaᚑincubatorᚋcompassᚋcomponentsᚋdirectorᚋpkgᚋgraphqlᚐEventDefinition(ctx context.Context, sel ast.SelectionSet, v EventDefinition) graphql.Marshaler {
 	return ec._EventDefinition(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOEventDefinition2ᚕᚖgithubᚗcomᚋkymaᚑincubatorᚋcompassᚋcomponentsᚋdirectorᚋpkgᚋgraphqlᚐEventDefinition(ctx context.Context, sel ast.SelectionSet, v []*EventDefinition) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNEventDefinition2ᚖgithubᚗcomᚋkymaᚑincubatorᚋcompassᚋcomponentsᚋdirectorᚋpkgᚋgraphqlᚐEventDefinition(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) marshalOEventDefinition2ᚖgithubᚗcomᚋkymaᚑincubatorᚋcompassᚋcomponentsᚋdirectorᚋpkgᚋgraphqlᚐEventDefinition(ctx context.Context, sel ast.SelectionSet, v *EventDefinition) graphql.Marshaler {
@@ -25721,6 +25966,46 @@ func (ec *executionContext) unmarshalOOAuthCredentialDataInput2ᚖgithubᚗcom�
 
 func (ec *executionContext) marshalOPackage2githubᚗcomᚋkymaᚑincubatorᚋcompassᚋcomponentsᚋdirectorᚋpkgᚋgraphqlᚐPackage(ctx context.Context, sel ast.SelectionSet, v Package) graphql.Marshaler {
 	return ec._Package(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOPackage2ᚕᚖgithubᚗcomᚋkymaᚑincubatorᚋcompassᚋcomponentsᚋdirectorᚋpkgᚋgraphqlᚐPackage(ctx context.Context, sel ast.SelectionSet, v []*Package) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNPackage2ᚖgithubᚗcomᚋkymaᚑincubatorᚋcompassᚋcomponentsᚋdirectorᚋpkgᚋgraphqlᚐPackage(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) marshalOPackage2ᚖgithubᚗcomᚋkymaᚑincubatorᚋcompassᚋcomponentsᚋdirectorᚋpkgᚋgraphqlᚐPackage(ctx context.Context, sel ast.SelectionSet, v *Package) graphql.Marshaler {

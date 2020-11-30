@@ -3,6 +3,7 @@ package mp_package
 import (
 	"context"
 
+	"github.com/kyma-incubator/compass/components/director/dataloader"
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/internal/model"
@@ -45,6 +46,8 @@ type PackageInstanceAuthConverter interface {
 //go:generate mockery -name=APIService -output=automock -outpkg=automock -case=underscore
 type APIService interface {
 	ListForPackage(ctx context.Context, packageID string, pageSize int, cursor string) (*model.APIDefinitionPage, error)
+	ListAllByPackageIDs(ctx context.Context, packageIDs []string, pageSize int, cursor string) ([]*model.APIDefinitionPage, error)
+	ListAllByPackageIDsNoPaging(ctx context.Context, packageIDs []string) ([][]*model.APIDefinition, error)
 	GetForPackage(ctx context.Context, id string, packageID string) (*model.APIDefinition, error)
 }
 
@@ -58,6 +61,8 @@ type APIConverter interface {
 //go:generate mockery -name=EventService -output=automock -outpkg=automock -case=underscore
 type EventService interface {
 	ListForPackage(ctx context.Context, packageID string, pageSize int, cursor string) (*model.EventDefinitionPage, error)
+	ListAllByPackageIDs(ctx context.Context, packageIDs []string, pageSize int, cursor string) ([]*model.EventDefinitionPage, error)
+	ListAllByPackageIDsNoPaging(ctx context.Context, packageIDs []string) ([][]*model.EventDefinition, error)
 	GetForPackage(ctx context.Context, id string, packageID string) (*model.EventDefinition, error)
 }
 
@@ -320,9 +325,33 @@ func (r *Resolver) APIDefinition(ctx context.Context, obj *graphql.Package, id s
 }
 
 func (r *Resolver) APIDefinitions(ctx context.Context, obj *graphql.Package, group *string, first *int, after *graphql.PageCursor) (*graphql.APIDefinitionPage, error) {
+	param := dataloader.ParamApiDef{ID: obj.ID, Ctx: ctx, First: first, After: after}
+	return dataloader.ApiDefFor(ctx).ApiDefById.Load(param)
+}
+
+func (r *Resolver) ApiDefinitionsDataLoader(keys []dataloader.ParamApiDef) ([]*graphql.APIDefinitionPage, []error) {
+	if len(keys) == 0 {
+		return nil, []error{apperrors.NewInternalError("No Packages found")}
+	}
+
+	var ctx context.Context
+	var first *int
+	var after *graphql.PageCursor
+
+	packageIDs := make([]string, len(keys))
+	for i := 0; i < len(keys); i++ {
+		if i == 0 {
+			ctx = keys[i].Ctx
+			first = keys[i].First
+			after = keys[i].After
+			packageIDs[i] = keys[i].ID
+		}
+		packageIDs[i] = keys[i].ID
+	}
+
 	tx, err := r.transact.Begin()
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
 	}
 	defer r.transact.RollbackUnlessCommitted(tx)
 
@@ -334,30 +363,74 @@ func (r *Resolver) APIDefinitions(ctx context.Context, obj *graphql.Package, gro
 	}
 
 	if first == nil {
-		return nil, apperrors.NewInvalidDataError("missing required parameter 'first'")
+		return nil, []error{apperrors.NewInvalidDataError("missing required parameter 'first'")}
 	}
 
-	apisPage, err := r.apiSvc.ListForPackage(ctx, obj.ID, *first, cursor)
+	apiDefsPage, err := r.apiSvc.ListAllByPackageIDs(ctx, packageIDs, *first, cursor)
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
 	}
 
-	gqlApis := r.apiConverter.MultipleToGraphQL(apisPage.Data)
+	var gqlApiDefs []*graphql.APIDefinitionPage
+	for _, crrApiDef := range apiDefsPage {
+		apiDefs := r.apiConverter.MultipleToGraphQL(crrApiDef.Data)
 
-	return &graphql.APIDefinitionPage{
-		Data:       gqlApis,
-		TotalCount: apisPage.TotalCount,
-		PageInfo: &graphql.PageInfo{
-			StartCursor: graphql.PageCursor(apisPage.PageInfo.StartCursor),
-			EndCursor:   graphql.PageCursor(apisPage.PageInfo.EndCursor),
-			HasNextPage: apisPage.PageInfo.HasNextPage,
-		},
-	}, nil
+		gqlApiDefs = append(gqlApiDefs, &graphql.APIDefinitionPage{Data: apiDefs, TotalCount: crrApiDef.TotalCount, PageInfo: &graphql.PageInfo{
+			StartCursor: graphql.PageCursor(crrApiDef.PageInfo.StartCursor),
+			EndCursor:   graphql.PageCursor(crrApiDef.PageInfo.EndCursor),
+			HasNextPage: crrApiDef.PageInfo.HasNextPage,
+		}})
+	}
+
+	return gqlApiDefs, nil
+}
+
+func (r *Resolver) APIDefinitionsNoPaging(ctx context.Context, obj *graphql.Package) ([]*graphql.APIDefinition, error) {
+	param := dataloader.ParamApiDefNoPaging{ID: obj.ID, Ctx: ctx}
+	return dataloader.ApiDefForNoPaging(ctx).ApiDefByIdNoPaging.Load(param)
+}
+
+func (r *Resolver) ApiDefinitionsDataLoaderNoPaging(keys []dataloader.ParamApiDefNoPaging) ([][]*graphql.APIDefinition, []error) {
+	var ctx context.Context
+	packageIDs := make([]string, len(keys))
+	for i := 0; i < len(keys); i++ {
+		if i == 0 {
+			ctx = keys[i].Ctx
+			packageIDs[i] = keys[i].ID
+		}
+		packageIDs[i] = keys[i].ID
+	}
+
+	tx, err := r.transact.Begin()
+	if err != nil {
+		return nil, []error{err}
+	}
+	defer r.transact.RollbackUnlessCommitted(tx)
+
+	ctx = persistence.SaveToContext(ctx, tx)
+
+	apiDefs, err := r.apiSvc.ListAllByPackageIDsNoPaging(ctx, packageIDs)
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	gqlApiDefs := make([][]*graphql.APIDefinition, len(packageIDs))
+	for i, _ := range apiDefs {
+		crrApiDefs := r.apiConverter.MultipleToGraphQL(apiDefs[i])
+		gqlApiDefs[i] = crrApiDefs
+	}
+
+	return gqlApiDefs, nil
 }
 
 func (r *Resolver) EventDefinition(ctx context.Context, obj *graphql.Package, id string) (*graphql.EventDefinition, error) {
@@ -386,11 +459,36 @@ func (r *Resolver) EventDefinition(ctx context.Context, obj *graphql.Package, id
 }
 
 func (r *Resolver) EventDefinitions(ctx context.Context, obj *graphql.Package, group *string, first *int, after *graphql.PageCursor) (*graphql.EventDefinitionPage, error) {
+	param := dataloader.ParamEventDef{ID: obj.ID, Ctx: ctx, First: first, After: after}
+	return dataloader.EventDefFor(ctx).EventDefById.Load(param)
+}
+
+func (r *Resolver) EventDefinitionsDataLoader(keys []dataloader.ParamEventDef) ([]*graphql.EventDefinitionPage, []error) {
+	if len(keys) == 0 {
+		return nil, []error{apperrors.NewInternalError("No Packages found")}
+	}
+
+	var ctx context.Context
+	var first *int
+	var after *graphql.PageCursor
+
+	packageIDs := make([]string, len(keys))
+	for i := 0; i < len(keys); i++ {
+		if i == 0 {
+			ctx = keys[i].Ctx
+			first = keys[i].First
+			after = keys[i].After
+			packageIDs[i] = keys[i].ID
+		}
+		packageIDs[i] = keys[i].ID
+	}
+
 	tx, err := r.transact.Begin()
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
 	}
 	defer r.transact.RollbackUnlessCommitted(tx)
+
 	ctx = persistence.SaveToContext(ctx, tx)
 
 	var cursor string
@@ -399,30 +497,75 @@ func (r *Resolver) EventDefinitions(ctx context.Context, obj *graphql.Package, g
 	}
 
 	if first == nil {
-		return nil, apperrors.NewInvalidDataError("missing required parameter 'first'")
+		return nil, []error{apperrors.NewInvalidDataError("missing required parameter 'first'")}
 	}
 
-	eventAPIPage, err := r.eventSvc.ListForPackage(ctx, obj.ID, *first, cursor)
+	eventDefsPage, err := r.eventSvc.ListAllByPackageIDs(ctx, packageIDs, *first, cursor)
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
 	}
 
-	gqlApis := r.eventConverter.MultipleToGraphQL(eventAPIPage.Data)
+	var gqlEventDefs []*graphql.EventDefinitionPage
+	for _, crrEventDef := range eventDefsPage {
+		eventDefs := r.eventConverter.MultipleToGraphQL(crrEventDef.Data)
 
-	return &graphql.EventDefinitionPage{
-		Data:       gqlApis,
-		TotalCount: eventAPIPage.TotalCount,
-		PageInfo: &graphql.PageInfo{
-			StartCursor: graphql.PageCursor(eventAPIPage.PageInfo.StartCursor),
-			EndCursor:   graphql.PageCursor(eventAPIPage.PageInfo.EndCursor),
-			HasNextPage: eventAPIPage.PageInfo.HasNextPage,
-		},
-	}, nil
+		gqlEventDefs = append(gqlEventDefs, &graphql.EventDefinitionPage{Data: eventDefs, TotalCount: crrEventDef.TotalCount, PageInfo: &graphql.PageInfo{
+			StartCursor: graphql.PageCursor(crrEventDef.PageInfo.StartCursor),
+			EndCursor:   graphql.PageCursor(crrEventDef.PageInfo.EndCursor),
+			HasNextPage: crrEventDef.PageInfo.HasNextPage,
+		}})
+	}
+
+	return gqlEventDefs, nil
+
+}
+
+func (r *Resolver) EventDefinitionsNoPaging(ctx context.Context, obj *graphql.Package) ([]*graphql.EventDefinition, error) {
+	param := dataloader.ParamEventDefNoPaging{ID: obj.ID, Ctx: ctx}
+	return dataloader.EventDefForNoPaging(ctx).EventDefByIdNoPaging.Load(param)
+}
+
+func (r *Resolver) EventDefinitionsDataLoaderNoPaging(keys []dataloader.ParamEventDefNoPaging) ([][]*graphql.EventDefinition, []error) {
+	var ctx context.Context
+	packageIDs := make([]string, len(keys))
+	for i := 0; i < len(keys); i++ {
+		if i == 0 {
+			ctx = keys[i].Ctx
+			packageIDs[i] = keys[i].ID
+		}
+		packageIDs[i] = keys[i].ID
+	}
+
+	tx, err := r.transact.Begin()
+	if err != nil {
+		return nil, []error{err}
+	}
+	defer r.transact.RollbackUnlessCommitted(tx)
+
+	ctx = persistence.SaveToContext(ctx, tx)
+
+	eventDefs, err := r.eventSvc.ListAllByPackageIDsNoPaging(ctx, packageIDs)
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	gqlEventDefs := make([][]*graphql.EventDefinition, len(packageIDs))
+	for i, _ := range eventDefs {
+		crrEventDefs := r.eventConverter.MultipleToGraphQL(eventDefs[i])
+		gqlEventDefs[i] = crrEventDefs
+	}
+
+	return gqlEventDefs, nil
 }
 
 func (r *Resolver) Document(ctx context.Context, obj *graphql.Package, id string) (*graphql.Document, error) {

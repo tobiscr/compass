@@ -23,6 +23,8 @@ type PackageRepository interface {
 	GetForApplication(ctx context.Context, tenant string, id string, applicationID string) (*model.Package, error)
 	GetByInstanceAuthID(ctx context.Context, tenant string, instanceAuthID string) (*model.Package, error)
 	ListByApplicationID(ctx context.Context, tenantID, applicationID string, pageSize int, cursor string) (*model.PackagePage, error)
+	ListByApplicationIDs(ctx context.Context, tenantID string, applicationIDs []string, pageSize int, cursor string) ([]*model.PackagePage, error)
+	ListByApplicationIDsNoPaging(ctx context.Context, tnt string, applicationIDs []string) ([][]*model.Package, error)
 }
 
 //go:generate mockery -name=APIRepository -output=automock -outpkg=automock -case=underscore
@@ -225,6 +227,28 @@ func (s *service) ListByApplicationID(ctx context.Context, applicationID string,
 	}
 
 	return s.pkgRepo.ListByApplicationID(ctx, tnt, applicationID, pageSize, cursor)
+}
+
+func (s *service) ListAllByApplicationIDs(ctx context.Context, applicationIDs []string, pageSize int, cursor string) ([]*model.PackagePage, error) {
+	tnt, err := tenant.LoadFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if pageSize < 1 || pageSize > 100 {
+		return nil, apperrors.NewInvalidDataError("page size must be between 1 and 100")
+	}
+
+	return s.pkgRepo.ListByApplicationIDs(ctx, tnt, applicationIDs, pageSize, cursor)
+}
+
+func (s *service) ListAllByApplicationIDsNoPaging(ctx context.Context, applicationIDs []string) ([][]*model.Package, error) {
+	tnt, err := tenant.LoadFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.pkgRepo.ListByApplicationIDsNoPaging(ctx, tnt, applicationIDs)
 }
 
 func (s *service) createRelatedResources(ctx context.Context, in model.PackageCreateInput, tenant string, packageID string) error {

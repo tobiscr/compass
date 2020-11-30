@@ -70,6 +70,8 @@ func (g *universalExistQuerier) unsafeExists(ctx context.Context, conditions Con
 
 	query := getQueryFromBuilder(stmtBuilder)
 
+	fmt.Println("[===Executing single exist query===] ", query)
+
 	log.Debugf("Executing DB query: %s", query)
 	var count int
 	err = persist.Get(&count, query, allArgs...)

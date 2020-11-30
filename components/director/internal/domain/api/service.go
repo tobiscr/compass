@@ -18,6 +18,8 @@ type APIRepository interface {
 	GetForPackage(ctx context.Context, tenant string, id string, packageID string) (*model.APIDefinition, error)
 	Exists(ctx context.Context, tenant, id string) (bool, error)
 	ListForPackage(ctx context.Context, tenantID, packageID string, pageSize int, cursor string) (*model.APIDefinitionPage, error)
+	ListAllForPackage(ctx context.Context, tenantID string, packageIDs []string, pageSize int, cursor string) ([]*model.APIDefinitionPage, error)
+	ListAllForPackageNoPaging(ctx context.Context, tenantID string, packageIDs []string) ([][]*model.APIDefinition, error)
 	CreateMany(ctx context.Context, item []*model.APIDefinition) error
 	Create(ctx context.Context, item *model.APIDefinition) error
 	Update(ctx context.Context, item *model.APIDefinition) error
@@ -69,6 +71,28 @@ func (s *service) ListForPackage(ctx context.Context, packageID string, pageSize
 	}
 
 	return s.repo.ListForPackage(ctx, tnt, packageID, pageSize, cursor)
+}
+
+func (s *service) ListAllByPackageIDs(ctx context.Context, packageIDs []string, pageSize int, cursor string) ([]*model.APIDefinitionPage, error) {
+	tnt, err := tenant.LoadFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if pageSize < 1 || pageSize > 100 {
+		return nil, apperrors.NewInvalidDataError("page size must be between 1 and 100")
+	}
+
+	return s.repo.ListAllForPackage(ctx, tnt, packageIDs, pageSize, cursor)
+}
+
+func (s *service) ListAllByPackageIDsNoPaging(ctx context.Context, packageIDs []string) ([][]*model.APIDefinition, error) {
+	tnt, err := tenant.LoadFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.repo.ListAllForPackageNoPaging(ctx, tnt, packageIDs)
 }
 
 func (s *service) Get(ctx context.Context, id string) (*model.APIDefinition, error) {

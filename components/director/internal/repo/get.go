@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -72,6 +73,7 @@ func (g *universalSingleGetter) unsafeGet(ctx context.Context, conditions Condit
 		return errors.Wrap(err, "while building list query")
 	}
 
+	fmt.Println("[===Executing single get query===] ", query)
 	log.Debugf("Executing DB query: %s", query)
 	err = persist.Get(dest, query, args...)
 

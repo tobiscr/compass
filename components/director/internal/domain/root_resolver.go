@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/kyma-incubator/compass/components/director/dataloader"
+
 	"github.com/kyma-incubator/compass/components/director/internal/domain/runtime_context"
 
 	"github.com/kyma-incubator/compass/components/director/internal/consumer"
@@ -178,6 +180,30 @@ func NewRootResolver(
 		packageInstanceAuth: packageinstanceauth.NewResolver(transact, packageInstanceAuthSvc, packageSvc, packageInstanceAuthConv),
 		scenarioAssignment:  scenarioassignment.NewResolver(transact, scenarioAssignmentSvc, assignmentConv),
 	}
+}
+
+func (r *RootResolver) PackagesDataloader(ids []dataloader.Param) ([]*graphql.PackagePage, []error) {
+	return r.app.PackagesDataLoader(ids)
+}
+
+func (r *RootResolver) PackagesDataloaderNoPaging(ids []dataloader.ParamNoPaging) ([][]*graphql.Package, []error) {
+	return r.app.PackagesDataLoaderNoPaging(ids)
+}
+
+func (r *RootResolver) ApiDefinitionsDataloader(ids []dataloader.ParamApiDef) ([]*graphql.APIDefinitionPage, []error) {
+	return r.mpPackage.ApiDefinitionsDataLoader(ids)
+}
+
+func (r *RootResolver) APIDefinitionsDataloaderNoPaging(ids []dataloader.ParamApiDefNoPaging) ([][]*graphql.APIDefinition, []error) {
+	return r.mpPackage.ApiDefinitionsDataLoaderNoPaging(ids)
+}
+
+func (r *RootResolver) EventDefinitionsDataloader(ids []dataloader.ParamEventDef) ([]*graphql.EventDefinitionPage, []error) {
+	return r.mpPackage.EventDefinitionsDataLoader(ids)
+}
+
+func (r *RootResolver) EventDefinitionsDataloaderNoPaging(ids []dataloader.ParamEventDefNoPaging) ([][]*graphql.EventDefinition, []error) {
+	return r.mpPackage.EventDefinitionsDataLoaderNoPaging(ids)
 }
 
 func (r *RootResolver) Mutation() graphql.MutationResolver {
@@ -507,6 +533,14 @@ func (r *applicationResolver) Package(ctx context.Context, obj *graphql.Applicat
 	return r.app.Package(ctx, obj, id)
 }
 
+/*func (r *applicationResolver) PackagesNoPaging(ctx context.Context, obj *graphql.Application) (*graphql.PackagePage, error) {
+	return r.app.PackagesNoPaging(ctx, obj)
+}*/
+
+func (r *applicationResolver) PackagesNoPaging(ctx context.Context, obj *graphql.Application) ([]*graphql.Package, error) {
+	return r.app.PackagesNoPaging(ctx, obj)
+}
+
 type runtimeResolver struct {
 	*RootResolver
 }
@@ -600,4 +634,12 @@ func (r *PackageResolver) EventDefinition(ctx context.Context, obj *graphql.Pack
 }
 func (r *PackageResolver) Document(ctx context.Context, obj *graphql.Package, id string) (*graphql.Document, error) {
 	return r.mpPackage.Document(ctx, obj, id)
+}
+
+func (r *PackageResolver) APIDefinitionsNoPaging(ctx context.Context, obj *graphql.Package) ([]*graphql.APIDefinition, error) {
+	return r.mpPackage.APIDefinitionsNoPaging(ctx, obj)
+}
+
+func (r *PackageResolver) EventDefinitionsNoPaging(ctx context.Context, obj *graphql.Package) ([]*graphql.EventDefinition, error) {
+	return r.mpPackage.EventDefinitionsNoPaging(ctx, obj)
 }

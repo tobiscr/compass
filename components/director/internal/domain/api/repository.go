@@ -2,6 +2,11 @@ package api
 
 import (
 	"context"
+	"fmt"
+	"strings"
+
+	"github.com/kyma-incubator/compass/components/director/pkg/pagination"
+	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/resource"
 
@@ -31,6 +36,7 @@ type APIDefinitionConverter interface {
 type pgRepository struct {
 	creator         repo.Creator
 	singleGetter    repo.SingleGetter
+	singleLister    repo.Lister
 	pageableQuerier repo.PageableQuerier
 	updater         repo.Updater
 	deleter         repo.Deleter
@@ -41,6 +47,7 @@ type pgRepository struct {
 func NewRepository(conv APIDefinitionConverter) *pgRepository {
 	return &pgRepository{
 		singleGetter:    repo.NewSingleGetter(resource.API, apiDefTable, tenantColumn, apiDefColumns),
+		singleLister:    repo.NewLister(resource.API, apiDefTable, tenantColumn, apiDefColumns),
 		pageableQuerier: repo.NewPageableQuerier(resource.API, apiDefTable, tenantColumn, apiDefColumns),
 		creator:         repo.NewCreator(resource.API, apiDefTable, apiDefColumns),
 		updater:         repo.NewUpdater(resource.API, apiDefTable, updatableColumns, tenantColumn, idColumns),
@@ -61,6 +68,111 @@ func (r *pgRepository) ListForPackage(ctx context.Context, tenantID string, pack
 		repo.NewEqualCondition("package_id", packageID),
 	}
 	return r.list(ctx, tenantID, pageSize, cursor, conditions)
+}
+
+func (r *pgRepository) ListAllForPackage(ctx context.Context, tenantID string, packageIDs []string, pageSize int, cursor string) ([]*model.APIDefinitionPage, error) {
+	persist, err := persistence.FromCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var apiDefCollection APIDefCollection
+	var query string
+	var sb strings.Builder
+	unionQuery := fmt.Sprint("(SELECT name, id, package_id from api_definitions WHERE package_id='%s' and tenant_id='%s' order by id limit %v offset %d)")
+
+	offset, err := pagination.DecodeOffsetCursor(cursor)
+	if err != nil {
+		return nil, errors.Wrap(err, "while decoding page cursor")
+	}
+
+	for i := 0; i < len(packageIDs); i++ {
+		if i == len(packageIDs)-1 {
+			sb.WriteString(fmt.Sprintf(unionQuery, packageIDs[i], tenantID, pageSize, offset))
+			query = sb.String()
+		}
+		sb.WriteString(fmt.Sprintf(unionQuery, packageIDs[i], tenantID, pageSize, offset) + "union")
+	}
+
+	fmt.Println("[===Executing single union query ===] ", query)
+	err = persist.Select(&apiDefCollection, query)
+	if err != nil {
+		return nil, err
+	}
+
+	//count logic
+	conditions := repo.Conditions{
+		repo.NewInConditionForStringValues("package_id", packageIDs),
+	}
+	var apiDefCollectionCount APIDefCollection
+	err = r.singleLister.List(ctx, tenantID, &apiDefCollectionCount, conditions...)
+	if err != nil {
+		return nil, err
+	}
+
+	apiDefsCountByID := map[string][]*model.APIDefinition{}
+	for _, apiDefEnt := range apiDefCollectionCount {
+		m := r.conv.FromEntity(apiDefEnt)
+		apiDefsCountByID[apiDefEnt.PkgID] = append(apiDefsCountByID[apiDefEnt.PkgID], &m)
+	}
+	//end
+
+	apiDefsById := map[string][]*model.APIDefinition{}
+	for _, apiDefEnt := range apiDefCollection {
+		m := r.conv.FromEntity(apiDefEnt)
+		if err != nil {
+			return nil, errors.Wrap(err, "while creating ApiDef model from entity")
+		}
+		apiDefsById[apiDefEnt.PkgID] = append(apiDefsById[apiDefEnt.PkgID], &m)
+	}
+
+	// map the ApiDefPage to the current package_id
+	apiDefPages := make([]*model.APIDefinitionPage, len(packageIDs))
+	for i, pkgID := range packageIDs {
+		totalCount := len(apiDefsCountByID[pkgID])
+		hasNextPage := false
+		endCursor := ""
+		if totalCount > offset+len(apiDefsById[pkgID]) {
+			hasNextPage = true
+			endCursor = pagination.EncodeNextOffsetCursor(offset, pageSize)
+		}
+
+		page := &pagination.Page{
+			StartCursor: cursor,
+			EndCursor:   endCursor,
+			HasNextPage: hasNextPage,
+		}
+
+		apiDefPages[i] = &model.APIDefinitionPage{Data: apiDefsById[pkgID], TotalCount: totalCount, PageInfo: page}
+	}
+
+	return apiDefPages, nil
+}
+
+func (r *pgRepository) ListAllForPackageNoPaging(ctx context.Context, tenantID string, packageIDs []string) ([][]*model.APIDefinition, error) {
+	conditions := repo.Conditions{
+		repo.NewInConditionForStringValues("package_id", packageIDs),
+	}
+
+	var apiDefCollection APIDefCollection
+	err := r.singleLister.List(ctx, tenantID, &apiDefCollection, conditions...)
+	if err != nil {
+		return nil, err
+	}
+
+	apiDefsByID := map[string][]*model.APIDefinition{}
+	for _, apiDefEnt := range apiDefCollection {
+		m := r.conv.FromEntity(apiDefEnt)
+		apiDefsByID[apiDefEnt.PkgID] = append(apiDefsByID[apiDefEnt.PkgID], &m)
+	}
+
+	// map the PackagePage to the current pkg_id
+	apiDefs := make([][]*model.APIDefinition, len(packageIDs))
+	for i, pkgID := range packageIDs {
+		apiDefs[i] = apiDefsByID[pkgID]
+	}
+
+	return apiDefs, nil
 }
 
 func (r *pgRepository) list(ctx context.Context, tenant string, pageSize int, cursor string, conditions repo.Conditions) (*model.APIDefinitionPage, error) {

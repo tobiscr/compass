@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -67,6 +68,8 @@ func (l *universalLister) unsafeList(ctx context.Context, dest Collection, condi
 	if err != nil {
 		return errors.Wrap(err, "while building list query")
 	}
+
+	fmt.Println("[===Executing single list query===] ", query)
 
 	log.Debugf("Executing DB query: %s", query)
 	err = persist.Select(dest, query, args...)

@@ -88,6 +88,7 @@ func (g *universalPageableQuerier) unsafeList(ctx context.Context, pageSize int,
 	// TODO: Refactor query builder
 	stmtWithPagination := fmt.Sprintf("%s %s", query, paginationSQL)
 
+	fmt.Println("[===Executing pageable list query===] ", stmtWithPagination)
 	err = persist.Select(dest, stmtWithPagination, args...)
 	if err != nil {
 		return nil, -1, errors.Wrap(err, "while fetching list of objects from DB")

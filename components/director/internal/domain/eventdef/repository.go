@@ -2,6 +2,11 @@ package eventdef
 
 import (
 	"context"
+	"fmt"
+	"strings"
+
+	"github.com/kyma-incubator/compass/components/director/pkg/pagination"
+	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
 
 	log "github.com/sirupsen/logrus"
 
@@ -36,6 +41,7 @@ type EventAPIDefinitionConverter interface {
 
 type pgRepository struct {
 	singleGetter    repo.SingleGetter
+	singleLister    repo.Lister
 	pageableQuerier repo.PageableQuerier
 	creator         repo.Creator
 	updater         repo.Updater
@@ -47,6 +53,7 @@ type pgRepository struct {
 func NewRepository(conv EventAPIDefinitionConverter) *pgRepository {
 	return &pgRepository{
 		singleGetter:    repo.NewSingleGetter(resource.EventDefinition, eventAPIDefTable, tenantColumn, apiDefColumns),
+		singleLister:    repo.NewLister(resource.EventDefinition, eventAPIDefTable, tenantColumn, apiDefColumns),
 		pageableQuerier: repo.NewPageableQuerier(resource.EventDefinition, eventAPIDefTable, tenantColumn, apiDefColumns),
 		creator:         repo.NewCreator(resource.EventDefinition, eventAPIDefTable, apiDefColumns),
 		updater:         repo.NewUpdater(resource.EventDefinition, eventAPIDefTable, updatableColumns, tenantColumn, idColumns),
@@ -102,6 +109,117 @@ func (r *pgRepository) ListForPackage(ctx context.Context, tenantID string, pack
 	}
 
 	return r.list(ctx, tenantID, pageSize, cursor, conditions)
+}
+
+func (r *pgRepository) ListAllForPackage(ctx context.Context, tenantID string, packageIDs []string, pageSize int, cursor string) ([]*model.EventDefinitionPage, error) {
+	persist, err := persistence.FromCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var eventDefCollection EventAPIDefCollection
+	var query string
+	var sb strings.Builder
+	unionQuery := fmt.Sprint("(SELECT name, id, package_id from event_api_definitions WHERE package_id='%s' and tenant_id='%s' order by id limit %v offset %d)")
+
+	offset, err := pagination.DecodeOffsetCursor(cursor)
+	if err != nil {
+		return nil, errors.Wrap(err, "while decoding page cursor")
+	}
+
+	for i := 0; i < len(packageIDs); i++ {
+		if i == len(packageIDs)-1 {
+			sb.WriteString(fmt.Sprintf(unionQuery, packageIDs[i], tenantID, pageSize, offset))
+			query = sb.String()
+		}
+		sb.WriteString(fmt.Sprintf(unionQuery, packageIDs[i], tenantID, pageSize, offset) + "union")
+	}
+
+	fmt.Println("[===Executing single union query ===] ", query)
+	err = persist.Select(&eventDefCollection, query)
+	if err != nil {
+		return nil, err
+	}
+
+	// count logic
+	conditions := repo.Conditions{
+		repo.NewInConditionForStringValues("package_id", packageIDs),
+	}
+	var eventDefCollectionCount EventAPIDefCollection
+	err = r.singleLister.List(ctx, tenantID, &eventDefCollectionCount, conditions...)
+	if err != nil {
+		return nil, err
+	}
+
+	eventDefsCountByID := map[string][]*model.EventDefinition{}
+	for _, eventDefEnt := range eventDefCollectionCount {
+		m, err := r.conv.FromEntity(eventDefEnt)
+		if err != nil {
+			return nil, errors.Wrap(err, "while creating EventDef model from entity")
+		}
+		eventDefsCountByID[eventDefEnt.PkgID] = append(eventDefsCountByID[eventDefEnt.PkgID], &m)
+	}
+	// end
+
+	eventDefsById := map[string][]*model.EventDefinition{}
+	for _, eventDefEnt := range eventDefCollection {
+		m, err := r.conv.FromEntity(eventDefEnt)
+		if err != nil {
+			return nil, errors.Wrap(err, "while creating EventDef model from entity")
+		}
+		eventDefsById[eventDefEnt.PkgID] = append(eventDefsById[eventDefEnt.PkgID], &m)
+	}
+
+	// map the ApiDefPage to the current package_id
+	eventDefPages := make([]*model.EventDefinitionPage, len(packageIDs))
+	for i, pkgID := range packageIDs {
+		totalCount := len(eventDefsCountByID[pkgID])
+		hasNextPage := false
+		endCursor := ""
+		if totalCount > offset+len(eventDefsById[pkgID]) {
+			hasNextPage = true
+			endCursor = pagination.EncodeNextOffsetCursor(offset, pageSize)
+		}
+
+		page := &pagination.Page{
+			StartCursor: cursor,
+			EndCursor:   endCursor,
+			HasNextPage: hasNextPage,
+		}
+
+		eventDefPages[i] = &model.EventDefinitionPage{Data: eventDefsById[pkgID], TotalCount: totalCount, PageInfo: page}
+	}
+
+	return eventDefPages, nil
+}
+
+func (r *pgRepository) ListAllForPackageNoPaging(ctx context.Context, tenantID string, packageIDs []string) ([][]*model.EventDefinition, error) {
+	conditions := repo.Conditions{
+		repo.NewInConditionForStringValues("package_id", packageIDs),
+	}
+
+	var eventDefCollection EventAPIDefCollection
+	err := r.singleLister.List(ctx, tenantID, &eventDefCollection, conditions...)
+	if err != nil {
+		return nil, err
+	}
+
+	eventDefsByID := map[string][]*model.EventDefinition{}
+	for _, eventDefEnt := range eventDefCollection {
+		m, err := r.conv.FromEntity(eventDefEnt)
+		if err != nil {
+			return nil, errors.Wrap(err, "while creating EventDef model from entity")
+		}
+		eventDefsByID[eventDefEnt.PkgID] = append(eventDefsByID[eventDefEnt.PkgID], &m)
+	}
+
+	// map the PackagePage to the current pkg_id
+	eventDefs := make([][]*model.EventDefinition, len(packageIDs))
+	for i, pkgID := range packageIDs {
+		eventDefs[i] = eventDefsByID[pkgID]
+	}
+
+	return eventDefs, nil
 }
 
 func (r *pgRepository) list(ctx context.Context, tenant string, pageSize int, cursor string, conditions repo.Conditions) (*model.EventDefinitionPage, error) {
