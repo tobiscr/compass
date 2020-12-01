@@ -202,7 +202,7 @@ func (r *pgRepository) ListByApplicationIDs(ctx context.Context, tenantID string
 	var packageCollection PackageCollection
 	var query string
 	var sb strings.Builder
-	unionQuery := fmt.Sprint("(SELECT name, id, app_id from packages WHERE app_id='%s' and tenant_id='%s' order by id limit %v offset %d)")
+	unionQuery := fmt.Sprint("(SELECT id, tenant_id, app_id, name, description, instance_auth_request_json_schema, default_instance_auth from packages WHERE app_id='%s' and tenant_id='%s' order by id limit %v offset %d)")
 
 	offset, err := pagination.DecodeOffsetCursor(cursor)
 	if err != nil {

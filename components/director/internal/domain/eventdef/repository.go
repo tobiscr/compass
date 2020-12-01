@@ -120,7 +120,7 @@ func (r *pgRepository) ListAllForPackage(ctx context.Context, tenantID string, p
 	var eventDefCollection EventAPIDefCollection
 	var query string
 	var sb strings.Builder
-	unionQuery := fmt.Sprint("(SELECT name, id, package_id from event_api_definitions WHERE package_id='%s' and tenant_id='%s' order by id limit %v offset %d)")
+	unionQuery := fmt.Sprint("(SELECT id, tenant_id, package_id, name, description, group_name, spec_data, spec_format, spec_type, version_value, version_deprecated, version_deprecated_since, version_for_removal from event_api_definitions WHERE package_id='%s' and tenant_id='%s' order by id limit %v offset %d)")
 
 	offset, err := pagination.DecodeOffsetCursor(cursor)
 	if err != nil {
