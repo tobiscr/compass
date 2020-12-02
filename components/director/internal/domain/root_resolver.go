@@ -206,6 +206,14 @@ func (r *RootResolver) EventDefinitionsDataloaderNoPaging(ids []dataloader.Param
 	return r.mpPackage.EventDefinitionsDataLoaderNoPaging(ids)
 }
 
+func (r *RootResolver) FetchRequestApiDefDataloader(ids []dataloader.ParamFetchRequestApiDef) ([]*graphql.FetchRequest, []error) {
+	return r.api.FetchRequestApiDefDataLoader(ids)
+}
+
+func (r *RootResolver) FetchRequestEventDefDataloader(ids []dataloader.ParamFetchRequestEventDef) ([]*graphql.FetchRequest, []error) {
+	return r.eventAPI.FetchRequestEventDefDataLoader(ids)
+}
+
 func (r *RootResolver) Mutation() graphql.MutationResolver {
 	return &mutationResolver{r}
 }

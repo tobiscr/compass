@@ -30,6 +30,7 @@ type APIRepository interface {
 type FetchRequestRepository interface {
 	Create(ctx context.Context, item *model.FetchRequest) error
 	GetByReferenceObjectID(ctx context.Context, tenant string, objectType model.FetchRequestReferenceObjectType, objectID string) (*model.FetchRequest, error)
+	ListByReferenceObjectID(ctx context.Context, tenant string, objectType model.FetchRequestReferenceObjectType, objectIDs []string) ([]*model.FetchRequest, error)
 	DeleteByReferenceObjectID(ctx context.Context, tenant string, objectType model.FetchRequestReferenceObjectType, objectID string) error
 }
 
@@ -228,6 +229,37 @@ func (s *service) RefetchAPISpec(ctx context.Context, id string) (*model.APISpec
 	}
 
 	return api.Spec, nil
+}
+
+func (s *service) ListFetchRequests(ctx context.Context, apiDefIDs []string) ([]*model.FetchRequest, error) {
+	tnt, err := tenant.LoadFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	//TODO: How to apply the Exist logic when we have a slice of all parent apiDefs instead of a single one?
+	//1) We can traverse the ids and return nil, err if we find non existing one.
+	//2) We can trim the non existing ids and proceed with the existing ones only. Will we suppress the missing ones in that way?
+
+	for _, id := range apiDefIDs {
+		exists, err := s.repo.Exists(ctx, tnt, id)
+		if err != nil {
+			return nil, errors.Wrap(err, "while checking if API Definition exists")
+		}
+		if !exists {
+			return nil, fmt.Errorf("API Definition with ID %s doesn't exist", id)
+		}
+	}
+
+	fetchRequests, err := s.fetchRequestRepo.ListByReferenceObjectID(ctx, tnt, model.APIFetchRequestReference, apiDefIDs)
+	if err != nil {
+		if apperrors.IsNotFoundError(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return fetchRequests, nil
 }
 
 func (s *service) GetFetchRequest(ctx context.Context, apiDefID string) (*model.FetchRequest, error) {

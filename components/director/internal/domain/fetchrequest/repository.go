@@ -2,6 +2,7 @@ package fetchrequest
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
@@ -32,6 +33,7 @@ type Converter interface {
 type repository struct {
 	creator      repo.Creator
 	singleGetter repo.SingleGetter
+	singleLister repo.Lister
 	deleter      repo.Deleter
 	updater      repo.Updater
 	conv         Converter
@@ -41,10 +43,17 @@ func NewRepository(conv Converter) *repository {
 	return &repository{
 		creator:      repo.NewCreator(resource.FetchRequest, fetchRequestTable, fetchRequestColumns),
 		singleGetter: repo.NewSingleGetter(resource.FetchRequest, fetchRequestTable, tenantColumn, fetchRequestColumns),
+		singleLister: repo.NewLister(resource.FetchRequest, fetchRequestTable, tenantColumn, fetchRequestColumns),
 		deleter:      repo.NewDeleter(resource.FetchRequest, fetchRequestTable, tenantColumn),
 		updater:      repo.NewUpdater(resource.FetchRequest, fetchRequestTable, []string{"status_condition", "status_message", "status_timestamp"}, tenantColumn, []string{"id"}),
 		conv:         conv,
 	}
+}
+
+type FetchRequestsCollection []Entity
+
+func (r FetchRequestsCollection) Len() int {
+	return len(r)
 }
 
 func (r *repository) Create(ctx context.Context, item *model.FetchRequest) error {
@@ -58,6 +67,45 @@ func (r *repository) Create(ctx context.Context, item *model.FetchRequest) error
 	}
 
 	return r.creator.Create(ctx, entity)
+}
+
+func (r *repository) ListByReferenceObjectID(ctx context.Context, tenant string, objectType model.FetchRequestReferenceObjectType, objectIds []string) ([]*model.FetchRequest, error) {
+	fieldName, err := r.referenceObjectFieldName(objectType)
+	if err != nil {
+		return nil, err
+	}
+
+	var fetchRequestCollection FetchRequestsCollection
+
+	conditions := repo.Conditions{
+		repo.NewInConditionForStringValues(fieldName, objectIds),
+	}
+	if err := r.singleLister.List(ctx, tenant, &fetchRequestCollection, conditions...); err != nil {
+		return nil, err
+	}
+
+	fetchRequestsByID := map[sql.NullString]*model.FetchRequest{}
+	for _, fetchRequestEnt := range fetchRequestCollection {
+		m, err := r.conv.FromEntity(fetchRequestEnt)
+		if err != nil {
+			return nil, errors.Wrap(err, "while creating FetchRequest model from entity")
+		}
+
+		if fieldName == apiDefIDColumn {
+			fetchRequestsByID[fetchRequestEnt.APIDefID] = &m
+		} else if fieldName == eventAPIDefIDColumn {
+			fetchRequestsByID[fetchRequestEnt.EventAPIDefID] = &m
+		} /*else if fieldName == documentIDColumn {
+			fetchRequestsByID[fetchRequestEnt.DocumentID] = m
+		}*/
+	}
+
+	fetchRequests := make([]*model.FetchRequest, len(objectIds))
+	for i, objectID := range objectIds {
+		fetchRequests[i] = fetchRequestsByID[sql.NullString{String: objectID, Valid: true}]
+	}
+
+	return fetchRequests, nil
 }
 
 func (r *repository) GetByReferenceObjectID(ctx context.Context, tenant string, objectType model.FetchRequestReferenceObjectType, objectID string) (*model.FetchRequest, error) {

@@ -183,6 +183,8 @@ func main() {
 	gqlAPIRouter.Use(dataloader.HandlerApiDefNoPaging(rootResolver.APIDefinitionsDataloaderNoPaging))
 	gqlAPIRouter.Use(dataloader.HandlerEventDef(rootResolver.EventDefinitionsDataloader))
 	gqlAPIRouter.Use(dataloader.HandlerEventDefNoPaging(rootResolver.EventDefinitionsDataloaderNoPaging))
+	gqlAPIRouter.Use(dataloader.HandlerFetchRequestApiDef(rootResolver.FetchRequestApiDefDataloader))
+	gqlAPIRouter.Use(dataloader.HandlerFetchRequestEventDef(rootResolver.FetchRequestEventDefDataloader))
 	gqlAPIRouter.Use(statusMiddleware.Handler())
 	gqlAPIRouter.HandleFunc("", metricsCollector.GraphQLHandlerWithInstrumentation(handler.GraphQL(executableSchema,
 		handler.ErrorPresenter(presenter.Do),

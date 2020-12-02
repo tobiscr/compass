@@ -3,6 +3,8 @@ package eventdef
 import (
 	"context"
 
+	"github.com/kyma-incubator/compass/components/director/dataloader"
+
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/persistence"
@@ -23,6 +25,7 @@ type EventDefService interface {
 	Delete(ctx context.Context, id string) error
 	RefetchAPISpec(ctx context.Context, id string) (*model.EventSpec, error)
 	GetFetchRequest(ctx context.Context, eventAPIDefID string) (*model.FetchRequest, error)
+	ListFetchRequests(ctx context.Context, eventDefIds []string) ([]*model.FetchRequest, error)
 }
 
 //go:generate mockery -name=EventDefConverter -output=automock -outpkg=automock -case=underscore
@@ -212,36 +215,58 @@ func (r *Resolver) RefetchEventDefinitionSpec(ctx context.Context, eventID strin
 }
 
 func (r *Resolver) FetchRequest(ctx context.Context, obj *graphql.EventSpec) (*graphql.FetchRequest, error) {
-	if obj == nil {
-		return nil, apperrors.NewInternalError("Event Spec cannot be empty")
+	params := dataloader.ParamFetchRequestEventDef{ID: obj.DefinitionID, Ctx: ctx}
+	return dataloader.ForFetchRequestEventDef(ctx).FetchRequestEventDefById.Load(params)
+}
+
+func (r *Resolver) FetchRequestEventDefDataLoader(keys []dataloader.ParamFetchRequestEventDef) ([]*graphql.FetchRequest, []error) {
+	if len(keys) == 0 {
+		return nil, []error{apperrors.NewInternalError("No ApiDefs found")}
+	}
+
+	var ctx context.Context
+	eventDefIds := make([]string, len(keys))
+	for i := 0; i < len(keys); i++ {
+		if keys[i].ID == "" {
+			return nil, []error{apperrors.NewInternalError("Cannot fetch FetchRequest. EventDefinition ID is empty")}
+		}
+		if i == 0 {
+			ctx = keys[i].Ctx
+			eventDefIds[i] = keys[i].ID
+		}
+		eventDefIds[i] = keys[i].ID
 	}
 
 	tx, err := r.transact.Begin()
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
 	}
 	defer r.transact.RollbackUnlessCommitted(tx)
 
 	ctx = persistence.SaveToContext(ctx, tx)
 
-	if obj.DefinitionID == "" {
-		return nil, apperrors.NewInternalError("Cannot fetch FetchRequest. EventDefinition ID is empty")
-	}
-
-	fr, err := r.svc.GetFetchRequest(ctx, obj.DefinitionID)
+	fetchRequests, err := r.svc.ListFetchRequests(ctx, eventDefIds)
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
 	}
 
-	if fr == nil {
-		return nil, tx.Commit()
+	if fetchRequests == nil {
+		return nil, nil
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return nil, err
+		return nil, []error{err}
 	}
 
-	log.Infof("Successfully fetched request for EventDefinition %s", obj.DefinitionID)
-	return r.frConverter.ToGraphQL(fr)
+	var gqlFetchRequests []*graphql.FetchRequest
+	for _, fr := range fetchRequests {
+		fetchRequest, err := r.frConverter.ToGraphQL(fr)
+		if err != nil {
+			return nil, []error{err}
+		}
+		gqlFetchRequests = append(gqlFetchRequests, fetchRequest)
+	}
+
+	return gqlFetchRequests, nil
 }
