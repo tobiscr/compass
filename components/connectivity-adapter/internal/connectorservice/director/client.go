@@ -44,7 +44,7 @@ func (c client) GetApplication(ctx context.Context, systemAuthID string) (schema
 	return response.Result, nil
 }
 
-func (c client) getApplicationID(ctx context.Context, systemAuthID string) (string, error) {
+func (c client) getApplicationID(ctx context.Context, _ string) (string, error) {
 	query := viewerQuery()
 
 	var response ViewerResponse

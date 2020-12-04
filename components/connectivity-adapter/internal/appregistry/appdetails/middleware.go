@@ -18,6 +18,7 @@ import (
 )
 
 const appNamePathVariable = "app-name"
+const appIDPathVariable = "app-name"
 
 //go:generate mockery -name=GraphQLRequestBuilder -output=automock -outpkg=automock -case=underscore
 type GraphQLRequestBuilder interface {
@@ -37,13 +38,15 @@ func NewApplicationMiddleware(cliProvider gqlcli.Provider, logger *log.Logger) *
 func (mw *applicationMiddleware) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		variables := mux.Vars(r)
-		appName := variables[appNamePathVariable]
+		//appName := variables[appNamePathVariable]
+		appID := variables[appIDPathVariable]
 
-		mw.logger.Infof("resolving application with name '%s'...", appName)
+		mw.logger.Infof("resolving application with id '%s'...", appID)
 
 		client := mw.cliProvider.GQLClient(r)
 		directorCli := director.NewClient(client, &graphqlizer.Graphqlizer{}, &graphqlizer.GqlFieldsProvider{})
-		query := directorCli.GetApplicationsByNameRequest(appName)
+		//query := directorCli.GetApplicationsByNameRequest(appName)
+		query := directorCli.GetApplicationByIDRequest(appID)
 
 		var apps GqlSuccessfulAppPage
 		err := retry.GQLRun(client.Run, r.Context(), query, &apps)
@@ -55,14 +58,14 @@ func (mw *applicationMiddleware) Middleware(next http.Handler) http.Handler {
 		}
 
 		if len(apps.Result.Data) == 0 {
-			message := fmt.Sprintf("application with name %s not found", appName)
+			message := fmt.Sprintf("application with id %s not found", appID)
 			mw.logger.Warn(message)
 			res.WriteErrorMessage(w, message, apperrors.CodeNotFound)
 			return
 		}
 
 		if len(apps.Result.Data) != 1 {
-			message := fmt.Sprintf("found more than 1 application with name %s", appName)
+			message := fmt.Sprintf("found more than 1 application with id %s", appID)
 			mw.logger.Warn(message)
 			res.WriteErrorMessage(w, message, apperrors.CodeInternal)
 			return
@@ -70,7 +73,7 @@ func (mw *applicationMiddleware) Middleware(next http.Handler) http.Handler {
 
 		app := apps.Result.Data[0]
 
-		mw.logger.Infof("app '%s' details fetched successfully", appName)
+		mw.logger.Infof("app with id '%s' details fetched successfully", appID)
 
 		ctx := SaveToContext(r.Context(), *app)
 		ctxWithCli := gqlcli.SaveToContext(ctx, client)

@@ -70,15 +70,9 @@ func (ih *infoHandler) GetInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	infoResponse, err := ih.makeResponseFunc(
-		application.Name,
-		application.EventingConfiguration.DefaultURL,
-		"",
-		configuration)
-
+	infoResponse, err := ih.makeResponseFunc(application.Name, application.EventingConfiguration.DefaultURL, "", configuration)
 	if err != nil {
 		respondWithError(w, contextLogger, errors.Wrap(err, "Failed to build info response"), apperrors.CodeInternal)
-
 		return
 	}
 

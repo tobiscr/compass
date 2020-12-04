@@ -54,7 +54,7 @@ func initAPIHandler(cfg config) (http.Handler, error) {
 
 	router.Use(correlation.AttachCorrelationIDToContext())
 
-	applicationRegistryRouter := router.PathPrefix("/{app-name}/v1").Subrouter()
+	applicationRegistryRouter := router.PathPrefix("/{app-id}/v1").Subrouter()
 	connectorRouter := router.PathPrefix("/v1/applications").Subrouter()
 
 	appRegistryRouter := applicationRegistryRouter.PathPrefix("/metadata").Subrouter()

@@ -57,9 +57,10 @@ type CertInfo struct {
 }
 
 type ClientIdentity struct {
-	Application string `json:"application"`
-	Group       string `json:"group,omitempty"`
-	Tenant      string `json:"tenant,omitempty"`
+	Application   string `json:"application"`
+	ApplicationID string `json:"application_id"`
+	Group         string `json:"group,omitempty"`
+	Tenant        string `json:"tenant,omitempty"`
 }
 
 type TokenResponse struct {

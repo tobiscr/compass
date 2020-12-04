@@ -53,6 +53,14 @@ func (c *directorClient) GetApplicationsByNameRequest(appName string) *gcli.Requ
 	}`, nameKey, appName, c.gqlFieldsProvider.Page(c.gqlFieldsProvider.ForApplication())))
 }
 
+func (c *directorClient) GetApplicationByIDRequest(appID string) *gcli.Request {
+	return gcli.NewRequest(fmt.Sprintf(`query {
+			result: application(id: "%s") {
+					%s
+			}
+	}`, appID, c.gqlFieldsProvider.ForApplication()))
+}
+
 type CreatePackageResult struct {
 	Result graphql.PackageExt `json:"result"`
 }
