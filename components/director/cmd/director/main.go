@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
@@ -73,6 +75,7 @@ type config struct {
 	Database                persistence.DatabaseConfig
 	APIEndpoint             string `envconfig:"default=/graphql"`
 	TenantMappingEndpoint   string `envconfig:"default=/tenant-mapping"`
+	SubscriptionsEndpoint   string `envconfig:"default=/v1/saas/callback/v1.0/tenants/{tenantID}"`
 	RuntimeMappingEndpoint  string `envconfig:"default=/runtime-mapping"`
 	PlaygroundAPIEndpoint   string `envconfig:"default=/graphql"`
 	ConfigurationFile       string
@@ -92,8 +95,8 @@ type config struct {
 
 	OneTimeToken onetimetoken.Config
 	OAuth20      oauth20.Config
-
-	Features features.Config
+	ScopesPrefix string `envconfig:"default=cmpval2!b5487"`
+	Features     features.Config
 }
 
 func main() {
@@ -141,7 +144,7 @@ func main() {
 		),
 		Directives: graphql.DirectiveRoot{
 			HasScenario: scenario.NewDirective(transact, label.NewRepository(label.NewConverter()), defaultPackageRepo(), defaultPackageInstanceAuthRepo()).HasScenario,
-			HasScopes:   scope.NewDirective(cfgProvider).VerifyScopes,
+			HasScopes:   scope.NewDirective(cfgProvider, cfg.ScopesPrefix).VerifyScopes,
 			Validate:    inputvalidation.NewDirective().Validate,
 		},
 	}
@@ -201,6 +204,12 @@ func main() {
 
 	metricsHandler := http.NewServeMux()
 	metricsHandler.Handle("/metrics", promhttp.Handler())
+
+	log.Infof("Registering Create Subscription endpoint on %s...", cfg.SubscriptionsEndpoint)
+	mainRouter.HandleFunc(cfg.SubscriptionsEndpoint, getCreateSubscriptionHandlerFunc()).Methods(http.MethodPut)
+
+	log.Infof("Registering Delete Subscription endpoint on %s...", cfg.SubscriptionsEndpoint)
+	mainRouter.HandleFunc(cfg.SubscriptionsEndpoint, getDeleteSubscriptionHandlerFunc()).Methods(http.MethodDelete)
 
 	runMetricsSrv, shutdownMetricsSrv := createServer(cfg.MetricsAddress, metricsHandler, "metrics", cfg.ServerTimeout)
 	runMainSrv, shutdownMainSrv := createServer(cfg.Address, mainRouter, "main", cfg.ServerTimeout)
@@ -338,6 +347,63 @@ func getRuntimeMappingHandlerFunc(transact persistence.Transactioner, cachePerio
 		tokenVerifier,
 		runtimeSvc,
 		tenantSvc).ServeHTTP, nil
+}
+
+func getCreateSubscriptionHandlerFunc() func(writer http.ResponseWriter, request *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		logSubscriptionRequest("subscribe", request)
+		if err := logBody(request, writer); err != nil {
+			log.Error(errors.Wrapf(err, "while logging request body"))
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		writer.Header().Set("Content-Type", "text/plain")
+		writer.WriteHeader(http.StatusOK)
+		if _, err := writer.Write([]byte("https://github.com/kyma-incubator/compass")); err != nil {
+			log.Error(errors.Wrapf(err, "while writing response body"))
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+func getDeleteSubscriptionHandlerFunc() func(writer http.ResponseWriter, request *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		logSubscriptionRequest("unsubscribe", request)
+		if err := logBody(request, writer); err != nil {
+			log.Error(errors.Wrapf(err, "while logging request body"))
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		writer.Header().Set("Content-Type", "application/json")
+		err := json.NewEncoder(writer).Encode(map[string]interface{}{})
+		if err != nil {
+			log.Error(errors.Wrapf(err, "while writing to response body"))
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+func logSubscriptionRequest(operation string, request *http.Request) {
+	tenantID := mux.Vars(request)["tenantID"]
+	log.Infof("Performing %s for tenant with id %s", operation, tenantID)
+}
+
+func logBody(r *http.Request, w http.ResponseWriter) error {
+	buf, bodyErr := ioutil.ReadAll(r.Body)
+	if bodyErr != nil {
+		log.Print("bodyErr ", bodyErr.Error())
+		http.Error(w, bodyErr.Error(), http.StatusInternalServerError)
+		return nil
+	}
+
+	rdr1 := ioutil.NopCloser(bytes.NewBuffer(buf))
+	rdr2 := ioutil.NopCloser(bytes.NewBuffer(buf))
+	log.Infof("BODY: %q", rdr1)
+	r.Body = rdr2
+
+	return nil
 }
 
 func createServer(address string, handler http.Handler, name string, timeout time.Duration) (func(), func()) {

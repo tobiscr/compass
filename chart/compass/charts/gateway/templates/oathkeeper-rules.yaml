@@ -23,6 +23,32 @@ spec:
 apiVersion: oathkeeper.ory.sh/v1alpha1
 kind: Rule
 metadata:
+  name: compass-gateway-xsuaa
+spec:
+  description: Configuration of oathkeeper for secure endpoint of compass gateway
+  upstream:
+    url: "http://compass-gateway.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.global.gateway.port }}"
+  match:
+    methods: ["GET", "POST", "OPTIONS"]
+    url: <http|https>://compass-gateway-xsuaa.{{ .Values.global.ingress.domainName }}<(:(80|443))?>/director/graphql
+  authenticators:
+  - handler: jwt
+    config:
+      trusted_issuers: ["https://sapcmpval.authentication.stagingaws.hanavlab.ondemand.com/oauth/token"]
+      jwks_urls:
+      - "https://sapcmpval.authentication.stagingaws.hanavlab.ondemand.com/token_keys"
+  authorizer:
+    handler: allow
+  mutators:
+  - handler: hydrator
+  {{ toYaml .Values.global.oathkeeper.mutators.tenantMappingService | indent 4 }}
+  - handler: id_token
+    config:
+      claims: {{ .Values.global.oathkeeper.idTokenConfig.claims | quote }}
+---
+apiVersion: oathkeeper.ory.sh/v1alpha1
+kind: Rule
+metadata:
   name: compass-gateway-jwt
 spec:
   description: Configuration of oathkeeper for secure endpoint of compass gateway

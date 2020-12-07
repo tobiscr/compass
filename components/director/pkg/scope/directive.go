@@ -2,6 +2,7 @@ package scope
 
 import (
 	"context"
+	"strings"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 
@@ -16,11 +17,13 @@ type ScopesGetter interface {
 
 type directive struct {
 	scopesGetter ScopesGetter
+	prefix       string
 }
 
-func NewDirective(getter ScopesGetter) *directive {
+func NewDirective(getter ScopesGetter, prefix string) *directive {
 	return &directive{
 		scopesGetter: getter,
+		prefix:       prefix,
 	}
 }
 
@@ -44,6 +47,7 @@ func (d *directive) matches(actual []string, required []string) bool {
 	actMap := make(map[string]interface{})
 
 	for _, a := range actual {
+		a = strings.TrimPrefix(a, d.prefix)
 		actMap[a] = struct{}{}
 	}
 	for _, r := range required {

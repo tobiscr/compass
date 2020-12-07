@@ -1,0 +1,115 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  annotations:
+    meta.helm.sh/release-name: compass
+    meta.helm.sh/release-namespace: compass-system
+  labels:
+    app: gateway
+    app.kubernetes.io/managed-by: Helm
+    chart: gateway-0.1.0
+    heritage: Helm
+    release: compass
+  name: compass-gateway-xsuaa
+  namespace: compass-system
+spec:
+  gateways:
+    - kyma-system/kyma-gateway
+  hosts:
+    - compass-gateway-xsuaa.mps.dev.kyma.cloud.sap
+  http:
+    - corsPolicy:
+        allowHeaders:
+          - authorization
+          - content-type
+          - tenant
+        allowMethods:
+          - GET
+        allowOrigins:
+          - regex: .*
+      headers:
+        request:
+          remove:
+            - Client-Id-From-Token
+            - Client-Id-From-Certificate
+            - Client-Certificate-Hash
+            - Certificate-Data
+      match:
+        - uri:
+            exact: /director
+      redirect:
+        uri: /director/
+    - corsPolicy:
+        allowHeaders:
+          - authorization
+          - content-type
+          - tenant
+          - client_user
+        allowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+        allowOrigins:
+          - regex: .*
+      match:
+        - uri:
+            regex: /.*
+      route:
+        - destination:
+            host: ory-oathkeeper-proxy.kyma-system.svc.cluster.local
+            port:
+              number: 4455
+---
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: oathkeeper.ory.sh/v1alpha1
+kind: Rule
+metadata:
+  annotations:
+    meta.helm.sh/release-name: compass
+    meta.helm.sh/release-namespace: compass-system
+  creationTimestamp: "2020-10-02T08:52:48Z"
+  finalizers:
+    - finalizer.oathkeeper.ory.sh
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  name: compass-gateway-xsuaa
+  namespace: compass-system
+spec:
+  authenticators:
+    - config:
+        trusted_issuers: ["https://sapcmpval.authentication.stagingaws.hanavlab.ondemand.com/oauth/token"]
+        jwks_urls:
+          - "https://sapcmpval.authentication.stagingaws.hanavlab.ondemand.com/token_keys"
+      handler: jwt
+  authorizer:
+    handler: allow
+  match:
+    methods:
+      - GET
+      - POST
+      - OPTIONS
+    url: <http|https>://compass-gateway-xsuaa.mps.dev.kyma.cloud.sap<(:(80|443))?>/director/graphql
+  mutators:
+    - config:
+        api:
+          retry:
+            give_up_after: 3s
+            max_delay: 2000ms
+          url: http://compass-director.compass-system.svc.cluster.local:3000/tenant-mapping
+      handler: hydrator
+    - config:
+        claims: '{"scopes": "{{ print .Extra.scope }}", "tenant": "{{ print .Extra.tenant
+        }}", "externalTenant": "{{ print .Extra.externalTenant }}", "consumerID":
+        "{{ print .Extra.consumerID}}", "consumerType": "{{ print .Extra.consumerType
+        }}"}'
+      handler: id_token
+  upstream:
+    url: http://compass-gateway.compass-system.svc.cluster.local:3000
+status:
+  validation:
+    valid: true
+

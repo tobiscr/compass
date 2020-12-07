@@ -3,6 +3,7 @@ package tenantmapping
 import (
 	"context"
 	"fmt"
+	"github.com/kyma-incubator/compass/components/director/pkg/str"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -36,26 +37,42 @@ func (m *mapperForUser) GetObjectContext(ctx context.Context, reqData oathkeeper
 		"consumer_type": consumer.User,
 	})
 
-	log.Info("Getting scopes from groups")
-	scopes = m.getScopesForUserGroups(reqData, log)
-	if !hasScopes(scopes) {
-		log.Info("No scopes found from groups, getting user data")
+	extraAttributes := reqData.GetExtraAttributes()
+	if enhancer, ok := extraAttributes[oathkeeper.EnhancerKey]; ok &&
+		enhancer == oathkeeper.EnhancerValue {
+		log.Infof("Token is enhanced by %s with scopes and tenant", oathkeeper.EnhancerKey)
+		scopes = strings.Join(reqData.GetUserScopes(), " ")
+		externalTenant, ok := extraAttributes[oathkeeper.EnhancedTenant]
+		if !ok {
+			return ObjectContext{}, errors.Errorf("enhanced tenant %s missing from enhanced token", oathkeeper.EnhancedTenant)
+		}
 
-		staticUser, scopes, err = m.getUserData(reqData, username, log)
+		externalTenantID, err = str.Cast(externalTenant)
 		if err != nil {
-			return ObjectContext{}, errors.Wrapf(err, "while getting user data for user: %s", username)
+			return ObjectContext{}, errors.Wrapf(err, "could not cast external tenant to string")
 		}
-	}
+	} else {
+		log.Info("Getting scopes from groups")
+		scopes = m.getScopesForUserGroups(reqData, log)
+		if !hasScopes(scopes) {
+			log.Info("No scopes found from groups, getting user data")
 
-	externalTenantID, err = reqData.GetExternalTenantID()
-	if err != nil {
-		if !apperrors.IsKeyDoesNotExist(err) {
-			return ObjectContext{}, errors.Wrapf(err, "could not parse external ID for user: %s", username)
+			staticUser, scopes, err = m.getUserData(reqData, username, log)
+			if err != nil {
+				return ObjectContext{}, errors.Wrapf(err, "while getting user data for user: %s", username)
+			}
 		}
-		log.Warningf("Could not get tenant external id, error: %s", err.Error())
 
-		log.Info("Could not create tenant context, returning empty context...")
-		return NewObjectContext(TenantContext{}, scopes, username, consumer.User), nil
+		externalTenantID, err = reqData.GetExternalTenantID()
+		if err != nil {
+			if !apperrors.IsKeyDoesNotExist(err) {
+				return ObjectContext{}, errors.Wrapf(err, "could not parse external ID for user: %s", username)
+			}
+			log.Warningf("Could not get tenant external id, error: %s", err.Error())
+
+			log.Info("Could not create tenant context, returning empty context...")
+			return NewObjectContext(TenantContext{}, scopes, username, consumer.User), nil
+		}
 	}
 
 	log.Infof("Getting the tenant with external ID: %s", externalTenantID)

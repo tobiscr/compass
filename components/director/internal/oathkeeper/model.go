@@ -20,11 +20,17 @@ const (
 	ClientIDKey       = "client_id"
 	EmailKey          = "email"
 	UsernameKey       = "name"
+	UsernameKey2      = "user_name"
 	GroupsKey         = "groups"
 	ClientIDCertKey   = "client-id-from-certificate"
 	ClientIDTokenKey  = "client-id-from-token"
 	ExternalTenantKey = "tenant"
 	ScopesKey         = "scope"
+	//TODO pass as config
+	ExtAttributes  = "ext_attr"
+	EnhancerKey    = "enhancer"
+	EnhancerValue  = "XSUAA"
+	EnhancedTenant = "globalaccountid"
 )
 
 // AuthFlow wraps possible flows of auth like OAuth2, JWT and certificate
@@ -101,6 +107,14 @@ func (d *ReqData) GetAuthID() (string, AuthFlow, error) {
 		return username, JWTAuthFlow, nil
 	}
 
+	if usernameVal, ok := d.Body.Extra[UsernameKey2]; ok {
+		username, err := str.Cast(usernameVal)
+		if err != nil {
+			return "", "", errors.Wrapf(err, "while parsing the value for %s", UsernameKey)
+		}
+		return username, JWTAuthFlow, nil
+	}
+
 	return "", "", apperrors.NewInternalError("unable to find valid auth ID")
 }
 
@@ -161,6 +175,46 @@ func (d *ReqData) GetUserGroups() []string {
 	}
 
 	return userGroups
+}
+
+func (d *ReqData) GetExtraAttributes() map[string]interface{} {
+	emptyAttributes := make(map[string]interface{})
+	attributes, ok := d.Body.Extra[ExtAttributes]
+	if !ok {
+		log.Debug("No extra attributes found")
+		return emptyAttributes
+	}
+
+	extraAttributes, ok := attributes.(map[string]interface{})
+	if !ok {
+		log.Warn("Extra attributes is not a map")
+		return emptyAttributes
+	}
+
+	return extraAttributes
+}
+
+// GetUserScopes returns scope name or empty string if there's no scope
+func (d *ReqData) GetUserScopes() []string {
+	userScopes := []string{}
+	scopesVal, ok := d.Body.Extra[ScopesKey]
+	if !ok {
+		return userScopes
+	}
+
+	if scopesArray, ok := scopesVal.([]interface{}); ok {
+		for _, scope := range scopesArray {
+			scopeString, err := str.Cast(scope)
+			if err != nil {
+				log.Infof("%+v skipped because string conversion failed", scope)
+				continue
+			}
+
+			userScopes = append(userScopes, scopeString)
+		}
+	}
+
+	return userScopes
 }
 
 // SetExternalTenantID sets the external tenant ID in the Header collection
