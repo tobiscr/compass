@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"golang.org/x/oauth2/clientcredentials"
 	"net/http"
 	"os"
 	"time"
@@ -122,6 +123,15 @@ func main() {
 	pairingAdapters, err := getPairingAdaptersMapping(cfg.PairingAdapterSrc)
 	exitOnError(err, "Error while reading Pairing Adapters Configuration")
 
+	cc := clientcredentials.Config{
+		TokenURL:     cfg.Features.CallbackConfig.Client.TokenURL,
+		ClientID:     cfg.Features.CallbackConfig.Client.ClientID,
+		ClientSecret: cfg.Features.CallbackConfig.Client.ClientSecret,
+	}
+
+	ccClient := cc.Client(context.Background())
+	ccClient.Timeout = cfg.ClientTimeout
+
 	gqlCfg := graphql.Config{
 		Resolvers: domain.NewRootResolver(
 			transact,
@@ -134,9 +144,10 @@ func main() {
 			cfg.ClientTimeout,
 		),
 		Directives: graphql.DirectiveRoot{
-			HasScenario: scenario.NewDirective(transact, label.NewRepository(label.NewConverter()), defaultPackageRepo(), defaultPackageInstanceAuthRepo()).HasScenario,
-			HasScopes:   scope.NewDirective(cfgProvider).VerifyScopes,
-			Validate:    inputvalidation.NewDirective().Validate,
+			ScenarioCallback: scenario.NewCallbackDirective(transact, ccClient, &cfg.Features.CallbackConfig).ScenarioCallback,
+			HasScenario:      scenario.NewDirective(transact, label.NewRepository(label.NewConverter()), defaultPackageRepo(), defaultPackageInstanceAuthRepo()).HasScenario,
+			HasScopes:        scope.NewDirective(cfgProvider).VerifyScopes,
+			Validate:         inputvalidation.NewDirective().Validate,
 		},
 	}
 
