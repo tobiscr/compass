@@ -54,6 +54,8 @@ type DirectiveRoot struct {
 
 	HasScopes func(ctx context.Context, obj interface{}, next graphql.Resolver, path string) (res interface{}, err error)
 
+	ScenarioCallback func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+
 	Validate func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
@@ -3000,6 +3002,10 @@ HasScopes directive is added automatically to every query and mutation by scopes
 """
 directive @hasScopes(path: String!) on FIELD_DEFINITION
 """
+formationCallback directive is added automatically to every mutation which may change the entities inside part of a formation
+"""
+directive @scenarioCallback on FIELD_DEFINITION
+"""
 Validate directive marks mutation arguments that will be validated.
 """
 directive @validate on ARGUMENT_DEFINITION
@@ -4061,17 +4067,17 @@ type Mutation {
 	- [register application with webhooks](examples/register-application/register-application-with-webhooks.graphql)
 	- [register application](examples/register-application/register-application.graphql)
 	"""
-	registerApplication(in: ApplicationRegisterInput! @validate): Application! @hasScopes(path: "graphql.mutation.registerApplication")
+	registerApplication(in: ApplicationRegisterInput! @validate): Application! @scenarioCallback @hasScopes(path: "graphql.mutation.registerApplication")
 	"""
 	**Examples**
 	- [update application](examples/update-application/update-application.graphql)
 	"""
-	updateApplication(id: ID!, in: ApplicationUpdateInput! @validate): Application! @hasScopes(path: "graphql.mutation.updateApplication")
+	updateApplication(id: ID!, in: ApplicationUpdateInput! @validate): Application! @scenarioCallback @hasScopes(path: "graphql.mutation.updateApplication")
 	"""
 	**Examples**
 	- [unregister application](examples/unregister-application/unregister-application.graphql)
 	"""
-	unregisterApplication(id: ID!): Application! @hasScopes(path: "graphql.mutation.unregisterApplication")
+	unregisterApplication(id: ID!): Application! @scenarioCallback @hasScopes(path: "graphql.mutation.unregisterApplication")
 	"""
 	**Examples**
 	- [create application template](examples/create-application-template/create-application-template.graphql)
@@ -4081,7 +4087,7 @@ type Mutation {
 	**Examples**
 	- [register application from template](examples/register-application-from-template/register-application-from-template.graphql)
 	"""
-	registerApplicationFromTemplate(in: ApplicationFromTemplateInput! @validate): Application! @hasScopes(path: "graphql.mutation.registerApplicationFromTemplate")
+	registerApplicationFromTemplate(in: ApplicationFromTemplateInput! @validate): Application! @scenarioCallback @hasScopes(path: "graphql.mutation.registerApplicationFromTemplate")
 	"""
 	**Examples**
 	- [update application template](examples/update-application-template/update-application-template.graphql)
@@ -4096,17 +4102,17 @@ type Mutation {
 	**Examples**
 	- [register runtime](examples/register-runtime/register-runtime.graphql)
 	"""
-	registerRuntime(in: RuntimeInput! @validate): Runtime! @hasScopes(path: "graphql.mutation.registerRuntime")
+	registerRuntime(in: RuntimeInput! @validate): Runtime! @scenarioCallback @hasScopes(path: "graphql.mutation.registerRuntime")
 	"""
 	**Examples**
 	- [update runtime](examples/update-runtime/update-runtime.graphql)
 	"""
-	updateRuntime(id: ID!, in: RuntimeInput! @validate): Runtime! @hasScopes(path: "graphql.mutation.updateRuntime")
+	updateRuntime(id: ID!, in: RuntimeInput! @validate): Runtime! @scenarioCallback @hasScopes(path: "graphql.mutation.updateRuntime")
 	"""
 	**Examples**
 	- [unregister runtime](examples/unregister-runtime/unregister-runtime.graphql)
 	"""
-	unregisterRuntime(id: ID!): Runtime! @hasScopes(path: "graphql.mutation.unregisterRuntime")
+	unregisterRuntime(id: ID!): Runtime! @scenarioCallback @hasScopes(path: "graphql.mutation.unregisterRuntime")
 	registerRuntimeContext(in: RuntimeContextInput! @validate): RuntimeContext! @hasScopes(path: "graphql.mutation.registerRuntimeContext")
 	updateRuntimeContext(id: ID!, in: RuntimeContextInput! @validate): RuntimeContext! @hasScopes(path: "graphql.mutation.updateRuntimeContext")
 	unregisterRuntimeContext(id: ID!): RuntimeContext! @hasScopes(path: "graphql.mutation.unregisterRuntimeContext")
@@ -4198,39 +4204,39 @@ type Mutation {
 	**Examples**
 	- [create label definition](examples/create-label-definition/create-label-definition.graphql)
 	"""
-	createLabelDefinition(in: LabelDefinitionInput! @validate): LabelDefinition! @hasScopes(path: "graphql.mutation.createLabelDefinition")
+	createLabelDefinition(in: LabelDefinitionInput! @validate): LabelDefinition! @scenarioCallback @hasScopes(path: "graphql.mutation.createLabelDefinition")
 	"""
 	**Examples**
 	- [update label definition](examples/update-label-definition/update-label-definition.graphql)
 	"""
-	updateLabelDefinition(in: LabelDefinitionInput! @validate): LabelDefinition! @hasScopes(path: "graphql.mutation.updateLabelDefinition")
+	updateLabelDefinition(in: LabelDefinitionInput! @validate): LabelDefinition! @scenarioCallback @hasScopes(path: "graphql.mutation.updateLabelDefinition")
 	"""
 	**Examples**
 	- [delete label definition](examples/delete-label-definition/delete-label-definition.graphql)
 	"""
-	deleteLabelDefinition(key: String!, deleteRelatedLabels: Boolean = false): LabelDefinition! @hasScopes(path: "graphql.mutation.deleteLabelDefinition")
+	deleteLabelDefinition(key: String!, deleteRelatedLabels: Boolean = false): LabelDefinition! @scenarioCallback @hasScopes(path: "graphql.mutation.deleteLabelDefinition")
 	"""
 	If a label with given key already exist, it will be replaced with provided value.
 	
 	**Examples**
 	- [set application label](examples/set-application-label/set-application-label.graphql)
 	"""
-	setApplicationLabel(applicationID: ID!, key: String!, value: Any!): Label! @hasScopes(path: "graphql.mutation.setApplicationLabel")
+	setApplicationLabel(applicationID: ID!, key: String!, value: Any!): Label! @scenarioCallback @hasScopes(path: "graphql.mutation.setApplicationLabel")
 	"""
 	If Application does not exist or the label key is not found, it returns an error.
 	
 	**Examples**
 	- [delete application label](examples/delete-application-label/delete-application-label.graphql)
 	"""
-	deleteApplicationLabel(applicationID: ID!, key: String!): Label! @hasScopes(path: "graphql.mutation.deleteApplicationLabel")
+	deleteApplicationLabel(applicationID: ID!, key: String!): Label! @scenarioCallback @hasScopes(path: "graphql.mutation.deleteApplicationLabel")
 	"""
 	If a label with given key already exist, it will be replaced with provided value.
 	"""
-	setRuntimeLabel(runtimeID: ID!, key: String!, value: Any!): Label! @hasScopes(path: "graphql.mutation.setRuntimeLabel")
+	setRuntimeLabel(runtimeID: ID!, key: String!, value: Any!): Label! @scenarioCallback @hasScopes(path: "graphql.mutation.setRuntimeLabel")
 	"""
 	If Runtime does not exist or the label key is not found, it returns an error.
 	"""
-	deleteRuntimeLabel(runtimeID: ID!, key: String!): Label! @hasScopes(path: "graphql.mutation.deleteRuntimeLabel")
+	deleteRuntimeLabel(runtimeID: ID!, key: String!): Label! @scenarioCallback @hasScopes(path: "graphql.mutation.deleteRuntimeLabel")
 	setDefaultEventingForApplication(appID: String!, runtimeID: String!): ApplicationEventingConfiguration! @hasScopes(path: "graphql.mutation.setDefaultEventingForApplication")
 	deleteDefaultEventingForApplication(appID: String!): ApplicationEventingConfiguration! @hasScopes(path: "graphql.mutation.deleteDefaultEventingForApplication")
 	"""
@@ -4280,17 +4286,17 @@ type Mutation {
 	**Examples**
 	- [create automatic scenario assignment](examples/create-automatic-scenario-assignment/create-automatic-scenario-assignment.graphql)
 	"""
-	createAutomaticScenarioAssignment(in: AutomaticScenarioAssignmentSetInput!): AutomaticScenarioAssignment @hasScopes(path: "graphql.mutation.createAutomaticScenarioAssignment")
+	createAutomaticScenarioAssignment(in: AutomaticScenarioAssignmentSetInput!): AutomaticScenarioAssignment @scenarioCallback @hasScopes(path: "graphql.mutation.createAutomaticScenarioAssignment")
 	"""
 	**Examples**
 	- [delete automatic scenario assignment for scenario](examples/delete-automatic-scenario-assignment-for-scenario/delete-automatic-scenario-assignment-for-scenario.graphql)
 	"""
-	deleteAutomaticScenarioAssignmentForScenario(scenarioName: String!): AutomaticScenarioAssignment @hasScopes(path: "graphql.mutation.deleteAutomaticScenarioAssignmentForScenario")
+	deleteAutomaticScenarioAssignmentForScenario(scenarioName: String!): AutomaticScenarioAssignment @scenarioCallback @hasScopes(path: "graphql.mutation.deleteAutomaticScenarioAssignmentForScenario")
 	"""
 	**Examples**
 	- [delete automatic scenario assignments for selector](examples/delete-automatic-scenario-assignments-for-selector/delete-automatic-scenario-assignments-for-selector.graphql)
 	"""
-	deleteAutomaticScenarioAssignmentsForSelector(selector: LabelSelectorInput!): [AutomaticScenarioAssignment!]! @hasScopes(path: "graphql.mutation.deleteAutomaticScenarioAssignmentsForSelector")
+	deleteAutomaticScenarioAssignmentsForSelector(selector: LabelSelectorInput!): [AutomaticScenarioAssignment!]! @scenarioCallback @hasScopes(path: "graphql.mutation.deleteAutomaticScenarioAssignmentsForSelector")
 }
 
 `},
@@ -10296,14 +10302,17 @@ func (ec *executionContext) _Mutation_registerApplication(ctx context.Context, f
 			return ec.resolvers.Mutation().RegisterApplication(rctx, args["in"].(ApplicationRegisterInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.registerApplication")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}
@@ -10360,14 +10369,17 @@ func (ec *executionContext) _Mutation_updateApplication(ctx context.Context, fie
 			return ec.resolvers.Mutation().UpdateApplication(rctx, args["id"].(string), args["in"].(ApplicationUpdateInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.updateApplication")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}
@@ -10424,14 +10436,17 @@ func (ec *executionContext) _Mutation_unregisterApplication(ctx context.Context,
 			return ec.resolvers.Mutation().UnregisterApplication(rctx, args["id"].(string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.unregisterApplication")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}
@@ -10552,14 +10567,17 @@ func (ec *executionContext) _Mutation_registerApplicationFromTemplate(ctx contex
 			return ec.resolvers.Mutation().RegisterApplicationFromTemplate(rctx, args["in"].(ApplicationFromTemplateInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.registerApplicationFromTemplate")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}
@@ -10744,14 +10762,17 @@ func (ec *executionContext) _Mutation_registerRuntime(ctx context.Context, field
 			return ec.resolvers.Mutation().RegisterRuntime(rctx, args["in"].(RuntimeInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.registerRuntime")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}
@@ -10808,14 +10829,17 @@ func (ec *executionContext) _Mutation_updateRuntime(ctx context.Context, field g
 			return ec.resolvers.Mutation().UpdateRuntime(rctx, args["id"].(string), args["in"].(RuntimeInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.updateRuntime")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}
@@ -10872,14 +10896,17 @@ func (ec *executionContext) _Mutation_unregisterRuntime(ctx context.Context, fie
 			return ec.resolvers.Mutation().UnregisterRuntime(rctx, args["id"].(string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.unregisterRuntime")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}
@@ -12664,14 +12691,17 @@ func (ec *executionContext) _Mutation_createLabelDefinition(ctx context.Context,
 			return ec.resolvers.Mutation().CreateLabelDefinition(rctx, args["in"].(LabelDefinitionInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.createLabelDefinition")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}
@@ -12728,14 +12758,17 @@ func (ec *executionContext) _Mutation_updateLabelDefinition(ctx context.Context,
 			return ec.resolvers.Mutation().UpdateLabelDefinition(rctx, args["in"].(LabelDefinitionInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.updateLabelDefinition")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}
@@ -12792,14 +12825,17 @@ func (ec *executionContext) _Mutation_deleteLabelDefinition(ctx context.Context,
 			return ec.resolvers.Mutation().DeleteLabelDefinition(rctx, args["key"].(string), args["deleteRelatedLabels"].(*bool))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.deleteLabelDefinition")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}
@@ -12856,14 +12892,17 @@ func (ec *executionContext) _Mutation_setApplicationLabel(ctx context.Context, f
 			return ec.resolvers.Mutation().SetApplicationLabel(rctx, args["applicationID"].(string), args["key"].(string), args["value"].(interface{}))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.setApplicationLabel")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}
@@ -12920,14 +12959,17 @@ func (ec *executionContext) _Mutation_deleteApplicationLabel(ctx context.Context
 			return ec.resolvers.Mutation().DeleteApplicationLabel(rctx, args["applicationID"].(string), args["key"].(string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.deleteApplicationLabel")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}
@@ -12984,14 +13026,17 @@ func (ec *executionContext) _Mutation_setRuntimeLabel(ctx context.Context, field
 			return ec.resolvers.Mutation().SetRuntimeLabel(rctx, args["runtimeID"].(string), args["key"].(string), args["value"].(interface{}))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.setRuntimeLabel")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}
@@ -13048,14 +13093,17 @@ func (ec *executionContext) _Mutation_deleteRuntimeLabel(ctx context.Context, fi
 			return ec.resolvers.Mutation().DeleteRuntimeLabel(rctx, args["runtimeID"].(string), args["key"].(string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.deleteRuntimeLabel")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}
@@ -13710,14 +13758,17 @@ func (ec *executionContext) _Mutation_createAutomaticScenarioAssignment(ctx cont
 			return ec.resolvers.Mutation().CreateAutomaticScenarioAssignment(rctx, args["in"].(AutomaticScenarioAssignmentSetInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.createAutomaticScenarioAssignment")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}
@@ -13771,14 +13822,17 @@ func (ec *executionContext) _Mutation_deleteAutomaticScenarioAssignmentForScenar
 			return ec.resolvers.Mutation().DeleteAutomaticScenarioAssignmentForScenario(rctx, args["scenarioName"].(string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.deleteAutomaticScenarioAssignmentForScenario")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}
@@ -13832,14 +13886,17 @@ func (ec *executionContext) _Mutation_deleteAutomaticScenarioAssignmentsForSelec
 			return ec.resolvers.Mutation().DeleteAutomaticScenarioAssignmentsForSelector(rctx, args["selector"].(LabelSelectorInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			return ec.directives.ScenarioCallback(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
 			path, err := ec.unmarshalNString2string(ctx, "graphql.mutation.deleteAutomaticScenarioAssignmentsForSelector")
 			if err != nil {
 				return nil, err
 			}
-			return ec.directives.HasScopes(ctx, nil, directive0, path)
+			return ec.directives.HasScopes(ctx, nil, directive1, path)
 		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, err
 		}

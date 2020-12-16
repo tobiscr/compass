@@ -40,8 +40,8 @@ type directive struct {
 	applicationProviders map[string]func(context.Context, string, string) (string, error)
 }
 
-// NewDirective returns a new scenario directive
-func NewDirective(transact persistence.Transactioner, labelRepo label.LabelRepository, packageRepo mp_package.PackageRepository, packageInstanceAuthRepo packageinstanceauth.Repository) *directive {
+// NewHasScenarioDirective returns a new scenario directive
+func NewHasScenarioDirective(transact persistence.Transactioner, labelRepo label.LabelRepository, packageRepo mp_package.PackageRepository, packageInstanceAuthRepo packageinstanceauth.Repository) *directive {
 	getApplicationIDByPackageFunc := func(ctx context.Context, tenantID, packageID string) (string, error) {
 		pkg, err := packageRepo.GetByID(ctx, tenantID, packageID)
 		if err != nil {

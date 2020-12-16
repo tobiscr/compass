@@ -12,6 +12,7 @@ type TenantMappingRepository interface {
 	Create(ctx context.Context, item model.BusinessTenantMapping) error
 	Get(ctx context.Context, id string) (*model.BusinessTenantMapping, error)
 	GetByExternalTenant(ctx context.Context, externalTenant string) (*model.BusinessTenantMapping, error)
+	GetByExternalTenantName(ctx context.Context, externalTenantName string) (*model.BusinessTenantMapping, error)
 	Exists(ctx context.Context, id string) (bool, error)
 	List(ctx context.Context) ([]*model.BusinessTenantMapping, error)
 	ExistsByExternalTenant(ctx context.Context, externalTenant string) (bool, error)

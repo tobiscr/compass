@@ -88,6 +88,17 @@ func (r *pgRepository) GetByExternalTenant(ctx context.Context, externalTenant s
 	return r.conv.FromEntity(&entity), nil
 }
 
+func (r *pgRepository) GetByExternalTenantName(ctx context.Context, externalTenantName string) (*model.BusinessTenantMapping, error) {
+	var entity Entity
+	conditions := repo.Conditions{
+		repo.NewEqualCondition(externalNameColumn, externalTenantName),
+		repo.NewNotEqualCondition(statusColumn, string(Inactive))}
+	if err := r.singleGetterGlobal.GetGlobal(ctx, conditions, repo.NoOrderBy, &entity); err != nil {
+		return nil, err
+	}
+	return r.conv.FromEntity(&entity), nil
+}
+
 func (r *pgRepository) Exists(ctx context.Context, id string) (bool, error) {
 	return r.existQuerierGlobal.ExistsGlobal(ctx, repo.Conditions{repo.NewEqualCondition(idColumn, id)})
 }
