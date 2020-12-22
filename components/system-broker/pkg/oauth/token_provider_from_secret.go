@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	httputils "github.com/kyma-incubator/compass/components/system-broker/pkg/http"
@@ -19,12 +20,31 @@ import (
 	k8scfg "sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
+const (
+	contentTypeHeader                = "Content-Type"
+	contentTypeApplicationURLEncoded = "application/x-www-form-urlencoded"
+
+	grantTypeFieldName   = "grant_type"
+	credentialsGrantType = "client_credentials"
+
+	scopeFieldName = "scope"
+	scopes         = "application:read application:write runtime:read runtime:write"
+
+	clientIDKey       = "client_id"
+	clientSecretKey   = "client_secret"
+	tokensEndpointKey = "tokens_endpoint"
+)
+
 type TokenProviderFromSecret struct {
 	httpClient        httputils.Client
 	k8sClient         client.Client
 	waitSecretTimeout time.Duration
 	secretName        string
 	secretNamespace   string
+
+	token        httputils.Token
+	tokenTimeout time.Duration
+	lock         sync.RWMutex
 }
 
 type credentials struct {
@@ -33,14 +53,27 @@ type credentials struct {
 	tokensEndpoint string
 }
 
-func NewTokenProviderFromSecret(config *Config, httpClient httputils.Client, k8sClient client.Client) (*TokenProviderFromSecret, error) {
+func NewTokenProviderFromSecret(config *Config, httpClient httputils.Client, tokenTimeout time.Duration) (*TokenProviderFromSecret, error) {
+	k8sClient, err := prepareK8sClient()
+	if err != nil {
+		return nil, err
+	}
+
 	return &TokenProviderFromSecret{
 		httpClient:        httpClient,
 		k8sClient:         k8sClient,
 		waitSecretTimeout: config.WaitSecretTimeout,
 		secretName:        config.SecretName,
 		secretNamespace:   config.SecretNamespace,
+
+		token:        httputils.Token{},
+		tokenTimeout: tokenTimeout,
+		lock:         sync.RWMutex{},
 	}, nil
+}
+
+func (c *TokenProviderFromSecret) Name() string {
+	return "TokenProviderFromSecret"
 }
 
 func (c *TokenProviderFromSecret) Matches(ctx context.Context) bool {
@@ -53,12 +86,32 @@ func (c *TokenProviderFromSecret) Matches(ctx context.Context) bool {
 }
 
 func (c *TokenProviderFromSecret) GetAuthorizationToken(ctx context.Context) (httputils.Token, error) {
+	if c.validToken() {
+		//TODO: Should we RLock this here?
+		log.C(ctx).Debug("The token is valid, it'll be reused")
+		return c.token, nil
+	}
+
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	//TODO: After the lock, should be check if the token was already updates by another thread? if so, return
+
+	log.C(ctx).Debug("Token is invalid, getting a new one...")
+
 	credentials, err := c.extractOAuthClientFromSecret(ctx)
 	if err != nil {
 		return httputils.Token{}, errors.Wrap(err, "while get credentials from secret")
 	}
 
-	return c.getAuthorizationToken(ctx, credentials)
+	token, err := c.getAuthorizationToken(ctx, credentials)
+	c.token = token
+	return token, err
+}
+
+func (c *TokenProviderFromSecret) validToken() bool {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+	return !c.token.EmptyOrExpired(c.tokenTimeout)
 }
 
 func (c *TokenProviderFromSecret) extractOAuthClientFromSecret(ctx context.Context) (credentials, error) {

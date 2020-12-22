@@ -81,12 +81,13 @@ func prepareGqlClient(cfg *config.Config, uudSrv uuid.Service) (*director.GraphQ
 	httpTransport := httputil.NewCorrelationIDTransport(httputil.NewErrorHandlerTransport(httputil.NewHTTPTransport(cfg.HttpClient)), uudSrv)
 	httpClient := httputil.NewClient(cfg.HttpClient.Timeout, httpTransport)
 
-	oauthTokenProvider, err := oauth.NewTokenProvider(cfg.OAuthProvider, httpClient)
+	tokenProviderFromHeader := oauth.NewTokenProviderFromHeader()
+	tokenProviderFromSecret, err := oauth.NewTokenProviderFromSecret(cfg.OAuthProvider, httpClient, cfg.HttpClient.Timeout)
 	if err != nil {
 		return nil, err
 	}
 
-	securedTransport := httputil.NewSecuredTransport(cfg.HttpClient.Timeout, httpTransport, oauthTokenProvider)
+	securedTransport := httputil.NewSecuredTransport(httpTransport, tokenProviderFromHeader, tokenProviderFromSecret)
 	securedClient := &http.Client{
 		Transport: securedTransport,
 		Timeout:   cfg.HttpClient.Timeout,

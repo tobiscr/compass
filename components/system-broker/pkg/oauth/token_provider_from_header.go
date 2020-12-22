@@ -3,7 +3,6 @@ package oauth
 import (
 	"context"
 	"strings"
-	"time"
 
 	"github.com/kyma-incubator/compass/components/director/pkg/apperrors"
 	httputils "github.com/kyma-incubator/compass/components/system-broker/pkg/http"
@@ -13,14 +12,15 @@ import (
 
 const AuthzHeader = "Authorization"
 
-func NewTokenProviderFromHeader(header string) *TokenProviderFromHeader {
-	return &TokenProviderFromHeader{
-		header: header,
-	}
+type TokenProviderFromHeader struct {
 }
 
-type TokenProviderFromHeader struct {
-	header string
+func NewTokenProviderFromHeader() *TokenProviderFromHeader {
+	return &TokenProviderFromHeader{}
+}
+
+func (c *TokenProviderFromHeader) Name() string {
+	return "TokenProviderFromHeader"
 }
 
 func (c *TokenProviderFromHeader) Matches(ctx context.Context) bool {
@@ -35,12 +35,12 @@ func (c *TokenProviderFromHeader) Matches(ctx context.Context) bool {
 func (c *TokenProviderFromHeader) GetAuthorizationToken(ctx context.Context) (httputils.Token, error) {
 	token, err := getBearerToken(ctx)
 	if err != nil {
-		return httputils.Token{}, errors.Wrapf(err, "while obtaining bearer token from header %s", c.header)
+		return httputils.Token{}, errors.Wrapf(err, "while obtaining bearer token from header %s", AuthzHeader)
 	}
 
 	tokenResponse := httputils.Token{
 		AccessToken: token,
-		Expiration:  time.Now().Unix(),
+		Expiration:  0,
 	}
 
 	log.C(ctx).Info("Successfully unmarshal response oauth token for accessing Director")
