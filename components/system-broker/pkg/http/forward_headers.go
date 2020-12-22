@@ -19,38 +19,28 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/kyma-incubator/compass/components/system-broker/pkg/log"
 	"github.com/pkg/errors"
 )
 
-//TODO extract headers to forward in config
-var ForwardHeaders = []string{
-	"Authorization",
-}
-
-type HeaderForwarder struct {
-	headers []string
-}
-
-func NewHeaderForwarder(headers []string) *HeaderForwarder {
-	return &HeaderForwarder{
-		headers: headers,
-	}
-}
-
 // HeaderForwarder stores the specified request in the context so that they can later be used and forwarded to other backends
-func (hf *HeaderForwarder) Handle(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
+func HeaderForwarder(forwardHeaders []string) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			log := log.LoggerFromContext(ctx)
 
-		for _, header := range hf.headers {
-			if value := r.Header.Get(header); value != "" {
-				ctx = SaveToContext(ctx, header, value)
-				r = r.WithContext(ctx)
+			for _, header := range forwardHeaders {
+				if value := r.Header.Get(header); value != "" {
+					ctx = SaveToContext(ctx, header, value)
+					log.Debugf("Forwarding header %s", header)
+				}
 			}
-		}
 
-		next.ServeHTTP(rw, r)
-	})
+			r = r.WithContext(ctx)
+			next.ServeHTTP(rw, r)
+		})
+	}
 }
 
 type key int

@@ -19,7 +19,7 @@ import (
 	k8scfg "sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
-type OAuthTokenProvider struct {
+type TokenProviderFromSecret struct {
 	httpClient        httputils.Client
 	k8sClient         client.Client
 	waitSecretTimeout time.Duration
@@ -33,8 +33,8 @@ type credentials struct {
 	tokensEndpoint string
 }
 
-func NewTokenProviderFromSecret(config *Config, httpClient httputils.Client, k8sClient client.Client) (*OAuthTokenProvider, error) {
-	return &OAuthTokenProvider{
+func NewTokenProviderFromSecret(config *Config, httpClient httputils.Client, k8sClient client.Client) (*TokenProviderFromSecret, error) {
+	return &TokenProviderFromSecret{
 		httpClient:        httpClient,
 		k8sClient:         k8sClient,
 		waitSecretTimeout: config.WaitSecretTimeout,
@@ -43,7 +43,16 @@ func NewTokenProviderFromSecret(config *Config, httpClient httputils.Client, k8s
 	}, nil
 }
 
-func (c *OAuthTokenProvider) GetAuthorizationToken(ctx context.Context) (httputils.Token, error) {
+func (c *TokenProviderFromSecret) Matches(ctx context.Context) bool {
+	if _, err := getBearerToken(ctx); err != nil {
+		log.C(ctx).WithError(err).Errorf("while obtaining bearer token")
+		return true
+	}
+
+	return false
+}
+
+func (c *TokenProviderFromSecret) GetAuthorizationToken(ctx context.Context) (httputils.Token, error) {
 	credentials, err := c.extractOAuthClientFromSecret(ctx)
 	if err != nil {
 		return httputils.Token{}, errors.Wrap(err, "while get credentials from secret")
@@ -52,7 +61,7 @@ func (c *OAuthTokenProvider) GetAuthorizationToken(ctx context.Context) (httputi
 	return c.getAuthorizationToken(ctx, credentials)
 }
 
-func (c *OAuthTokenProvider) extractOAuthClientFromSecret(ctx context.Context) (credentials, error) {
+func (c *TokenProviderFromSecret) extractOAuthClientFromSecret(ctx context.Context) (credentials, error) {
 	secret := &v1.Secret{}
 	err := wait.Poll(time.Second*2, c.waitSecretTimeout, func() (bool, error) {
 		err := c.k8sClient.Get(ctx, client.ObjectKey{
@@ -77,7 +86,7 @@ func (c *OAuthTokenProvider) extractOAuthClientFromSecret(ctx context.Context) (
 	}, nil
 }
 
-func (c *OAuthTokenProvider) getAuthorizationToken(ctx context.Context, credentials credentials) (httputils.Token, error) {
+func (c *TokenProviderFromSecret) getAuthorizationToken(ctx context.Context, credentials credentials) (httputils.Token, error) {
 	log.C(ctx).Infof("Getting authorization token from endpoint: %s", credentials.tokensEndpoint)
 
 	form := url.Values{}

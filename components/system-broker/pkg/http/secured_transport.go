@@ -27,24 +27,25 @@ import (
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . TokenProvider
 type TokenProvider interface {
+	Matches(ctx context.Context) bool
 	GetAuthorizationToken(ctx context.Context) (Token, error)
 }
 
 type SecuredTransport struct {
-	timeout       time.Duration
-	roundTripper  HTTPRoundTripper
-	tokenProvider TokenProvider
-	lock          sync.RWMutex
+	timeout        time.Duration
+	roundTripper   HTTPRoundTripper
+	tokenProviders []TokenProvider
+	lock           sync.RWMutex
 
 	token Token
 }
 
-func NewSecuredTransport(timeout time.Duration, roundTripper HTTPRoundTripper, provider TokenProvider) *SecuredTransport {
+func NewSecuredTransport(timeout time.Duration, roundTripper HTTPRoundTripper, providers ...TokenProvider) *SecuredTransport {
 	return &SecuredTransport{
-		timeout:       timeout,
-		roundTripper:  roundTripper,
-		tokenProvider: provider,
-		lock:          sync.RWMutex{},
+		timeout:        timeout,
+		roundTripper:   roundTripper,
+		tokenProviders: providers,
+		lock:           sync.RWMutex{},
 	}
 }
 
@@ -66,11 +67,17 @@ func (c *SecuredTransport) refreshToken(ctx context.Context) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	token, err := c.tokenProvider.GetAuthorizationToken(ctx)
-	if err != nil {
-		return errors.Wrap(err, "error while obtaining token")
+	for _, tokenProvider := range c.tokenProviders {
+		if !tokenProvider.Matches(ctx) {
+			continue
+		}
+
+		token, err := tokenProvider.GetAuthorizationToken(ctx)
+		if err != nil {
+			return errors.Wrap(err, "error while obtaining token")
+		}
+		c.token = token
 	}
-	c.token = token
 
 	return nil
 }

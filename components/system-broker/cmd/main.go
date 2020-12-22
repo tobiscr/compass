@@ -65,7 +65,7 @@ func main() {
 	systemBroker := osb.NewSystemBroker(directorGraphQLClient, cfg.Server.SelfURL+cfg.Server.RootAPI)
 	osbApi := osb.API(cfg.Server.RootAPI, systemBroker, log.NewDefaultLagerAdapter())
 	specsApi := specs.API(cfg.Server.RootAPI, directorGraphQLClient)
-	srv := server.New(cfg.Server, uuidSrv, osbApi, specsApi)
+	srv := server.New(cfg.Server, uuidSrv, cfg.HttpClient.ForwardHeaders, osbApi, specsApi)
 
 	srv.Start(ctx)
 }

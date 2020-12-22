@@ -96,7 +96,7 @@ func (c *Converter) toPlanMetadata(appID string, pkg *graphql.PackageExt) (*doma
 
 	for _, apiDef := range pkg.APIDefinitions.Data {
 		if apiDef.Spec != nil {
-			specsFormatHeader, err := specs.SpecForamtToContentTypeHeader(apiDef.Spec.Format)
+			specsFormatHeader, err := specs.SpecFormatToContentTypeHeader(apiDef.Spec.Format)
 			if err != nil {
 				return nil, err
 			}
@@ -115,7 +115,7 @@ func (c *Converter) toPlanMetadata(appID string, pkg *graphql.PackageExt) (*doma
 
 	for _, eventDef := range pkg.EventDefinitions.Data {
 		if eventDef.Spec != nil {
-			specsFormatHeader, err := specs.SpecForamtToContentTypeHeader(eventDef.Spec.Format)
+			specsFormatHeader, err := specs.SpecFormatToContentTypeHeader(eventDef.Spec.Format)
 			if err != nil {
 				return nil, err
 			}
