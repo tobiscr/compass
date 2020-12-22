@@ -22,6 +22,17 @@ type FakeTokenProvider struct {
 		result1 http.Token
 		result2 error
 	}
+	MatchesStub        func(context.Context) bool
+	matchesMutex       sync.RWMutex
+	matchesArgsForCall []struct {
+		arg1 context.Context
+	}
+	matchesReturns struct {
+		result1 bool
+	}
+	matchesReturnsOnCall map[int]struct {
+		result1 bool
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -89,11 +100,73 @@ func (fake *FakeTokenProvider) GetAuthorizationTokenReturnsOnCall(i int, result1
 	}{result1, result2}
 }
 
+func (fake *FakeTokenProvider) Matches(arg1 context.Context) bool {
+	fake.matchesMutex.Lock()
+	ret, specificReturn := fake.matchesReturnsOnCall[len(fake.matchesArgsForCall)]
+	fake.matchesArgsForCall = append(fake.matchesArgsForCall, struct {
+		arg1 context.Context
+	}{arg1})
+	fake.recordInvocation("Matches", []interface{}{arg1})
+	fake.matchesMutex.Unlock()
+	if fake.MatchesStub != nil {
+		return fake.MatchesStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.matchesReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeTokenProvider) MatchesCallCount() int {
+	fake.matchesMutex.RLock()
+	defer fake.matchesMutex.RUnlock()
+	return len(fake.matchesArgsForCall)
+}
+
+func (fake *FakeTokenProvider) MatchesCalls(stub func(context.Context) bool) {
+	fake.matchesMutex.Lock()
+	defer fake.matchesMutex.Unlock()
+	fake.MatchesStub = stub
+}
+
+func (fake *FakeTokenProvider) MatchesArgsForCall(i int) context.Context {
+	fake.matchesMutex.RLock()
+	defer fake.matchesMutex.RUnlock()
+	argsForCall := fake.matchesArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeTokenProvider) MatchesReturns(result1 bool) {
+	fake.matchesMutex.Lock()
+	defer fake.matchesMutex.Unlock()
+	fake.MatchesStub = nil
+	fake.matchesReturns = struct {
+		result1 bool
+	}{result1}
+}
+
+func (fake *FakeTokenProvider) MatchesReturnsOnCall(i int, result1 bool) {
+	fake.matchesMutex.Lock()
+	defer fake.matchesMutex.Unlock()
+	fake.MatchesStub = nil
+	if fake.matchesReturnsOnCall == nil {
+		fake.matchesReturnsOnCall = make(map[int]struct {
+			result1 bool
+		})
+	}
+	fake.matchesReturnsOnCall[i] = struct {
+		result1 bool
+	}{result1}
+}
+
 func (fake *FakeTokenProvider) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
 	fake.getAuthorizationTokenMutex.RLock()
 	defer fake.getAuthorizationTokenMutex.RUnlock()
+	fake.matchesMutex.RLock()
+	defer fake.matchesMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

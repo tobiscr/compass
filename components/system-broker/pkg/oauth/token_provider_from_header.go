@@ -40,12 +40,10 @@ func (c *TokenProviderFromHeader) GetAuthorizationToken(ctx context.Context) (ht
 
 	tokenResponse := httputils.Token{
 		AccessToken: token,
-		Expiration:  0,
+		Expiration:  time.Now().Unix(),
 	}
 
 	log.C(ctx).Info("Successfully unmarshal response oauth token for accessing Director")
-	tokenResponse.Expiration += time.Now().Unix()
-
 	return tokenResponse, nil
 }
 
